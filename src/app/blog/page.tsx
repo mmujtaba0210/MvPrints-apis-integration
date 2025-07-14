@@ -5,13 +5,13 @@ import BlogCategoriesTable from "./components/blog-category-table";
 import BlogPostsTable from "./components/blog-post-table";
 import CustomTabs from "@/common/customtabbar";
 
-export const MainBlogsPage = () => {
+export default function MainBlogsPage() {
   const tabs = [
     {
       id: "admin-sales-report",
       label: "Admin Sales Report",
       icon: <FiDollarSign />,
-      content: <BlogCategoriesTable/>,
+      content: <BlogCategoriesTable />,
     },
     {
       id: "referral-report",
@@ -34,6 +34,4 @@ export const MainBlogsPage = () => {
       />
     </div>
   );
-};
-
-export default MainBlogsPage;
+}

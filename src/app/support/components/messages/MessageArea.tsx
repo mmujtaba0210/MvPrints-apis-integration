@@ -1,36 +1,37 @@
-import { Message } from '../../types/messageType';
-import MessageBubble from './MessageBubble';
-import { useState } from 'react';
-import MessageInput from './MessageInput';
+"use client";
+import { Message } from "../../types/messageType";
+import MessageBubble from "./MessageBubble";
+import { useState } from "react";
+import MessageInput from "./MessageInput";
 
 const dummyMessages: Message[] = [
   {
-    id: '1',
-    content: 'Hey there! How are you doing?',
-    sender: 'other',
+    id: "1",
+    content: "Hey there! How are you doing?",
+    sender: "other",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    status: 'read',
+    status: "read",
   },
   {
-    id: '2',
+    id: "2",
     content: "I'm good, thanks! How about you?",
-    sender: 'user',
+    sender: "user",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1),
-    status: 'read',
+    status: "read",
   },
   {
-    id: '3',
-    content: 'Pretty good! Just working on some projects.',
-    sender: 'other',
+    id: "3",
+    content: "Pretty good! Just working on some projects.",
+    sender: "other",
     timestamp: new Date(Date.now() - 1000 * 60 * 30),
-    status: 'read',
+    status: "read",
   },
   {
-    id: '4',
-    content: 'That sounds interesting. What kind of projects?',
-    sender: 'user',
+    id: "4",
+    content: "That sounds interesting. What kind of projects?",
+    sender: "user",
     timestamp: new Date(Date.now() - 1000 * 60 * 5),
-    status: 'delivered',
+    status: "delivered",
   },
 ];
 
@@ -41,9 +42,9 @@ const MessageArea = () => {
     const newMessage: Message = {
       id: Date.now().toString(),
       content,
-      sender: 'user',
+      sender: "user",
       timestamp: new Date(),
-      status: 'sent',
+      status: "sent",
     };
     setMessages([...messages, newMessage]);
   };
@@ -56,7 +57,7 @@ const MessageArea = () => {
       </div>
       <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
         <div className="space-y-4">
-          {messages.map(message => (
+          {messages.map((message) => (
             <MessageBubble key={message.id} message={message} />
           ))}
         </div>

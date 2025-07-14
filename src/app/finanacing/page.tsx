@@ -2,8 +2,8 @@
 "use client";
 
 import LeftSideTabs from "@/common/customlefttabbar";
-import { 
-  FiBox, 
+import {
+  FiBox,
   FiLayers,
   FiPlus,
   FiFileText,
@@ -17,7 +17,7 @@ import BusinessPreferredVerificationPage from "./components/business-preferred-v
 import BusinessStorePage from "./components/business-store-page";
 import BusinessStoreVerificationPage from "./components/business-store-verification";
 
-export const MainFinancePage = () => {
+export default function MainFinancePage() {
   const tabs = [
     {
       id: "business-advantage",
@@ -59,30 +59,28 @@ export const MainFinancePage = () => {
 
   return (
     <div className="h-[calc(100vh-64px)] bg-white">
-      <LeftSideTabs 
+      <LeftSideTabs
         tabs={tabs}
         defaultActiveTab="business-advantage"
         tabWidth="280px"
         tabStyle={{
-          fontSize: '14px',
-          padding: '12px 20px',
-          margin: '4px 12px',
-          borderRadius: '8px',
+          fontSize: "14px",
+          padding: "12px 20px",
+          margin: "4px 12px",
+          borderRadius: "8px",
         }}
         activeTabStyle={{
-          backgroundColor: '#f0f9ff',
-          color: '#0369a1',
-          fontWeight: '500'
+          backgroundColor: "#f0f9ff",
+          color: "#0369a1",
+          fontWeight: "500",
         }}
         contentStyle={{
-          padding: '28px',
-          backgroundColor: '#f8fafc'
+          padding: "28px",
+          backgroundColor: "#f8fafc",
         }}
         showIcons={true}
         containerClassName="border-t"
       />
     </div>
   );
-};
-
-export default MainFinancePage;
+}

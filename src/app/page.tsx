@@ -1,9 +1,12 @@
 import MainPage from "@/app/main/mainpage";
+import ProtectedRoute from "@/redux/axiosAuth/RequireAuth";
 
 export default function Home() {
   return (
     <>
-      <MainPage/>
+      <ProtectedRoute>
+        <MainPage />
+      </ProtectedRoute>
     </>
   );
 }

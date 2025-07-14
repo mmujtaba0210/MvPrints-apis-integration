@@ -1,10 +1,15 @@
+"use client";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 
-type NestedKeyOf<T> = T extends object ? {
-  [K in keyof T]: K extends string ?
-  T[K] extends object ? `${K}.${NestedKeyOf<T[K]>}` : K
-  : never
-}[keyof T] : never;
+type NestedKeyOf<T> = T extends object
+  ? {
+      [K in keyof T]: K extends string
+        ? T[K] extends object
+          ? `${K}.${NestedKeyOf<T[K]>}`
+          : K
+        : never;
+    }[keyof T]
+  : never;
 
 export function useTableData<T>(
   fetchData: () => Promise<T[]> | T[],
@@ -22,7 +27,7 @@ export function useTableData<T>(
   const itemsPerPage = 10;
 
   const getNestedValue = useCallback((obj: any, path: string) => {
-    return path.split('.').reduce((o, p) => (o || {})[p], obj);
+    return path.split(".").reduce((o, p) => (o || {})[p], obj);
   }, []);
 
   const loadData = useCallback(async () => {
@@ -47,18 +52,21 @@ export function useTableData<T>(
 
     if (searchQuery) {
       const lowerSearch = searchQuery.toLowerCase();
-      result = result.filter(item =>
-        searchFields.current.some(field => {
-          const value = typeof field === 'string' && field.includes('.')
-            ? getNestedValue(item, field)
-            : item[field as keyof T];
-          return String(value ?? '').toLowerCase().includes(lowerSearch);
+      result = result.filter((item) =>
+        searchFields.current.some((field) => {
+          const value =
+            typeof field === "string" && field.includes(".")
+              ? getNestedValue(item, field)
+              : item[field as keyof T];
+          return String(value ?? "")
+            .toLowerCase()
+            .includes(lowerSearch);
         })
       );
     }
 
     if (statusFilter && filterField) {
-      result = result.filter(item => item[filterField] === statusFilter);
+      result = result.filter((item) => item[filterField] === statusFilter);
     }
 
     setFilteredData(result);

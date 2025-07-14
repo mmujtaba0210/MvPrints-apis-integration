@@ -1,8 +1,10 @@
-'use client'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client";
 
 import React, { useState } from "react";
-import Sidebar from '@/app/sidebar/components/sidebar';
-import { SidebarType } from '@/app/sidebar/types/sidebar';
+import Sidebar from "@/app/sidebar/components/sidebar";
+import { SidebarType } from "@/app/sidebar/types/sidebar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import clsx from "clsx";
@@ -31,11 +33,12 @@ import OrderDetailsPage from "../orders/orderdetails/orderdetailspage";
 import CustomerSettingsPage from "../customer/page";
 import MainFinancePage from "../finanacing/page";
 import PointsManagementPage from "../loyality/page";
-import CharitiesPage from "../donations/charity/page";
-import MainBlogsPage from "../blog/page";
+// import CharitiesPage from "../donations/charity/page";
+// import MainBlogsPage from "../blog/page";
 
 const MainPage: React.FC = () => {
-  const [selectedSection, setSelectedSection] = useState<SidebarType>("dashboard");
+  const [selectedSection, setSelectedSection] =
+    useState<SidebarType>("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
   const handleSelect = (section: SidebarType) => {
@@ -52,12 +55,34 @@ const MainPage: React.FC = () => {
             className="text-xl cursor-pointer text-gray-700 hover:text-pink-500"
           >
             {isSidebarOpen ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             )}
           </button>
@@ -80,27 +105,33 @@ const MainPage: React.FC = () => {
         />
 
         {/* Main Content */}
-        <main className={clsx(
-          "flex-1 overflow-y-auto p-3 bg-[#e1e4e8d4] transition-all duration-300 w-full scrollbar-hide"
-        )}>
+        <main
+          className={clsx(
+            "flex-1 overflow-y-auto p-3 bg-[#e1e4e8d4] transition-all duration-300 w-full scrollbar-hide"
+          )}
+        >
           {/* <h2 className="text-xl font-bold capitalize mb-6 text-black">
             {selectedSection.replace(/-/g, ' ')}
           </h2> */}
-          
+
           {/* Render the selected section */}
           {selectedSection === "order-details" && <OrderDetailsPage />}
           {selectedSection === "all-orders" && <AllOrdersPage />}
           {selectedSection === "refund-order" && <RefundOrdersPage />}
           {selectedSection === "order-proof" && <OrderProofsPage />}
-          {selectedSection === "order-verification" && <OrderVerificationPage />}
+          {selectedSection === "order-verification" && (
+            <OrderVerificationPage />
+          )}
           {selectedSection === "customers" && <CustomerSettingsPage />}
           {selectedSection === "quotation" && <QuotationsPage />}
           {selectedSection === "finance" && <MainFinancePage />}
           {selectedSection === "loyality" && <PointsManagementPage />}
           {selectedSection === "gift-cards" && <GiftCardsPage />}
-          {selectedSection === "gift-card-transactions" && <GiftCardTransactionsPage />}
+          {selectedSection === "gift-card-transactions" && (
+            <GiftCardTransactionsPage />
+          )}
           {selectedSection === "marketing" && <MainMarketingPage />}
-          {selectedSection === "charity" && <CharitiesPage />}
+          {/* {selectedSection === "charity" && <CharitiesPage />} */}
           {/* {selectedSection === "donations" && <DonationsTable />} */}
           {selectedSection === "staff" && <StaffTable />}
           {selectedSection === "roles" && <RolesTable />}
@@ -111,14 +142,14 @@ const MainPage: React.FC = () => {
           {selectedSection === "product-category" && <ProductCategoriesPage />}
           {selectedSection === "menu-settings" && <MenuSettingsMainpage />}
           {selectedSection === "reports" && <MainReportPage />}
-          {selectedSection === "blog" && <MainBlogsPage />}
+          {/* {selectedSection === "blog" && <MainBlogsPage />} */}
           {selectedSection === "email-settings" && <MainEmailSettingsPage />}
           {selectedSection === "social-settings" && <SocialLinksForm />}
           {selectedSection === "message" && <MessagesPage />}
         </main>
       </div>
 
-      <ToastContainer 
+      <ToastContainer
         position="top-center"
         autoClose={3000}
         hideProgressBar

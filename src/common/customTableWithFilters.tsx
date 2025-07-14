@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
-import { FaEye, FaTrash, FaEdit, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+"use client";
+import React, { useState } from "react";
+import {
+  FaEye,
+  FaTrash,
+  FaEdit,
+  FaChevronLeft,
+  FaChevronRight,
+} from "react-icons/fa";
 
 // Centralized type definitions to prevent conflicts
 export type TableColumn = {
   header: string;
   field: string;
-  type?: 'text' | 'badge' | 'progress' | 'date' | 'avatar' | 'currency';
+  type?: "text" | "badge" | "progress" | "date" | "avatar" | "currency";
   filterable?: boolean;
 };
 
@@ -27,18 +34,18 @@ type Props = {
 };
 
 const badgeColor: Record<string, string> = {
-  Active: 'bg-green-100 text-green-700',
-  Inactive: 'bg-gray-100 text-gray-700',
-  Blocked: 'bg-red-100 text-red-700',
-  Pending: 'bg-yellow-100 text-yellow-700',
-  Processing: 'bg-blue-100 text-blue-700',
-  Completed: 'bg-green-100 text-green-700',
-  Cancelled: 'bg-red-100 text-red-700',
-  Declined: 'bg-red-100 text-red-700',
-  Refund: 'bg-purple-100 text-purple-700',
-  Returned: 'bg-indigo-100 text-indigo-700',
-  Verified: 'bg-teal-100 text-teal-700',
-  Unverified: 'bg-orange-100 text-orange-700',
+  Active: "bg-green-100 text-green-700",
+  Inactive: "bg-gray-100 text-gray-700",
+  Blocked: "bg-red-100 text-red-700",
+  Pending: "bg-yellow-100 text-yellow-700",
+  Processing: "bg-blue-100 text-blue-700",
+  Completed: "bg-green-100 text-green-700",
+  Cancelled: "bg-red-100 text-red-700",
+  Declined: "bg-red-100 text-red-700",
+  Refund: "bg-purple-100 text-purple-700",
+  Returned: "bg-indigo-100 text-indigo-700",
+  Verified: "bg-teal-100 text-teal-700",
+  Unverified: "bg-orange-100 text-orange-700",
 };
 
 export default function CustomTable({
@@ -51,10 +58,10 @@ export default function CustomTable({
   itemsPerPage = 10,
   filters = [],
   onFilterChange,
-  activeFilter = 'all',
+  activeFilter = "all",
 }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Filter data based on search term
   const filteredData = data.filter((row) => {
@@ -67,7 +74,10 @@ export default function CustomTable({
   // Pagination logic
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedData = filteredData.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -77,9 +87,9 @@ export default function CustomTable({
 
   // Format currency values
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(value);
   };
 
@@ -95,8 +105,8 @@ export default function CustomTable({
                 onClick={() => onFilterChange?.(filter.value)}
                 className={`px-3 py-1 rounded-full text-sm ${
                   activeFilter === filter.value
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
                 {filter.label}
@@ -104,7 +114,7 @@ export default function CustomTable({
             ))}
           </div>
         )}
-        
+
         <div className="relative w-full sm:w-auto">
           <input
             type="text"
@@ -140,11 +150,18 @@ export default function CustomTable({
             <tr>
               {/* <th className="px-6 py-3"><input type="checkbox" /></th> */}
               {columns.map((col, idx) => (
-                <th key={idx} className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                <th
+                  key={idx}
+                  className="px-6 py-3 text-left text-sm font-medium text-gray-700"
+                >
                   {col.header}
                 </th>
               ))}
-              {showActions && <th className="px-6 py-3 text-sm font-medium text-gray-700">Actions</th>}
+              {showActions && (
+                <th className="px-6 py-3 text-sm font-medium text-gray-700">
+                  Actions
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -156,22 +173,33 @@ export default function CustomTable({
                     const value = row[col.field];
                     return (
                       <td key={idx} className="px-6 py-4 text-sm text-gray-800">
-                        {col.type === 'badge' ? (
-                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${badgeColor[value] || 'bg-gray-100 text-gray-700'}`}>
+                        {col.type === "badge" ? (
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              badgeColor[value] || "bg-gray-100 text-gray-700"
+                            }`}
+                          >
                             {value}
                           </span>
-                        ) : col.type === 'progress' ? (
+                        ) : col.type === "progress" ? (
                           <div className="w-32 bg-gray-200 rounded-full h-2.5">
-                            <div className="bg-yellow-400 h-2.5 rounded-full" style={{ width: value + '%' }}></div>
+                            <div
+                              className="bg-yellow-400 h-2.5 rounded-full"
+                              style={{ width: value + "%" }}
+                            ></div>
                           </div>
-                        ) : col.type === 'date' ? (
+                        ) : col.type === "date" ? (
                           <span>{new Date(value).toLocaleDateString()}</span>
-                        ) : col.type === 'avatar' ? (
+                        ) : col.type === "avatar" ? (
                           <div className="flex items-center space-x-3">
-                            <img src={row.avatar} alt="avatar" className="w-8 h-8 rounded-full" />
+                            <img
+                              src={row.avatar}
+                              alt="avatar"
+                              className="w-8 h-8 rounded-full"
+                            />
                             <span>{row.name}</span>
                           </div>
-                        ) : col.type === 'currency' ? (
+                        ) : col.type === "currency" ? (
                           <span>{formatCurrency(Number(value))}</span>
                         ) : (
                           value
@@ -182,8 +210,8 @@ export default function CustomTable({
                   {showActions && (
                     <td className="px-6 py-4 flex space-x-2">
                       {onView && (
-                        <button 
-                          onClick={() => onView(row)} 
+                        <button
+                          onClick={() => onView(row)}
                           className="p-1 bg-gray-100 hover:bg-gray-200 rounded"
                           title="View"
                         >
@@ -191,8 +219,8 @@ export default function CustomTable({
                         </button>
                       )}
                       {onEdit && (
-                        <button 
-                          onClick={() => onEdit(row)} 
+                        <button
+                          onClick={() => onEdit(row)}
                           className="p-1 bg-blue-100 hover:bg-blue-200 rounded"
                           title="Edit"
                         >
@@ -200,8 +228,8 @@ export default function CustomTable({
                         </button>
                       )}
                       {onDelete && (
-                        <button 
-                          onClick={() => onDelete(row)} 
+                        <button
+                          onClick={() => onDelete(row)}
                           className="p-1 bg-red-100 hover:bg-red-200 rounded"
                           title="Delete"
                         >
@@ -214,7 +242,10 @@ export default function CustomTable({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length + 2} className="px-6 py-4 text-center text-sm text-gray-500">
+                <td
+                  colSpan={columns.length + 2}
+                  className="px-6 py-4 text-center text-sm text-gray-500"
+                >
                   No data found
                 </td>
               </tr>
@@ -227,15 +258,22 @@ export default function CustomTable({
       {paginatedData.length > 0 && (
         <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
           <div className="text-sm text-gray-700">
-            Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
-            <span className="font-medium">{Math.min(startIndex + itemsPerPage, filteredData.length)}</span> of{' '}
-            <span className="font-medium">{filteredData.length}</span> results
+            Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
+            <span className="font-medium">
+              {Math.min(startIndex + itemsPerPage, filteredData.length)}
+            </span>{" "}
+            of <span className="font-medium">{filteredData.length}</span>{" "}
+            results
           </div>
           <div className="flex space-x-2">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`p-2 rounded-md ${currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:bg-gray-100'}`}
+              className={`p-2 rounded-md ${
+                currentPage === 1
+                  ? "text-gray-400"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
             >
               <FaChevronLeft />
             </button>
@@ -255,7 +293,9 @@ export default function CustomTable({
                   key={pageNum}
                   onClick={() => handlePageChange(pageNum)}
                   className={`px-3 py-1 rounded-md ${
-                    currentPage === pageNum ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100'
+                    currentPage === pageNum
+                      ? "bg-blue-500 text-white"
+                      : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
                   {pageNum}
@@ -269,7 +309,9 @@ export default function CustomTable({
               <button
                 onClick={() => handlePageChange(totalPages)}
                 className={`px-3 py-1 rounded-md ${
-                  currentPage === totalPages ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100'
+                  currentPage === totalPages
+                    ? "bg-blue-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 {totalPages}
@@ -279,7 +321,9 @@ export default function CustomTable({
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
               className={`p-2 rounded-md ${
-                currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:bg-gray-100'
+                currentPage === totalPages
+                  ? "text-gray-400"
+                  : "text-gray-700 hover:bg-gray-100"
               }`}
             >
               <FaChevronRight />

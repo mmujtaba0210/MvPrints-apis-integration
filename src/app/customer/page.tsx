@@ -10,19 +10,19 @@ import AffiliateWithdrawalPage from "./components/affilate-withdrawl-page";
 import TransactionPage from "./components/transaction-page";
 import CustomerVerificationPage from "./components/customer-verification-page";
 
-export const CustomerSettingsPage = () => {
+export default function CustomerSettingsPage() {
   const tabs = [
-     {
+    {
       id: "all-customers",
       label: "All Customers",
       icon: <FiCreditCard size={18} />,
-      content: < CustomersPage />,
+      content: <CustomersPage />,
     },
-     {
+    {
       id: "banned-customers",
       label: "Banned Customers",
       icon: <FiCreditCard size={18} />,
-      content: < CustomersPage />,
+      content: <CustomersPage />,
     },
     {
       id: "subscription-plans",
@@ -57,30 +57,28 @@ export const CustomerSettingsPage = () => {
   ];
 
   return (
-    <div style={{ height: 'calc(100vh - 64px)' }}>
-      <LeftSideTabs 
+    <div style={{ height: "calc(100vh - 64px)" }}>
+      <LeftSideTabs
         tabs={tabs}
         defaultActiveTab="all-customers"
         tabWidth="260px"
         tabStyle={{
-          fontSize: '14px',
-          padding: '12px 16px',
-          margin: '4px 8px',
-          borderRadius: '6px',
+          fontSize: "14px",
+          padding: "12px 16px",
+          margin: "4px 8px",
+          borderRadius: "6px",
         }}
         activeTabStyle={{
-          backgroundColor: '#f0f7ff',
-          color: '#1a73e8',
-          fontWeight: '500'
+          backgroundColor: "#f0f7ff",
+          color: "#1a73e8",
+          fontWeight: "500",
         }}
         contentStyle={{
-          padding: '24px',
-          backgroundColor: '#f9fafb'
+          padding: "24px",
+          backgroundColor: "#f9fafb",
         }}
         showIcons={true}
       />
     </div>
   );
-};
-
-export default CustomerSettingsPage;
+}
