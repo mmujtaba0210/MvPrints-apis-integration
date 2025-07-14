@@ -5,6 +5,11 @@ import { useForm } from "react-hook-form";
 import { FiEye, FiEyeOff, FiLock, FiMail } from "react-icons/fi";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useDispatch } from "react-redux";
+
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import { loginUser } from "@/redux/slices/authSlice/authSlice";
 
 type FormData = {
   email: string;
@@ -14,9 +19,10 @@ type FormData = {
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch<any>();
   const [error, setError] = useState("");
-
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -27,13 +33,17 @@ export default function LoginPage() {
     setIsLoading(true);
     setError("");
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log("Login data:", data);
-      // Replace with actual login logic
-      // router.push("/dashboard");
+      const response = dispatch(
+        loginUser({ email: data.email, password: data.password })
+      );
+      console.log("Login data:", response);
+      toast.success("login Success");
+      setTimeout(() => {
+        router.push("/");
+      }, 1000);
     } catch (err) {
-      setError(`Invalid credentials. Please try again. ${err}`);
+      setError("Invalid credentials. Please try again.");
+      toast.error(error);
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +84,10 @@ export default function LoginPage() {
             <div className="space-y-4">
               {/* Email Field */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Email Address
                 </label>
                 <div className="relative">
@@ -96,13 +109,18 @@ export default function LoginPage() {
                   />
                 </div>
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
 
               {/* Password Field */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -135,7 +153,9 @@ export default function LoginPage() {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
 
@@ -148,7 +168,10 @@ export default function LoginPage() {
                     {...register("remember")}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
+                  <label
+                    htmlFor="remember"
+                    className="ml-2 block text-sm text-gray-700"
+                  >
                     Remember me
                   </label>
                 </div>
