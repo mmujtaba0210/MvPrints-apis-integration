@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Sidebar from "@/app/sidebar/components/sidebar";
 import { SidebarType } from "@/app/sidebar/types/sidebar";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import clsx from "clsx";
 // Import all your page components
@@ -31,6 +31,8 @@ import OrderDetailsPage from "../orders/orderdetails/orderdetailspage";
 import CustomerSettingsPage from "../customer/page";
 import MainFinancePage from "../finanacing/page";
 import PointsManagementPage from "../loyality/page";
+import { logout } from "@/redux/slices/authSlice/authSlice";
+import { useRouter } from "next/navigation";
 // import CharitiesPage from "../donations/charity/page";
 // import MainBlogsPage from "../blog/page";
 
@@ -38,11 +40,17 @@ const MainPage: React.FC = () => {
   const [selectedSection, setSelectedSection] =
     useState<SidebarType>("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
-
+  const router = useRouter();
   const handleSelect = (section: SidebarType) => {
     setSelectedSection(section);
   };
-
+  const handleLogout = async () => {
+    await logout();
+    toast.success("Logout Successfully");
+    setTimeout(() => {
+      router.push("/auth");
+    }, 500);
+  };
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
@@ -89,7 +97,12 @@ const MainPage: React.FC = () => {
           </h1>
         </div>
         <div>
-          <button className="text-gray-700 hover:text-pink-500">Logout</button>
+          <button
+            className="text-gray-700 hover:text-pink-500"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
         </div>
       </header>
 
@@ -148,8 +161,8 @@ const MainPage: React.FC = () => {
       </div>
 
       <ToastContainer
-        position="top-center"
-        autoClose={3000}
+        position="top-right"
+        autoClose={2000}
         hideProgressBar
         newestOnTop
         closeOnClick

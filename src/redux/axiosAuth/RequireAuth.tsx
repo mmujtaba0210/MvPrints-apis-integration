@@ -25,7 +25,7 @@ export default function ProtectedRoute({
     const token = localStorage.getItem("accessToken");
 
     if (!token) {
-      toast.error("You must be logged in to access this page");
+      console.log("You must be logged in to access this page");
       router.replace("/auth");
       return;
     }
