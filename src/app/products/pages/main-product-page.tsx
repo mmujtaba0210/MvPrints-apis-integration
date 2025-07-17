@@ -1,15 +1,14 @@
-// app/settings/products/page.tsx
 "use client";
 
 import LeftSideTabs from "@/common/customlefttabbar";
-import { 
-  FiBox, 
+import {
+  FiBox,
   FiLayers,
   FiFileText,
   FiStar,
   FiMessageSquare,
   FiHelpCircle,
-  FiAlertCircle
+  FiAlertCircle,
 } from "react-icons/fi";
 import QuotationProductsPage from "../components/QuotationProductComponents/quotation-product-page";
 import PopularProductsPage from "../components/PopularProductComponents/popular-products-page";
@@ -68,51 +67,51 @@ export const MainProductPage = () => {
       content: <ReportedProductsPage />,
     },
     {
-      id : "deactivated-products",
-      label : "Deactivated Products",
-      icon: <FiAlertCircle size={18}/>,
-      content: <DeactivatedProductsPage/>
+      id: "deactivated-products",
+      label: "Deactivated Products",
+      icon: <FiAlertCircle size={18} />,
+      content: <DeactivatedProductsPage />,
     },
     {
-      id : "print-brand",
-      label : "Print Brands",
-      icon: <FiAlertCircle size={18}/>,
-      content: <BrandsPage/>
+      id: "print-brand",
+      label: "Print Brands",
+      icon: <FiAlertCircle size={18} />,
+      content: <BrandsPage />,
     },
     {
-      id : "print-attribute",
-      label : "Print Attributes",
-      icon: <FiAlertCircle size={18}/>,
-      content: <PrintAttributesPage/>
+      id: "print-attribute",
+      label: "Print Attributes",
+      icon: <FiAlertCircle size={18} />,
+      content: <PrintAttributesPage />,
     },
-     {
-      id : "delivery-time",
-      label : "Delivery Time",
-      icon: <FiAlertCircle size={18}/>,
-      content: <ProductDeliveryTimeTable/>
-    }
+    {
+      id: "delivery-time",
+      label: "Delivery Time",
+      icon: <FiAlertCircle size={18} />,
+      content: <ProductDeliveryTimeTable />,
+    },
   ];
 
   return (
     <div className="h-[calc(100vh-64px)] bg-white">
-      <LeftSideTabs 
+      <LeftSideTabs
         tabs={tabs}
         defaultActiveTab="all-products"
         tabWidth="280px"
         tabStyle={{
-          fontSize: '14px',
-          padding: '12px 20px',
-          margin: '4px 12px',
-          borderRadius: '8px',
+          fontSize: "14px",
+          padding: "12px 20px",
+          margin: "4px 12px",
+          borderRadius: "8px",
         }}
         activeTabStyle={{
-          backgroundColor: '#f0f9ff',
-          color: '#0369a1',
-          fontWeight: '500'
+          backgroundColor: "#f0f9ff",
+          color: "#0369a1",
+          fontWeight: "500",
         }}
         contentStyle={{
-          padding: '28px',
-          backgroundColor: '#f8fafc'
+          padding: "28px",
+          backgroundColor: "#f8fafc",
         }}
         showIcons={true}
         containerClassName="border-t"

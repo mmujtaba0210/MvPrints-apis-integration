@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { ProductInformationForm } from "./components/ProductInformationForm";
@@ -11,23 +11,33 @@ import { ProductDetailsForm } from "../components/other/ProductDetailsForm";
 import { MediaForm } from "./components/mediaForm";
 import { ShippingForm } from "./components/ShippingForm";
 import { SEOForm } from "./components/SeoForm";
-
+import { useDispatch, useSelector } from "react-redux";
+import {
+  createProduct,
+  resetStatus,
+} from "@/redux/slices/productSlices/createProductSlice";
+import { AppDispatch, RootState } from "@/redux/store/store";
+import { toast } from "react-toastify";
+import { string } from "prop-types";
 const steps = [
   { id: "Product Information", component: ProductInformationForm },
-  { id: "Product Identifiers", component: ProductIdentifiersForm},
+  { id: "Product Identifiers", component: ProductIdentifiersForm },
   { id: "Pricing", component: PricingForm },
-  { id: "Product Variation", component: ProductVariationForm},
+  { id: "Product Variation", component: ProductVariationForm },
   { id: "Product Details", component: ProductDetailsForm },
   { id: "Media", component: MediaForm },
   { id: "Shipping", component: ShippingForm },
-  { id: "SEO", component: SEOForm},
+  { id: "SEO", component: SEOForm },
 ];
 
 export const AddProductForm = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [allowWholesale, setAllowWholesale] = useState(false);
   const [freeShipping, setFreeShipping] = useState(false);
-
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, success, error } = useSelector(
+    (state: RootState) => state.createProduct
+  );
   const {
     register,
     handleSubmit,
@@ -58,8 +68,13 @@ export const AddProductForm = () => {
   ];
 
   const onSubmit = (data: any) => {
-    console.log("Form submitted:", data);
-    // Handle form submission here
+    if (currentStep + 1 == steps.length - 1) {
+      console.log("Blocked accidental submit on wrong step");
+      console.log("cuurent", currentStep);
+      console.log("steps", steps.length - 1);
+      return;
+    }
+    dispatch(createProduct(data));
   };
 
   const nextStep = () => {
@@ -79,18 +94,22 @@ export const AddProductForm = () => {
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white rounded-xl shadow-sm">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Add New Product</h1>
-      
+
       {/* Progress Steps */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
           {steps.map((step, index) => (
             <div
               key={step.id}
-              className={`flex flex-col items-center ${index < steps.length - 1 ? "flex-1" : ""}`}
+              className={`flex flex-col items-center ${
+                index < steps.length - 1 ? "flex-1" : ""
+              }`}
             >
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  index <= currentStep ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-600"
+                  index <= currentStep
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-600"
                 }`}
               >
                 {index + 1}
@@ -144,7 +163,6 @@ export const AddProductForm = () => {
           >
             <FiChevronLeft className="mr-1" /> Previous
           </button>
-
           {currentStep < steps.length - 1 ? (
             <button
               type="button"
