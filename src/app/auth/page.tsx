@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useDispatch } from "react-redux";
 
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { loginUser } from "@/redux/slices/authSlice/authSlice";
 
 type FormData = {
@@ -36,9 +36,10 @@ export default function LoginPage() {
       const response = dispatch(
         loginUser({ email: data.email, password: data.password })
       );
-      console.log("Login data:", response);
       toast.success("login Success");
+      console.log("Login data:", response);
       setTimeout(() => {
+        console.log("Redirecting to home page");
         router.push("/");
       }, 1000);
     } catch (err) {
@@ -234,6 +235,17 @@ export default function LoginPage() {
           </div>
         </div>
       </motion.div>
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 }

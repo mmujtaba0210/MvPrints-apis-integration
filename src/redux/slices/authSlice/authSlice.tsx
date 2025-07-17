@@ -46,7 +46,13 @@ export const loginUser = createAsyncThunk<
   try {
     const res = await axios.post(
       "https://testbackend.mecarviprints.com/api/auth/login",
-      credentials
+      credentials,
+      {
+        headers: {
+          allowCredentials: "true",
+          "Access-Control-Allow-Origin": "http://localhost:3000",
+        },
+      }
     );
     const token = res.data.data.token;
     const user = res.data.data.user;

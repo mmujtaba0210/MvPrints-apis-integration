@@ -223,7 +223,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Logout Button at bottom */}
           <div
-            onClick={() => console.log("Logout clicked")}
+            onClick={() => console.log("log out")}
             className={clsx(
               "relative rounded-tl-full rounded-bl-full flex items-center justify-start px-2 py-3 cursor-pointer hover:bg-[#e1e4e8d4] transition-transform gap-2 mb-4",
               !isOpen && "justify-center"
