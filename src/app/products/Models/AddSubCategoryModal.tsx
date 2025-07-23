@@ -1,6 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import { getCategories } from "@/redux/slices/productCategorySlices/getCategoriesSlice";
+import { createProductSubCategory } from "@/redux/slices/productCategorySlices/SubCategorySlices/createSubCategorySlice";
+import { AppDispatch, RootState } from "@/redux/store/store";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 interface AddProductSubCategoryModalProps {
   isOpen: boolean;
@@ -15,24 +20,25 @@ const AddProductSubCategoryModal: React.FC<AddProductSubCategoryModalProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     name: "",
-    category: "",
+    category: 0,
     slug: "",
   });
+  const dispatch = useDispatch<AppDispatch>();
+  const { categories } = useSelector(
+    (state: RootState) => state.getAllCategories
+  );
+  useEffect(() => {
+    dispatch(getCategories());
+    console.log("categories", categories);
+  }, []);
 
-  // Sample categories - in a real app these would come from props or an API
-  const categories = [
-    { id: "1", name: "Electronics" },
-    { id: "2", name: "Clothing" },
-    { id: "3", name: "Home & Garden" },
-    { id: "4", name: "Sports & Outdoors" },
-    { id: "5", name: "Beauty & Personal Care" },
-  ];
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -40,6 +46,15 @@ const AddProductSubCategoryModal: React.FC<AddProductSubCategoryModalProps> = ({
     e.preventDefault();
     // Here you would typically call an API to add the subcategory
     console.log("Adding product subcategory:", formData);
+    dispatch(
+      createProductSubCategory({
+        name: formData.name,
+        slug: formData.slug,
+        status: 1,
+        product_category_id: formData.category,
+      })
+    );
+    toast.success("Sub Category Added Successfully");
     onSuccess();
   };
 
@@ -51,15 +66,30 @@ const AddProductSubCategoryModal: React.FC<AddProductSubCategoryModalProps> = ({
         {/* Modal Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-5 flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold text-white">Add Product Subcategory</h2>
-            <p className="text-blue-100 mt-1">Define a new subcategory under an existing category</p>
+            <h2 className="text-2xl font-bold text-white">
+              Add Product Subcategory
+            </h2>
+            <p className="text-blue-100 mt-1">
+              Define a new subcategory under an existing category
+            </p>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="text-white/80 hover:text-white transition-colors duration-200 p-1 rounded-full hover:bg-white/10"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -68,7 +98,10 @@ const AddProductSubCategoryModal: React.FC<AddProductSubCategoryModalProps> = ({
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <div className="space-y-1">
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="category"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Parent Category <span className="text-red-500">*</span>
               </label>
               <select
@@ -80,16 +113,20 @@ const AddProductSubCategoryModal: React.FC<AddProductSubCategoryModalProps> = ({
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-800 appearance-none"
               >
                 <option value="">Select a category</option>
-                {categories.map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
+                {categories.data &&
+                  categories.data.map((category: any) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
               </select>
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Subcategory Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -105,7 +142,10 @@ const AddProductSubCategoryModal: React.FC<AddProductSubCategoryModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="slug" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="slug"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Slug <span className="text-red-500">*</span>
               </label>
               <input

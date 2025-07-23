@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import { File } from "buffer";
 
 export interface CreateCategoryPayload {
   name: string;
@@ -7,8 +8,9 @@ export interface CreateCategoryPayload {
   meta_tag: string[]; // API expects array syntax
   meta_description: string;
   ordering: number;
-  status: number;
   featured_bit: number;
+  status: number;
+  file_path: any;
   slug: string;
 }
 
@@ -38,11 +40,12 @@ export const createCategory = createAsyncThunk(
       data.meta_tag.forEach((tag, index) =>
         formData.append(`meta_tag[${index}]`, tag)
       );
+      formData.append("status", data.status.toString());
+      formData.append("featured_bit", data.featured_bit.toString());
 
       formData.append("meta_description", data.meta_description);
       formData.append("ordering", data.ordering.toString());
-      formData.append("status", data.status.toString());
-      formData.append("featured_bit", data.featured_bit.toString());
+      formData.append("file_path", data.file_path);
       formData.append("slug", data.slug);
 
       const response = await axios.post(
@@ -51,15 +54,14 @@ export const createCategory = createAsyncThunk(
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
       );
-
+      console.log(formData);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to create category"
-      );
+      return console.log(error.response?.data || "Failed to create category");
     }
   }
 );

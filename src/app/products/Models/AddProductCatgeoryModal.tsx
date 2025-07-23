@@ -2,6 +2,10 @@
 
 import React, { useState, useCallback } from "react";
 import Image from "next/image";
+import { useDispatch } from "react-redux";
+import { createCategory } from "@/redux/slices/productCategorySlices/createCategorySlice";
+import type { AppDispatch } from "@/redux/store/store";
+import { toast } from "react-toastify";
 
 interface AddProductCategoryModalProps {
   isOpen: boolean;
@@ -19,22 +23,31 @@ const AddProductCategoryModal: React.FC<AddProductCategoryModalProps> = ({
     slug: "",
     title: "",
     metaTags: "",
-    ordering: "",
+    ordering: 0,
+    status: 1,
+    featured_bit: 1,
     metaDescription: "",
+    file_path: "",
   });
   const [iconPreview, setIconPreview] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setFile(file); // ✅ Save the actual File object
       const reader = new FileReader();
       reader.onloadend = () => {
         setIconPreview(reader.result as string);
@@ -46,7 +59,23 @@ const AddProductCategoryModal: React.FC<AddProductCategoryModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Here you would typically call an API to add the category
-    console.log("Adding product category:", { ...formData, icon: iconPreview });
+    dispatch(
+      createCategory({
+        name: formData.name,
+        slug: formData.slug,
+        title: formData.title,
+        meta_tag: formData.metaTags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag.length > 0),
+        ordering: formData.ordering,
+        meta_description: formData.metaDescription,
+        file_path: file,
+        featured_bit: 1,
+        status: 1,
+      })
+    );
+    toast.success("Category Created SuccessFully");
     onSuccess();
   };
 
@@ -62,15 +91,30 @@ const AddProductCategoryModal: React.FC<AddProductCategoryModalProps> = ({
         {/* Modal Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-5 flex justify-between items-center shrink-0">
           <div>
-            <h2 className="text-2xl font-bold text-white">Add Product Category</h2>
-            <p className="text-blue-100 mt-1">Define a new product category for your store</p>
+            <h2 className="text-2xl font-bold text-white">
+              Add Product Category
+            </h2>
+            <p className="text-blue-100 mt-1">
+              Define a new product category for your store
+            </p>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="text-white/80 hover:text-white transition-colors duration-200 p-1 rounded-full hover:bg-white/10"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -80,7 +124,10 @@ const AddProductCategoryModal: React.FC<AddProductCategoryModalProps> = ({
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-1">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -96,7 +143,10 @@ const AddProductCategoryModal: React.FC<AddProductCategoryModalProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label htmlFor="slug" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="slug"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Slug <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -112,7 +162,10 @@ const AddProductCategoryModal: React.FC<AddProductCategoryModalProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Title
                 </label>
                 <input
@@ -127,7 +180,10 @@ const AddProductCategoryModal: React.FC<AddProductCategoryModalProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label htmlFor="ordering" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="ordering"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Ordering
                 </label>
                 <input
@@ -142,7 +198,10 @@ const AddProductCategoryModal: React.FC<AddProductCategoryModalProps> = ({
               </div>
 
               <div className="space-y-1 md:col-span-2">
-                <label htmlFor="metaTags" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="metaTags"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Meta Tags
                 </label>
                 <input
@@ -157,7 +216,10 @@ const AddProductCategoryModal: React.FC<AddProductCategoryModalProps> = ({
               </div>
 
               <div className="space-y-1 md:col-span-2">
-                <label htmlFor="metaDescription" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="metaDescription"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Meta Description
                 </label>
                 <textarea
@@ -190,30 +252,52 @@ const AddProductCategoryModal: React.FC<AddProductCategoryModalProps> = ({
                           onClick={removeIcon}
                           className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-3 w-3"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
                           </svg>
                         </button>
                       </>
                     ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-8 w-8 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
                       </svg>
                     )}
                   </div>
                   <div className="flex-1">
                     <label className="flex flex-col items-center px-4 py-3 bg-white rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-50">
                       <span className="text-sm font-medium text-gray-700">
-                        {iconPreview ? 'Change Icon' : 'Upload Icon'}
+                        {iconPreview ? "Change Icon" : "Upload Icon"}
                       </span>
-                      <input 
-                        type="file" 
-                        className="hidden" 
+                      <input
+                        type="file"
+                        className="hidden"
                         accept="image/*"
                         onChange={handleIconChange}
                         required={!iconPreview}
                       />
-                      <span className="text-xs text-gray-500 mt-1">PNG, JPG up to 2MB</span>
+                      <span className="text-xs text-gray-500 mt-1">
+                        PNG, JPG up to 2MB
+                      </span>
                     </label>
                   </div>
                 </div>

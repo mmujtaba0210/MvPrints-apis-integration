@@ -75,6 +75,7 @@ export const AddProductForm = () => {
       return;
     }
     dispatch(createProduct(data));
+    console.log(data);
   };
 
   const nextStep = () => {
