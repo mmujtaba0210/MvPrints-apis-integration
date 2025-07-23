@@ -87,13 +87,16 @@ export const createProduct = createAsyncThunk(
       }
 
       //  Make the API request
-      const response = await axios.post(`${BASE_URL}products`, data, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const response = await axios.post(`${BASE_URL}admin/products`, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
       });
 
       return response.data;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+      return console.log(err.response?.data?.message || err.message);
     }
   }
 );

@@ -16,7 +16,7 @@ export interface Category {
 
 export interface GetCategoriesState {
   loading: boolean;
-  categories: Category[];
+  categories: any;
   error: string | null;
 }
 
@@ -31,8 +31,13 @@ export const getCategories = createAsyncThunk(
   "categories/getAll",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}admin/product-categories`);
-      return response.data;
+      const response = await axios.get(`${BASE_URL}admin/product-categories`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+      console.log("response", response);
+      return response.data.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch categories"
