@@ -24,7 +24,7 @@ export interface TableColumn<T> {
 }
 
 interface FilterOption {
-  value: boolean;
+  value: string | boolean;
   label: string;
 }
 
@@ -56,17 +56,7 @@ const CommonCustomTable = <T,>({
           </div>
           {onFilter && filterOptions && (
             <div className="relative">
-              <select
-                className="appearance-none pl-3 pr-8 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 text-black"
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === "") {
-                    onFilter("");
-                  } else {
-                    onFilter(val === "true");
-                  }
-                }}
-              >
+              <select className="appearance-none pl-3 pr-8 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 text-black">
                 <option value="">All Status</option>
                 {filterOptions.map((option) => (
                   <option key={option.label} value={option.value.toString()}>
