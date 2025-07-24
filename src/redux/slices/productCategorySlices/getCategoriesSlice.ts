@@ -15,7 +15,7 @@ export interface Category {
 
 export interface GetCategoriesState {
   loading: boolean;
-  categories: Category[]; // ✅ direct array
+  categories: Category[];
   error: string | null;
 }
 
@@ -38,7 +38,7 @@ export const getCategories = createAsyncThunk(
         },
       });
       console.log("response", response);
-      return response.data.data; // ✅ assuming API returns .data
+      return response.data.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch categories"
