@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from "@/redux/store/store";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { Category } from "@/redux/slices/productCategorySlices/getCategoriesSlice";
 
 interface AddProductSubCategoryModalProps {
   isOpen: boolean;
@@ -20,17 +21,19 @@ const AddProductSubCategoryModal: React.FC<AddProductSubCategoryModalProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     name: "",
-    category: 0,
+    category: "",
     slug: "",
   });
+
   const dispatch = useDispatch<AppDispatch>();
-  const { categories } = useSelector(
+  const { categories, loading } = useSelector(
     (state: RootState) => state.getAllCategories
   );
+
+  // ✅ Fetch once only
   useEffect(() => {
     dispatch(getCategories());
-    console.log("categories", categories);
-  }, []);
+  }, [dispatch]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -42,20 +45,19 @@ const AddProductSubCategoryModal: React.FC<AddProductSubCategoryModalProps> = ({
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically call an API to add the subcategory
-    console.log("Adding product subcategory:", formData);
-    dispatch(
+    await dispatch(
       createProductSubCategory({
         name: formData.name,
         slug: formData.slug,
         status: 1,
-        product_category_id: formData.category,
+        product_category_id: Number(formData.category),
       })
     );
     toast.success("Sub Category Added Successfully");
     onSuccess();
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -113,13 +115,16 @@ const AddProductSubCategoryModal: React.FC<AddProductSubCategoryModalProps> = ({
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-800 appearance-none"
               >
                 <option value="">Select a category</option>
-                {categories.data &&
-                  categories.data.map((category: any) => (
+                {categories.length > 0 &&
+                  categories.map((category: Category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
                   ))}
               </select>
+              {loading && (
+                <p className="text-xs text-gray-500">Loading categories...</p>
+              )}
             </div>
 
             <div className="space-y-1">

@@ -11,41 +11,18 @@ import {
   getCategoriesSlice,
 } from "@/redux/slices/productCategorySlices/getCategoriesSlice";
 import { AppDispatch, RootState } from "@/redux/store/store";
-
-interface MainCategory {
+interface Category {
   id: number;
   name: string;
+
+  ordering: number;
+  status: boolean;
+
   slug: string;
-  order: number;
-  status: "Active" | "Inactive" | "Pending";
 }
 
-const mockData: MainCategory[] = [
-  {
-    id: 1,
-    name: "Electronics",
-    slug: "electronics",
-    order: 1,
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Fashion",
-    slug: "fashion",
-    order: 2,
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Home & Garden",
-    slug: "home-garden",
-    order: 3,
-    status: "Active",
-  },
-];
-
 const MainCategoryPage = () => {
-  const fetchData = React.useCallback(() => mockData, []);
+  const fetchData = React.useCallback(() => categories, []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const { categories } = useSelector(
@@ -57,7 +34,9 @@ const MainCategoryPage = () => {
     // 1. Refresh your subcategories list
     // 2. Show a success notification
   };
-  useEffect(() => {}, []);
+  useEffect(() => {
+    console.log(categories);
+  }, []);
 
   const {
     paginatedData,
@@ -69,14 +48,14 @@ const MainCategoryPage = () => {
     isLoading,
     error,
     reload,
-  } = useTableData<MainCategory>(fetchData, ["name", "slug"], "status");
+  } = useTableData<Category>(fetchData, ["name", "slug"], "status");
 
   const columns = [
     {
       key: "name",
       header: "Name",
       width: "200px",
-      render: (item: MainCategory) => (
+      render: (item: Category) => (
         <span className="font-medium">{item.name}</span>
       ),
     },
@@ -84,7 +63,7 @@ const MainCategoryPage = () => {
       key: "slug",
       header: "Slug",
       width: "250px",
-      render: (item: MainCategory) => (
+      render: (item: Category) => (
         <span className="text-gray-600 font-mono">{item.slug}</span>
       ),
     },
@@ -92,25 +71,25 @@ const MainCategoryPage = () => {
       key: "order",
       header: "Order",
       width: "170px",
-      render: (item: MainCategory) => (
-        <span className="font-semibold">{item.order}</span>
+      render: (item: Category) => (
+        <span className="font-semibold">{item.ordering}</span>
       ),
     },
     {
       key: "status",
       header: "Status",
       width: "170px",
-      render: (item: MainCategory) => (
+      render: (item: Category) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-semibold ${
-            item.status === "Active"
+            item.status === true
               ? "bg-green-100 text-green-600"
-              : item.status === "Inactive"
+              : item.status === false
               ? "bg-red-100 text-red-600"
               : "bg-yellow-100 text-yellow-600"
           }`}
         >
-          {item.status}
+          {item.status === true ? "Active" : "Pending"}
         </span>
       ),
     },
@@ -118,7 +97,7 @@ const MainCategoryPage = () => {
       key: "actions",
       header: "Actions",
       width: "150px",
-      render: (item: MainCategory) => (
+      render: (item: Category) => (
         <div className="flex gap-2">
           <button
             className="text-blue-600 hover:text-blue-800"
@@ -156,9 +135,8 @@ const MainCategoryPage = () => {
   ];
 
   const filterOptions = [
-    { value: "Active", label: "Active" },
-    { value: "Inactive", label: "Inactive" },
-    { value: "Pending", label: "Pending" },
+    { value: true, label: "Active" },
+    { value: false, label: "Pending" },
   ];
 
   if (error) {
@@ -229,7 +207,7 @@ const MainCategoryPage = () => {
           </button>
         </div>
       </div>
-      <CommonCustomTable<MainCategory>
+      <CommonCustomTable<Category>
         data={paginatedData}
         columns={columns}
         currentPage={currentPage}
@@ -239,6 +217,7 @@ const MainCategoryPage = () => {
         onFilter={setStatusFilter}
         filterOptions={filterOptions}
         title="Main Categories"
+        isLoading={isLoading}
       />
 
       <AddProductCategoryModal

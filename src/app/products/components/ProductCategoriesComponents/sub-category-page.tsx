@@ -8,51 +8,37 @@ import AddProductSubCategoryModal from "../../Models/AddSubCategoryModal";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import { getAllProductSubCategories } from "@/redux/slices/productCategorySlices/SubCategorySlices/getAllSubCategories";
+import { truncate } from "fs";
 
 interface SubCategory {
   id: number;
   category: string;
   subCategory: string;
   slug: string;
-  status: "Active" | "Inactive" | "Pending";
+  status: number;
 }
 
-const mockData: SubCategory[] = [
-  {
-    id: 1,
-    category: "Electronics",
-    subCategory: "Smartphones",
-    slug: "electronics-smartphones",
-    status: "Active",
-  },
-  {
-    id: 2,
-    category: "Electronics",
-    subCategory: "Laptops",
-    slug: "electronics-laptops",
-    status: "Active",
-  },
-  {
-    id: 3,
-    category: "Fashion",
-    subCategory: "Men's Clothing",
-    slug: "fashion-mens-clothing",
-    status: "Active",
-  },
-];
-
 const SubCategoryPage = () => {
-  const fetchData = React.useCallback(() => mockData, []);
   const dispatch = useDispatch<AppDispatch>();
   const { subCategories } = useSelector(
     (state: RootState) => state.getAllProductSubCategories
   );
+  const fetchData = React.useCallback((): SubCategory[] => {
+    // Map or transform subCategories to match SubCategory interface if needed
+    return (subCategories || []).map((item: any) => ({
+      id: item.id,
+      category: item.category,
+      subCategory: item.subCategory,
+      slug: item.slug,
+      status: item.status,
+    }));
+  }, [subCategories]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     dispatch(getAllProductSubCategories());
     console.log("sub", subCategories);
-  }, [subCategories]);
+  }, []);
 
   const handleSuccess = () => {
     setIsModalOpen(false);
@@ -72,11 +58,7 @@ const SubCategoryPage = () => {
     isLoading,
     error,
     reload,
-  } = useTableData<SubCategory>(
-    fetchData,
-    ["category", "subCategory", "slug"],
-    "status"
-  );
+  } = useTableData<SubCategory>(fetchData, ["subCategory", "slug"], "status");
 
   const columns = [
     {
@@ -110,14 +92,14 @@ const SubCategoryPage = () => {
       render: (item: SubCategory) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-semibold ${
-            item.status === "Active"
+            item.status === 1
               ? "bg-green-100 text-green-600"
-              : item.status === "Inactive"
+              : item.status === 0
               ? "bg-red-100 text-red-600"
               : "bg-yellow-100 text-yellow-600"
           }`}
         >
-          {item.status}
+          {item.status === 1 ? "Active" : "Pending"}
         </span>
       ),
     },
@@ -163,9 +145,8 @@ const SubCategoryPage = () => {
   ];
 
   const filterOptions = [
-    { value: "Active", label: "Active" },
-    { value: "Inactive", label: "Inactive" },
-    { value: "Pending", label: "Pending" },
+    { value: true, label: "Active" },
+    { value: false, label: "Pending" },
   ];
 
   if (error) {
@@ -243,9 +224,10 @@ const SubCategoryPage = () => {
         totalPages={totalPages}
         onPageChange={setCurrentPage}
         onSearch={setSearchQuery}
-        onFilter={setStatusFilter}
+        onFilter={(filter: boolean | "") => setStatusFilter(filter)}
         filterOptions={filterOptions}
         title="Sub Categories"
+        isLoading={isLoading}
       />
 
       <AddProductSubCategoryModal

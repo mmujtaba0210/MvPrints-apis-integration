@@ -21,7 +21,8 @@ export function useTableData<T>(
   const [filteredData, setFilteredData] = useState<T[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<boolean | "">("");
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const itemsPerPage = 10;
@@ -65,7 +66,7 @@ export function useTableData<T>(
       );
     }
 
-    if (statusFilter && filterField) {
+    if (statusFilter !== "" && filterField) {
       result = result.filter((item) => item[filterField] === statusFilter);
     }
 
