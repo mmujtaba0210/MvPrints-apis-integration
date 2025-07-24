@@ -16,6 +16,7 @@ import getCategoryByIdReducer from "@/redux/slices/productCategorySlices/getCate
 import createProductSubCategoryReducer from "@/redux/slices/productCategorySlices/SubCategorySlices/createSubCategorySlice";
 
 import getAllProductSubCategoriesReducer from "@/redux/slices/productCategorySlices/SubCategorySlices/getAllSubCategories";
+import updateMainCategoryReducer from "@/redux/slices/productCategorySlices/updateCategorySlice";
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -33,6 +34,7 @@ const store = configureStore({
     //sub categ
     createProductSubCategory: createProductSubCategoryReducer,
     getAllProductSubCategories: getAllProductSubCategoriesReducer,
+    updateMainCategory: updateMainCategoryReducer,
   },
 });
 

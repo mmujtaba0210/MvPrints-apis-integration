@@ -63,7 +63,7 @@ const CommonCustomTable = <T,>({
                   if (val === "") {
                     onFilter("");
                   } else {
-                    onFilter(val === "true"); // ✅ Ensure boolean filter
+                    onFilter(val === "true");
                   }
                 }}
               >

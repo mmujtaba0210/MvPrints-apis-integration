@@ -1,42 +1,52 @@
-// app/main-categories/page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
 import CommonCustomTable from "@/common/commonCustomTable";
 import { useTableData } from "@/common/useTableData";
 import AddProductCategoryModal from "../../Models/AddProductCatgeoryModal";
+
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getCategories,
-  getCategoriesSlice,
-} from "@/redux/slices/productCategorySlices/getCategoriesSlice";
+import { getCategories } from "@/redux/slices/productCategorySlices/getCategoriesSlice";
 import { AppDispatch, RootState } from "@/redux/store/store";
+import UpdateProductSubCategoryModal from "../../Models/UpdateProductMainCategoryForm";
+
 interface Category {
   id: number;
   name: string;
-
   ordering: number;
   status: boolean;
-
   slug: string;
 }
 
 const MainCategoryPage = () => {
-  const fetchData = React.useCallback(() => categories, []);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
+
   const dispatch = useDispatch<AppDispatch>();
   const { categories } = useSelector(
     (state: RootState) => state.getAllCategories
   );
+
+  const fetchData = React.useCallback(
+    () =>
+      categories.map((cat: any) => ({
+        ...cat,
+        status: cat.status === 1,
+      })),
+    [categories]
+  );
+
   const handleSuccess = () => {
     setIsModalOpen(false);
-    // You would typically:
-    // 1. Refresh your subcategories list
-    // 2. Show a success notification
+    setSelectedCategory(null);
+    dispatch(getCategories());
   };
+
   useEffect(() => {
-    console.log(categories);
-  }, []);
+    dispatch(getCategories());
+  }, [dispatch]);
 
   const {
     paginatedData,
@@ -84,9 +94,7 @@ const MainCategoryPage = () => {
           className={`px-2 py-1 rounded-full text-xs font-semibold ${
             item.status === true
               ? "bg-green-100 text-green-600"
-              : item.status === false
-              ? "bg-red-100 text-red-600"
-              : "bg-yellow-100 text-yellow-600"
+              : "bg-red-100 text-red-600"
           }`}
         >
           {item.status === true ? "Active" : "Pending"}
@@ -102,6 +110,10 @@ const MainCategoryPage = () => {
           <button
             className="text-blue-600 hover:text-blue-800"
             title="Edit Category"
+            onClick={() => {
+              setSelectedCategory(item);
+              setIsModalOpen(true);
+            }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -172,38 +184,7 @@ const MainCategoryPage = () => {
             onClick={reload}
             disabled={isLoading}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-                clipRule="evenodd"
-              />
-            </svg>
-            {isLoading ? "Loading..." : "Refresh"}
-          </button>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
-            disabled={isLoading}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Add Category
+            Refresh
           </button>
         </div>
       </div>
@@ -219,12 +200,26 @@ const MainCategoryPage = () => {
         title="Main Categories"
         isLoading={isLoading}
       />
-
       <AddProductCategoryModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleSuccess}
       />
+      {selectedCategory && (
+        <UpdateProductSubCategoryModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedCategory(null);
+          }}
+          onSuccess={handleSuccess}
+          category={{
+            ...selectedCategory,
+            title: selectedCategory.name, // or set the correct value if different
+            product_category_id: selectedCategory.id, // or set the correct value if different
+          }}
+        />
+      )}
     </div>
   );
 };

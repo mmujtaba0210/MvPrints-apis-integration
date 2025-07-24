@@ -5,11 +5,10 @@ export interface UpdateCategoryPayload {
   id: number;
   name: string;
   title: string;
-  meta_tag: string[];
-  meta_description: string;
+
   ordering: number;
   status: number;
-  featured_bit: number;
+
   slug: string;
 }
 
@@ -34,15 +33,11 @@ export const updateCategory = createAsyncThunk(
       formData.append("name", data.name);
       formData.append("title", data.title);
 
-      data.meta_tag.forEach((tag, index) =>
-        formData.append(`meta_tag[${index}]`, tag)
-      );
-
-      formData.append("meta_description", data.meta_description);
       formData.append("ordering", data.ordering.toString());
       formData.append("status", data.status.toString());
-      formData.append("featured_bit", data.featured_bit.toString());
+
       formData.append("slug", data.slug);
+      formData.append("_method", "PUT");
 
       // typical REST style: PUT or POST with ID in URL
       const response = await axios.post(
@@ -51,15 +46,14 @@ export const updateCategory = createAsyncThunk(
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
       );
-
+      console.log(response);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to update category"
-      );
+      return console.log(error.response?.data || "Failed to update category");
     }
   }
 );
