@@ -34,7 +34,6 @@ export const getAllProductSubCategories = createAsyncThunk(
           },
         }
       );
-      console.log("SubCategoryPage", response);
       return response.data.data; // Should be an array of subcategories
     } catch (error: any) {
       return rejectWithValue(

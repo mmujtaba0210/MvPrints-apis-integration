@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// ✅ Adjust to match your backend’s category object structure
 export interface Category {
   id: number;
   name: string;
@@ -16,7 +15,7 @@ export interface Category {
 
 export interface GetCategoriesState {
   loading: boolean;
-  categories: any;
+  categories: Category[]; // ✅ direct array
   error: string | null;
 }
 
@@ -25,8 +24,10 @@ const initialState: GetCategoriesState = {
   categories: [],
   error: null,
 };
+
 const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000/api";
+
 export const getCategories = createAsyncThunk(
   "categories/getAll",
   async (_, { rejectWithValue }) => {
@@ -37,7 +38,7 @@ export const getCategories = createAsyncThunk(
         },
       });
       console.log("response", response);
-      return response.data.data;
+      return response.data.data; // ✅ assuming API returns .data
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch categories"
