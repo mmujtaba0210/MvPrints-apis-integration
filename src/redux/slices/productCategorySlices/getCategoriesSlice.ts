@@ -37,7 +37,7 @@ export const getCategories = createAsyncThunk(
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-      console.log("response", response);
+
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(
