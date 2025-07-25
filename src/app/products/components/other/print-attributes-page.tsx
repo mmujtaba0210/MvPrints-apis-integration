@@ -1,35 +1,52 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import CommonCustomTable from "@/common/commonCustomTable";
 import { useTableData } from "@/common/useTableData";
 import CreateAttributesModal from "../../Models/addattributeModal";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/redux/store/store";
-import { fetchAttributes } from "@/redux/slices/Product/productAttributionSlice/fetchAttributesSlice";
 
-interface Attribute {
+interface PrintAttribute {
   id: number;
   title: string;
   options: string[];
-  status: string;
+  status: "Active" | "Inactive";
 }
 
+const mockData: PrintAttribute[] = [
+  {
+    id: 1,
+    title: "Paper Type",
+    options: ["Glossy", "Matte", "Recycled", "Cardstock"],
+    status: "Active",
+  },
+  {
+    id: 2,
+    title: "Print Color",
+    options: ["Full Color", "Black & White", "Spot Color"],
+    status: "Active",
+  },
+  {
+    id: 3,
+    title: "Finishing",
+    options: ["Lamination", "UV Coating", "Embossing", "Foil Stamping"],
+    status: "Inactive",
+  },
+  {
+    id: 4,
+    title: "Binding",
+    options: ["Saddle Stitch", "Perfect Bound", "Spiral", "Wire-O"],
+    status: "Active",
+  },
+];
+
 const PrintAttributesPage = () => {
-  const { attributes, loading } = useSelector(
-    (state: RootState) => state.fetchAttributes
-  );
-  const fetchData = React.useCallback(() => attributes, []);
+  const fetchData = React.useCallback(() => mockData, []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   // Open modal
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-  const dispatch = useDispatch<AppDispatch>();
-  useEffect(() => {
-    dispatch(fetchAttributes());
-    console.log(attributes);
-  }, [dispatch]);
+
   // Close modal
+  const closeModal = () => setIsModalOpen(false);
 
   // Handle successful creation
   const handleSuccess = () => {
@@ -46,11 +63,11 @@ const PrintAttributesPage = () => {
     isLoading,
     error,
     reload,
-  } = useTableData<Attribute>(fetchData, [
-    "name",
-    "attribution_values",
-    "description",
-  ]);
+  } = useTableData<PrintAttribute>(
+    fetchData,
+    ["title", "options", "status"],
+    "status"
+  );
 
   const columns = [
     {
@@ -59,18 +76,18 @@ const PrintAttributesPage = () => {
       width: "80px",
     },
     {
-      key: "name",
-      header: "Name",
+      key: "title",
+      header: "Title",
       width: "200px",
-      render: (item: Attribute) => (
+      render: (item: PrintAttribute) => (
         <span className="font-medium">{item.title}</span>
       ),
     },
     {
-      key: "attribution_values",
+      key: "options",
       header: "Options",
       width: "300px",
-      render: (item: Attribute) => (
+      render: (item: PrintAttribute) => (
         <div className="flex flex-wrap gap-2">
           {item.options.map((option, index) => (
             <span
@@ -83,27 +100,27 @@ const PrintAttributesPage = () => {
         </div>
       ),
     },
-    // {
-    //   key: "status",
-    //   header: "Status",
-    //   width: "120px",
-    //   render: (item: Attribute) => (
-    //     <span
-    //       className={`px-2 py-1 rounded-full text-xs font-semibold ${
-    //         item.status === "Active"
-    //           ? "bg-green-100 text-green-600"
-    //           : "bg-gray-100 text-gray-600"
-    //       }`}
-    //     >
-    //       {item.status}
-    //     </span>
-    //   ),
-    // },
+    {
+      key: "status",
+      header: "Status",
+      width: "120px",
+      render: (item: PrintAttribute) => (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+            item.status === "Active"
+              ? "bg-green-100 text-green-600"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
+          {item.status}
+        </span>
+      ),
+    },
     {
       key: "actions",
       header: "Actions",
       width: "120px",
-      render: (item: Attribute) => (
+      render: (item: PrintAttribute) => (
         <div className="flex gap-2">
           <button className="text-blue-600 hover:text-blue-800" title="Edit">
             <svg
@@ -207,7 +224,7 @@ const PrintAttributesPage = () => {
         </div>
       </div>
 
-      <CommonCustomTable<Attribute>
+      <CommonCustomTable<PrintAttribute>
         data={paginatedData}
         columns={columns}
         currentPage={currentPage}
