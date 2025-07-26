@@ -22,6 +22,12 @@ import updateMainCategoryReducer from "@/redux/slices/productCategorySlices/upda
 
 import createAttributeReducer from "@/redux/slices/Product/productAttributionSlice/productAttributionSlice";
 import fetchAttributesReducer from "@/redux/slices/Product/productAttributionSlice/fetchAttributesSlice";
+import updateAttributeReducer from "@/redux/slices/Product/productAttributionSlice/updateAttributeSlice";
+//brands slice import
+
+import createBrandReducer from "@/redux/slices/Product/productBrandSlice/createProductBrandSlice";
+import fetchBrandsReducer from "@/redux/slices/Product/productBrandSlice/fetchBrandsSlice";
+import updateBrandReducer from "@/redux/slices/Product/productBrandSlice/updateBrandSlice";
 
 const store = configureStore({
   reducer: {
@@ -42,8 +48,16 @@ const store = configureStore({
     getAllProductSubCategories: getAllProductSubCategoriesReducer,
     updateMainCategory: updateMainCategoryReducer,
 
+    //attribution slice reducers
+
     createAttribute: createAttributeReducer,
     fetchAttributes: fetchAttributesReducer,
+    updateProductAttributes: updateAttributeReducer,
+
+    //brands
+    createBrand: createBrandReducer,
+    fetchBrands: fetchBrandsReducer,
+    updateBrand: updateBrandReducer,
   },
 });
 

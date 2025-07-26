@@ -1,72 +1,74 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store/store";
+import { fetchAttributes } from "@/redux/slices/Product/productAttributionSlice/fetchAttributesSlice";
 import CommonCustomTable from "@/common/commonCustomTable";
 import { useTableData } from "@/common/useTableData";
 import CreateAttributesModal from "../../Models/addattributeModal";
+import UpdateAttributesModal from "../../Models/UpdateAttributesModal";
 
 interface PrintAttribute {
   id: number;
-  title: string;
-  options: string[];
-  status: "Active" | "Inactive";
+  name: string;
+  description: string;
+  attribution_values: string[];
 }
 
-const mockData: PrintAttribute[] = [
-  {
-    id: 1,
-    title: "Paper Type",
-    options: ["Glossy", "Matte", "Recycled", "Cardstock"],
-    status: "Active",
-  },
-  {
-    id: 2,
-    title: "Print Color",
-    options: ["Full Color", "Black & White", "Spot Color"],
-    status: "Active",
-  },
-  {
-    id: 3,
-    title: "Finishing",
-    options: ["Lamination", "UV Coating", "Embossing", "Foil Stamping"],
-    status: "Inactive",
-  },
-  {
-    id: 4,
-    title: "Binding",
-    options: ["Saddle Stitch", "Perfect Bound", "Spiral", "Wire-O"],
-    status: "Active",
-  },
-];
-
 const PrintAttributesPage = () => {
-  const fetchData = React.useCallback(() => mockData, []);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [selectedAttribute, setSelectedAttribute] =
+    useState<PrintAttribute | null>(null);
+
+  const dispatch = useDispatch<AppDispatch>();
+  const { attributes, loading, error } = useSelector(
+    (state: RootState) => state.fetchAttributes
+  );
+
+  useEffect(() => {
+    dispatch(fetchAttributes());
+  }, [dispatch]);
+
+  const fetchData = React.useCallback(() => {
+    return [...attributes].sort((a, b) => a.id - b.id);
+  }, [attributes]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // Open modal
+
   const openModal = () => setIsModalOpen(true);
-
-  // Close modal
   const closeModal = () => setIsModalOpen(false);
-
-  // Handle successful creation
   const handleSuccess = () => {
     closeModal();
-    // Refresh data or show success message
+    dispatch(fetchAttributes());
   };
+  const openUpdateModal = (attribute: PrintAttribute) => {
+    setSelectedAttribute(attribute);
+    setIsUpdateModalOpen(true);
+  };
+
+  const closeUpdateModal = () => {
+    setSelectedAttribute(null);
+    setIsUpdateModalOpen(false);
+  };
+
+  const handleUpdateSuccess = () => {
+    closeUpdateModal();
+    dispatch(fetchAttributes());
+  };
+
   const {
     paginatedData,
     currentPage,
     totalPages,
     setCurrentPage,
     setSearchQuery,
-    setStatusFilter,
     isLoading,
-    error,
     reload,
   } = useTableData<PrintAttribute>(
     fetchData,
-    ["title", "options", "status"],
-    "status"
+    ["name", "description", "attribution_values"],
+    undefined
   );
 
   const columns = [
@@ -76,44 +78,36 @@ const PrintAttributesPage = () => {
       width: "80px",
     },
     {
-      key: "title",
-      header: "Title",
+      key: "name",
+      header: "Name",
       width: "200px",
       render: (item: PrintAttribute) => (
-        <span className="font-medium">{item.title}</span>
+        <span className="font-medium">{item.name}</span>
       ),
     },
     {
-      key: "options",
-      header: "Options",
+      key: "description",
+      header: "Description",
+      width: "300px",
+      render: (item: PrintAttribute) => (
+        <p className="text-sm text-gray-600">{item.description}</p>
+      ),
+    },
+    {
+      key: "attribution_values",
+      header: "Values",
       width: "300px",
       render: (item: PrintAttribute) => (
         <div className="flex flex-wrap gap-2">
-          {item.options.map((option, index) => (
+          {item.attribution_values.map((value, index) => (
             <span
               key={index}
               className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded"
             >
-              {option}
+              {value}
             </span>
           ))}
         </div>
-      ),
-    },
-    {
-      key: "status",
-      header: "Status",
-      width: "120px",
-      render: (item: PrintAttribute) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold ${
-            item.status === "Active"
-              ? "bg-green-100 text-green-600"
-              : "bg-gray-100 text-gray-600"
-          }`}
-        >
-          {item.status}
-        </span>
       ),
     },
     {
@@ -122,7 +116,11 @@ const PrintAttributesPage = () => {
       width: "120px",
       render: (item: PrintAttribute) => (
         <div className="flex gap-2">
-          <button className="text-blue-600 hover:text-blue-800" title="Edit">
+          <button
+            className="text-blue-600 hover:text-blue-800"
+            title="Edit"
+            onClick={() => openUpdateModal(item)}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"
@@ -151,11 +149,6 @@ const PrintAttributesPage = () => {
     },
   ];
 
-  const filterOptions = [
-    { value: "Active", label: "Active" },
-    { value: "Inactive", label: "Inactive" },
-  ];
-
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -164,7 +157,7 @@ const PrintAttributesPage = () => {
           role="alert"
         >
           <strong className="font-bold">Error: </strong>
-          <span className="block sm:inline">{error.message}</span>
+          <span className="block sm:inline">{error}</span>
           <button onClick={reload} className="absolute top-0 right-0 px-4 py-3">
             <svg
               className="fill-current h-6 w-6 text-red-500"
@@ -204,8 +197,8 @@ const PrintAttributesPage = () => {
           </button>
           <button
             className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg flex items-center"
-            onClick={reload}
-            disabled={isLoading}
+            onClick={() => dispatch(fetchAttributes())}
+            disabled={isLoading || loading}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -219,7 +212,7 @@ const PrintAttributesPage = () => {
                 clipRule="evenodd"
               />
             </svg>
-            {isLoading ? "Loading..." : "Refresh"}
+            {isLoading || loading ? "Loading..." : "Refresh"}
           </button>
         </div>
       </div>
@@ -231,8 +224,6 @@ const PrintAttributesPage = () => {
         totalPages={totalPages}
         onPageChange={setCurrentPage}
         onSearch={setSearchQuery}
-        onFilter={setStatusFilter}
-        filterOptions={filterOptions}
         title="Print Attributes List"
       />
 
@@ -240,6 +231,13 @@ const PrintAttributesPage = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
         onSuccess={handleSuccess}
+      />
+
+      <UpdateAttributesModal
+        isOpen={isUpdateModalOpen}
+        onClose={closeUpdateModal}
+        onSuccess={handleUpdateSuccess}
+        selectedAttribute={selectedAttribute}
       />
     </div>
   );
