@@ -5,9 +5,9 @@ import axios from "axios";
 
 interface Attribute {
   id: number;
-  title: string;
-  options: string[];
-  status: string;
+  name: string;
+  description: string;
+  attribution_values: string[];
 }
 
 interface FetchAttributesState {

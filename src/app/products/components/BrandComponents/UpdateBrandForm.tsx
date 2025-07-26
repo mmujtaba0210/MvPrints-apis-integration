@@ -1,32 +1,52 @@
 "use client";
 
-import { createBrand } from "@/redux/slices/Product/productBrandSlice/createProductBrandSlice";
-import { AppDispatch, RootState } from "@/redux/store/store";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { AppDispatch, RootState } from "@/redux/store/store";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { updateBrand } from "@/redux/slices/Product/productBrandSlice/updateBrandSlice";
 
-interface BrandFormData {
+interface UpdateBrandFormProps {
+  selectedBrand: {
+    id: number;
+    name: string;
+    file_path: string;
+    meta_title: string;
+    meta_description: string;
+  };
+  onClose: () => void;
+}
+
+interface UpdateBrandFormData {
   name: string;
   logo: FileList | null;
   metaTitle: string;
   metaDescription: string;
 }
-interface BrandFormProps {
-  onSubmit: (data: BrandFormData) => void;
-}
 
-const BrandForm = () => {
+const UpdateBrandForm: React.FC<UpdateBrandFormProps> = ({
+  selectedBrand,
+  onClose,
+}) => {
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<BrandFormData>();
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  } = useForm<UpdateBrandFormData>({
+    defaultValues: {
+      name: selectedBrand.name,
+      metaTitle: selectedBrand.meta_title,
+      metaDescription: selectedBrand.meta_description,
+    },
+  });
+
+  const [logoPreview, setLogoPreview] = useState<string | null>(
+    selectedBrand.file_path
+  );
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
-  const { loading } = useSelector((state: RootState) => state.createBrand);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -38,29 +58,25 @@ const BrandForm = () => {
     }
   };
 
-  const onFormSubmit = async (data: BrandFormData) => {
-    try {
-      const dataR = await dispatch(createBrand(data))
-        .unwrap()
-        .catch((error) => {
-          console.error("Failed to create brand:", error);
-          toast.error("Failed to create brand");
-          toast.success("Created Successfully");
-          console.log(dataR);
-        });
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to create brand");
-    }
+  const onFormSubmit = async (data: UpdateBrandFormData) => {
+    await dispatch(
+      updateBrand({
+        id: selectedBrand.id,
+        name: data.name,
+        logo: data.logo,
+        metaTitle: data.metaTitle,
+        metaDescription: data.metaDescription,
+      })
+    );
 
+    reset();
     setLogoPreview(null);
+    onClose();
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold mb-4  text-gray-700">
-        Add New Brand
-      </h2>
+    <div className="bg-white rounded-lg  p-6">
+      <h2 className="text-xl font-semibold mb-4 text-gray-700">Update Brand</h2>
       <form onSubmit={handleSubmit(onFormSubmit)}>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -138,9 +154,32 @@ const BrandForm = () => {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded flex items-center gap-2"
           >
-            Add Brand
+            {loading && (
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4l3.536-3.536A8 8 0 0120 12h-4l3.536 3.536A8 8 0 0112 20v-4l-3.536 3.536A8 8 0 014 12z"
+                />
+              </svg>
+            )}
+            {loading ? "Updating..." : "Update"}
           </button>
         </div>
       </form>
@@ -148,4 +187,4 @@ const BrandForm = () => {
   );
 };
 
-export default BrandForm;
+export default UpdateBrandForm;
