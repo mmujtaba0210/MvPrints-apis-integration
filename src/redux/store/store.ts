@@ -18,6 +18,10 @@ import createProductSubCategoryReducer from "@/redux/slices/productCategorySlice
 import getAllProductSubCategoriesReducer from "@/redux/slices/productCategorySlices/SubCategorySlices/getAllSubCategories";
 import updateMainCategoryReducer from "@/redux/slices/productCategorySlices/updateCategorySlice";
 
+//child category reducers import
+import fetchChildCategoryReducer from "@/redux/slices/productCategorySlices/ChildCategorySlices/fetchChildCategorySlice";
+import createChildCategoryReducer from "@/redux/slices/productCategorySlices/ChildCategorySlices/createChildCategorySlice/createChildCategorySlice";
+
 //product attribution slice import
 
 import createAttributeReducer from "@/redux/slices/Product/productAttributionSlice/productAttributionSlice";
@@ -47,6 +51,9 @@ const store = configureStore({
     createProductSubCategory: createProductSubCategoryReducer,
     getAllProductSubCategories: getAllProductSubCategoriesReducer,
     updateMainCategory: updateMainCategoryReducer,
+    //child category reducers
+    fetchChildCategories: fetchChildCategoryReducer,
+    createChildCategory: createChildCategoryReducer,
 
     //attribution slice reducers
 
