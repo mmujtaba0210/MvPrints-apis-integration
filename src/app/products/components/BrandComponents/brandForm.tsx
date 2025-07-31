@@ -1,6 +1,6 @@
 "use client";
 
-import { createBrand } from "@/redux/slices/Product/productBrandSlice/createProductBrandSlice";
+import { createBrand } from "@/redux/slices/authSlice/Product/productBrandSlice/createProductBrandSlice";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";

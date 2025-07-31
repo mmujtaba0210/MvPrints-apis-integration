@@ -47,7 +47,7 @@ const ChildCategoryPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSuccess = () => {
-    setIsModalOpen(false);
+    setIsModalOpen(!isModalOpen);
     // You would typically:
     // 1. Refresh your subcategories list
     // 2. Show a success notification
@@ -216,7 +216,7 @@ const ChildCategoryPage = () => {
             {isLoading ? "Loading..." : "Refresh"}
           </button>
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsModalOpen(!isModalOpen)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
             disabled={isLoading}
           >
@@ -250,18 +250,8 @@ const ChildCategoryPage = () => {
 
       <AddChildCategoryModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => setIsModalOpen(!isModalOpen)}
         onSuccess={handleSuccess}
-        categories={[
-          { id: "1", name: "Electronics" },
-          { id: "2", name: "Clothing" },
-        ]}
-        subcategories={[
-          { id: "1", name: "Phones", categoryId: "1" },
-          { id: "2", name: "Laptops", categoryId: "1" },
-          { id: "3", name: "Men", categoryId: "2" },
-          { id: "4", name: "Women", categoryId: "2" },
-        ]}
       />
     </div>
   );
