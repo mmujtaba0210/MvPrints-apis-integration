@@ -3,13 +3,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Example: adjust to your real API endpoint
+const BASE_URL =
+  process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000/api";
 export const createChildCategory = createAsyncThunk(
   "childCategories/create",
   async (payload: FormData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/product-child-categories`,
+        `${BASE_URL}admin/product-child-categories`,
         payload,
         {
           headers: {
@@ -18,9 +19,13 @@ export const createChildCategory = createAsyncThunk(
           },
         }
       );
-      return response.data;
+      return response.data.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || error.message);
+      const errorMessage =
+        error.response?.data?.errors?.slug?.[0] ||
+        error.response?.data?.message ||
+        error.message;
+      return rejectWithValue(errorMessage);
     }
   }
 );

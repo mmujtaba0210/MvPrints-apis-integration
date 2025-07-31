@@ -6,7 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import { getAllProductSubCategories } from "@/redux/slices/productCategorySlices/SubCategorySlices/getAllSubCategories";
 import { getCategories } from "@/redux/slices/productCategorySlices/getCategoriesSlice";
-import { createChildCategory } from "@/redux/slices/productCategorySlices/ChildCategorySlices/createChildCategorySlice/createChildCategorySlice";
+import { createChildCategory } from "@/redux/slices/productCategorySlices/ChildCategorySlices/createChildCategorySlice";
+import { toast } from "react-toastify";
 
 interface AddChildCategoryModalProps {
   isOpen: boolean;
@@ -84,16 +85,20 @@ const AddChildCategoryModal: React.FC<AddChildCategoryModalProps> = ({
 
     try {
       await dispatch(createChildCategory(formPayload)).unwrap();
+      toast.success("Child category created successfully!");
       onSuccess();
-    } catch (err) {
-      console.error("Failed to create child category:", err);
+    } catch (error: any) {
+      console.error("Error creating child category:", error);
+      toast.error(
+        error || "Failed to create child category. or slug is already taken"
+      );
     }
   };
 
   const removeIcon = useCallback(() => {
     setIconPreview(null);
   }, []);
-
+  if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden border border-gray-100">
