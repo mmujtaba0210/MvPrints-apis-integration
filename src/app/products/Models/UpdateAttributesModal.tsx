@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store/store";
-import { updateAttribute } from "@/redux/slices/authSlice/Product/productAttributionSlice/updateAttributeSlice";
+import { updateAttribute } from "@/redux/slices/Product/productAttributionSlice/updateAttributeSlice";
 import { toast } from "react-toastify";
 
 interface UpdateAttributesModalProps {

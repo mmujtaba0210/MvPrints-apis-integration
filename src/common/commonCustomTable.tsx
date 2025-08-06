@@ -56,7 +56,14 @@ const CommonCustomTable = <T,>({
           </div>
           {onFilter && filterOptions && (
             <div className="relative">
-              <select className="appearance-none pl-3 pr-8 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 text-black">
+              <select
+                className="appearance-none pl-3 pr-8 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 text-black"
+                onChange={(e) =>
+                  onFilter?.(
+                    e.target.value === "" ? "" : e.target.value === "true"
+                  )
+                }
+              >
                 <option value="">All Status</option>
                 {filterOptions.map((option) => (
                   <option key={option.label} value={option.value.toString()}>
@@ -113,8 +120,9 @@ const CommonCustomTable = <T,>({
 
           <div className="flex justify-between items-center mt-4">
             <div className="text-sm text-gray-500">
-              Showing {data.length} of {data.length} entries
+              Page {currentPage} of {totalPages}
             </div>
+
             <div className="flex space-x-1">
               <button
                 className="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 text-black"

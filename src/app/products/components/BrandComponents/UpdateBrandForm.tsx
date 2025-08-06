@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import { useDispatch, useSelector } from "react-redux";
-import { updateBrand } from "@/redux/slices/authSlice/Product/productBrandSlice/updateBrandSlice";
+import { updateBrand } from "@/redux/slices/Product/productBrandSlice/updateBrandSlice";
 
 interface UpdateBrandFormProps {
   selectedBrand: {

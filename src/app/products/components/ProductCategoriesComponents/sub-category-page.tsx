@@ -1,14 +1,11 @@
-// app/sub-categories/page.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import CommonCustomTable from "@/common/commonCustomTable";
-import { useTableData } from "@/common/useTableData";
 import AddProductSubCategoryModal from "../../Models/AddSubCategoryModal";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import { getAllProductSubCategories } from "@/redux/slices/productCategorySlices/SubCategorySlices/getAllSubCategories";
-import { truncate } from "fs";
 
 interface SubCategory {
   id: number;
@@ -20,45 +17,31 @@ interface SubCategory {
 
 const SubCategoryPage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { subCategories } = useSelector(
+  const { subCategories, totalPages, loading, error } = useSelector(
     (state: RootState) => state.getAllProductSubCategories
   );
-  const fetchData = React.useCallback((): SubCategory[] => {
-    // Map or transform subCategories to match SubCategory interface if needed
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    dispatch(getAllProductSubCategories(currentPage));
+  }, [dispatch, currentPage]);
+
+  const fetchData = useCallback((): SubCategory[] => {
     return (subCategories || []).map((item: any) => ({
       id: item.id,
-      category: item.category,
-      subCategory: item.subCategory,
+      category: item.category?.name || "N/A",
+      subCategory: item.name,
       slug: item.slug,
       status: item.status,
     }));
   }, [subCategories]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    dispatch(getAllProductSubCategories());
-    console.log("sub", subCategories);
-  }, []);
 
   const handleSuccess = () => {
     setIsModalOpen(false);
-    // You would typically:
-    // 1. Refresh your subcategories list
-    // 2. Show a success notification
-    console.log("Subcategory added successfully!");
+    dispatch(getAllProductSubCategories(currentPage));
   };
-
-  const {
-    paginatedData,
-    currentPage,
-    totalPages,
-    setCurrentPage,
-    setSearchQuery,
-    setStatusFilter,
-    isLoading,
-    error,
-    reload,
-  } = useTableData<SubCategory>(fetchData, ["subCategory", "slug"], "status");
 
   const columns = [
     {
@@ -157,16 +140,7 @@ const SubCategoryPage = () => {
           role="alert"
         >
           <strong className="font-bold">Error: </strong>
-          <span className="block sm:inline">{error.message}</span>
-          <button onClick={reload} className="absolute top-0 right-0 px-4 py-3">
-            <svg
-              className="fill-current h-6 w-6 text-red-500"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-            >
-              <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
-            </svg>
-          </button>
+          <span className="block sm:inline">{error}</span>
         </div>
       </div>
     );
@@ -179,8 +153,8 @@ const SubCategoryPage = () => {
         <div className="flex gap-4">
           <button
             className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg flex items-center"
-            onClick={reload}
-            disabled={isLoading}
+            onClick={() => dispatch(getAllProductSubCategories(currentPage))}
+            disabled={loading}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -194,12 +168,12 @@ const SubCategoryPage = () => {
                 clipRule="evenodd"
               />
             </svg>
-            {isLoading ? "Loading..." : "Refresh"}
+            {loading ? "Loading..." : "Refresh"}
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
-            disabled={isLoading}
+            disabled={loading}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -217,17 +191,18 @@ const SubCategoryPage = () => {
           </button>
         </div>
       </div>
+
       <CommonCustomTable<SubCategory>
-        data={paginatedData}
+        data={fetchData()}
         columns={columns}
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
-        onSearch={setSearchQuery}
-        onFilter={(filter: boolean | "") => setStatusFilter(filter)}
-        filterOptions={filterOptions}
         title="Sub Categories"
-        isLoading={isLoading}
+        isLoading={loading}
+        filterOptions={filterOptions}
+        onFilter={() => {}}
+        onSearch={() => {}}
       />
 
       <AddProductSubCategoryModal
