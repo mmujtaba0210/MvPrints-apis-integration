@@ -17,12 +17,14 @@ export interface GetCategoriesState {
   loading: boolean;
   categories: Category[];
   error: string | null;
+  totalPages: number;
 }
 
 const initialState: GetCategoriesState = {
   loading: false,
   categories: [],
   error: null,
+  totalPages: 1,
 };
 
 const BASE_URL =
@@ -30,15 +32,20 @@ const BASE_URL =
 
 export const getCategories = createAsyncThunk(
   "categories/getAll",
-  async (_, { rejectWithValue }) => {
+  async (page: number = 1, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}admin/product-categories`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-
-      return response.data.data;
+      const response = await axios.get(
+        `${BASE_URL}admin/product-categories/pagination?page=${page}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+      return {
+        categories: response.data.data.records,
+        totalPages: response.data.totalPages || 1,
+      };
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch categories"
@@ -55,6 +62,7 @@ export const getCategoriesSlice = createSlice({
       state.loading = false;
       state.categories = [];
       state.error = null;
+      state.totalPages = 1;
     },
   },
   extraReducers: (builder) => {
@@ -65,9 +73,13 @@ export const getCategoriesSlice = createSlice({
       })
       .addCase(
         getCategories.fulfilled,
-        (state, action: PayloadAction<Category[]>) => {
+        (
+          state,
+          action: PayloadAction<{ categories: Category[]; totalPages: number }>
+        ) => {
           state.loading = false;
-          state.categories = action.payload;
+          state.categories = action.payload.categories;
+          state.totalPages = action.payload.totalPages;
         }
       )
       .addCase(getCategories.rejected, (state, action) => {
@@ -78,5 +90,4 @@ export const getCategoriesSlice = createSlice({
 });
 
 export const { resetCategories } = getCategoriesSlice.actions;
-
 export default getCategoriesSlice.reducer;

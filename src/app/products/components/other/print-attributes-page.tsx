@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
-import { fetchAttributes } from "@/redux/slices/authSlice/Product/productAttributionSlice/fetchAttributesSlice";
+import { fetchAttributes } from "@/redux/slices/Product/productAttributionSlice/fetchAttributesSlice";
 import CommonCustomTable from "@/common/commonCustomTable";
 import { useTableData } from "@/common/useTableData";
 import CreateAttributesModal from "../../Models/addattributeModal";
@@ -28,6 +28,7 @@ const PrintAttributesPage = () => {
 
   useEffect(() => {
     dispatch(fetchAttributes());
+    console.log(fetchData);
   }, [dispatch]);
 
   const fetchData = React.useCallback(() => {

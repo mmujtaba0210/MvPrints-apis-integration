@@ -6,7 +6,7 @@ import CommonCustomTable from "@/common/commonCustomTable";
 import { useTableData } from "@/common/useTableData";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
-import { fetchBrands } from "@/redux/slices/authSlice/Product/productBrandSlice/fetchBrandsSlice";
+import { fetchBrands } from "@/redux/slices/Product/productBrandSlice/fetchBrandsSlice";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UpdateBrandForm from "./UpdateBrandForm";

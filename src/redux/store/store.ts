@@ -13,7 +13,6 @@ import getAllProductsReducer from "@/redux/slices/productSlices/getAllProductsSl
 import createCategoryReducer from "@/redux/slices/productCategorySlices/createCategorySlice";
 import updateCategoryReducer from "@/redux/slices/productCategorySlices/updateCategorySlice";
 import getAllCategoriesReducer from "@/redux/slices/productCategorySlices/getCategoriesSlice";
-import getCategoryByIdReducer from "@/redux/slices/productCategorySlices/getCategoryById";
 
 import createProductSubCategoryReducer from "@/redux/slices/productCategorySlices/SubCategorySlices/createSubCategorySlice";
 
@@ -58,7 +57,6 @@ const store = configureStore({
     createCategory: createCategoryReducer,
     updateCategory: updateCategoryReducer,
     getAllCategories: getAllCategoriesReducer,
-    getCategoryById: getCategoryByIdReducer,
 
     //sub categ
 
