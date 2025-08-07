@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import CommonCustomTable from "@/common/commonCustomTable";
-import { useTableData } from "@/common/useTableData";
 import AddProductCategoryModal from "../../Models/AddProductCatgeoryModal";
+import UpdateProductCategoryModal from "../../Models/UpdateProductMainCategoryForm";
 import { useDispatch, useSelector } from "react-redux";
-import { getCategories } from "@/redux/slices/productCategorySlices/getCategoriesSlice";
 import { AppDispatch, RootState } from "@/redux/store/store";
-import UpdateProductSubCategoryModal from "../../Models/UpdateProductMainCategoryForm";
+import { getCategories } from "@/redux/slices/productCategorySlices/getCategoriesSlice";
 
 interface Category {
   id: number;
@@ -18,48 +17,57 @@ interface Category {
 }
 
 const MainCategoryPage = () => {
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [filterStatus, setFilterStatus] = useState<boolean | null>(null);
+
+  const dispatch = useDispatch<AppDispatch>();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const dispatch = useDispatch<AppDispatch>();
-  const { categories, totalPages } = useSelector(
+  const { categories, totalPages, loading, error } = useSelector(
     (state: RootState) => state.getAllCategories
   );
 
-  const [page, setPage] = useState(1);
+  useEffect(() => {
+    dispatch(getCategories(currentPage));
+  }, [dispatch, currentPage]);
 
-  const fetchData = React.useCallback(
-    () =>
-      categories.map((cat: any) => ({
-        ...cat,
-        status: cat.status === 1,
-      })),
-    [categories]
-  );
+  const fetchData = useCallback((): Category[] => {
+    let filteredData = (categories || []).map((cat: any) => ({
+      id: cat.id,
+      name: cat.name,
+      ordering: cat.ordering,
+      status: typeof cat.status === "boolean" ? cat.status : cat.status === 1,
+      slug: cat.slug,
+    }));
+
+    // Apply search
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      filteredData = filteredData.filter(
+        (cat) =>
+          cat.name.toLowerCase().includes(term) ||
+          cat.slug.toLowerCase().includes(term)
+      );
+    }
+
+    // Apply status filter
+    if (filterStatus !== null) {
+      filteredData = filteredData.filter((cat) => cat.status === filterStatus);
+    }
+
+    return filteredData;
+  }, [categories, searchTerm, filterStatus]);
 
   const handleSuccess = () => {
     setIsModalOpen(false);
     setSelectedCategory(null);
-    dispatch(getCategories(page));
+    dispatch(getCategories(currentPage));
   };
-
-  useEffect(() => {
-    dispatch(getCategories(page));
-    console.log(paginatedData);
-  }, [dispatch, page]);
-
-  const {
-    paginatedData,
-    currentPage,
-    setCurrentPage,
-    setSearchQuery,
-    setStatusFilter,
-    isLoading,
-    error,
-    reload,
-  } = useTableData<Category>(fetchData, ["name", "slug"], "status");
 
   const columns = [
     {
@@ -79,7 +87,7 @@ const MainCategoryPage = () => {
       ),
     },
     {
-      key: "order",
+      key: "ordering",
       header: "Order",
       width: "170px",
       render: (item: Category) => (
@@ -93,12 +101,12 @@ const MainCategoryPage = () => {
       render: (item: Category) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-semibold ${
-            item.status
+            item.status === true
               ? "bg-green-100 text-green-600"
               : "bg-red-100 text-red-600"
           }`}
         >
-          {item.status ? "Active" : "Pending"}
+          {item.status === true ? "Active" : "Pending"}
         </span>
       ),
     },
@@ -130,9 +138,21 @@ const MainCategoryPage = () => {
   ];
 
   const filterOptions = [
+    { value: null, label: "All" },
     { value: true, label: "Active" },
     { value: false, label: "Pending" },
   ];
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -141,10 +161,10 @@ const MainCategoryPage = () => {
         <div className="flex gap-4">
           <button
             className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg"
-            onClick={() => dispatch(getCategories(page))}
-            disabled={isLoading}
+            onClick={() => dispatch(getCategories(currentPage))}
+            disabled={loading}
           >
-            Refresh
+            {loading ? "Refreshing..." : "Refresh"}
           </button>
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
@@ -159,26 +179,30 @@ const MainCategoryPage = () => {
       </div>
 
       <CommonCustomTable<Category>
-        data={paginatedData}
+        data={fetchData()}
         columns={columns}
-        currentPage={page}
+        currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={(newPage) => setPage(newPage)}
-        onSearch={setSearchQuery}
-        onFilter={setStatusFilter}
+        onPageChange={setCurrentPage}
+        onSearch={(searchTerm: string) => {
+          setSearchTerm(searchTerm);
+        }}
+        onFilter={(filterValue: boolean | "") => {
+          setFilterStatus(filterValue === "" ? null : filterValue);
+        }}
         filterOptions={filterOptions}
         title="Main Categories"
-        isLoading={isLoading}
+        isLoading={loading}
       />
 
       <AddProductCategoryModal
-        isOpen={isModalOpen}
+        isOpen={isModalOpen && selectedCategory === null}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleSuccess}
       />
 
       {selectedCategory && (
-        <UpdateProductSubCategoryModal
+        <UpdateProductCategoryModal
           isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);

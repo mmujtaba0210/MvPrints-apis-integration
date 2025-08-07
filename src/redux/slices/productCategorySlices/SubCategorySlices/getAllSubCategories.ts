@@ -30,6 +30,30 @@ const initialState: GetAllProductSubCategoriesState = {
 const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000/api";
 
+export const getAllSubCategoriesWithoutPagination = createAsyncThunk(
+  "productSubCategory/getAllWithoutPagination",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}admin/product-sub-categories`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      return response.data.data; // Assuming it's an array of subcategories
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch all product subcategories"
+      );
+    }
+  }
+);
+
+//all sub categories
 export const getAllProductSubCategories = createAsyncThunk(
   "productSubCategory/getAll",
   async (page: number = 1, { rejectWithValue }) => {

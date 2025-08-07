@@ -1,6 +1,9 @@
 "use client";
 
-import { getCategories } from "@/redux/slices/productCategorySlices/getCategoriesSlice";
+import {
+  getAllCategories,
+  getCategories,
+} from "@/redux/slices/productCategorySlices/getCategoriesSlice";
 import { createProductSubCategory } from "@/redux/slices/productCategorySlices/SubCategorySlices/createSubCategorySlice";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import React, { useEffect, useState } from "react";
@@ -32,7 +35,7 @@ const AddProductSubCategoryModal: React.FC<AddProductSubCategoryModalProps> = ({
 
   // ✅ Fetch once only
   useEffect(() => {
-    dispatch(getCategories());
+    dispatch(getAllCategories());
   }, [dispatch]);
 
   const handleChange = (

@@ -24,7 +24,7 @@ export interface TableColumn<T> {
 }
 
 interface FilterOption {
-  value: string | boolean;
+  value: null | string | boolean;
   label: string;
 }
 
@@ -66,7 +66,10 @@ const CommonCustomTable = <T,>({
               >
                 <option value="">All Status</option>
                 {filterOptions.map((option) => (
-                  <option key={option.label} value={option.value.toString()}>
+                  <option
+                    key={option.label}
+                    value={option.value !== null ? option.value.toString() : ""}
+                  >
                     {option.label}
                   </option>
                 ))}
