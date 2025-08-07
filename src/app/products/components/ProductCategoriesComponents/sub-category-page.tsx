@@ -12,10 +12,12 @@ interface SubCategory {
   category: string;
   subCategory: string;
   slug: string;
-  status: number;
+  status: boolean;
 }
 
 const SubCategoryPage = () => {
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [filterStatus, setFilterStatus] = useState<boolean | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   const { subCategories, totalPages, loading, error } = useSelector(
     (state: RootState) => state.getAllProductSubCategories
@@ -29,14 +31,33 @@ const SubCategoryPage = () => {
   }, [dispatch, currentPage]);
 
   const fetchData = useCallback((): SubCategory[] => {
-    return (subCategories || []).map((item: any) => ({
+    let formatted = (subCategories || []).map((item: any) => ({
       id: item.id,
-      category: item.category?.name || "N/A",
+      category: item.product_category?.name || "N/A",
       subCategory: item.name,
       slug: item.slug,
-      status: item.status,
+      status:
+        typeof item.status === "boolean" ? item.status : item.status === 1,
     }));
-  }, [subCategories]);
+
+    // Apply search
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      formatted = formatted.filter(
+        (item) =>
+          item.category.toLowerCase().includes(term) ||
+          item.subCategory.toLowerCase().includes(term) ||
+          item.slug.toLowerCase().includes(term)
+      );
+    }
+
+    // Apply filter
+    if (filterStatus !== null) {
+      formatted = formatted.filter((item) => item.status === filterStatus);
+    }
+
+    return formatted;
+  }, [subCategories, searchTerm, filterStatus]);
 
   const handleSuccess = () => {
     setIsModalOpen(false);
@@ -75,14 +96,12 @@ const SubCategoryPage = () => {
       render: (item: SubCategory) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-semibold ${
-            item.status === 1
+            item.status
               ? "bg-green-100 text-green-600"
-              : item.status === 0
-              ? "bg-red-100 text-red-600"
-              : "bg-yellow-100 text-yellow-600"
+              : "bg-red-100 text-red-600"
           }`}
         >
-          {item.status === 1 ? "Active" : "Pending"}
+          {item.status ? "Active" : "Pending"}
         </span>
       ),
     },
@@ -128,6 +147,7 @@ const SubCategoryPage = () => {
   ];
 
   const filterOptions = [
+    { value: null, label: "All" },
     { value: true, label: "Active" },
     { value: false, label: "Pending" },
   ];
@@ -201,8 +221,8 @@ const SubCategoryPage = () => {
         title="Sub Categories"
         isLoading={loading}
         filterOptions={filterOptions}
-        onFilter={() => {}}
-        onSearch={() => {}}
+        onFilter={(value) => setFilterStatus(value === "" ? null : value)}
+        onSearch={(value) => setSearchTerm(value)}
       />
 
       <AddProductSubCategoryModal

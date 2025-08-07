@@ -4,8 +4,14 @@ import React, { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
-import { getAllProductSubCategories } from "@/redux/slices/productCategorySlices/SubCategorySlices/getAllSubCategories";
-import { getCategories } from "@/redux/slices/productCategorySlices/getCategoriesSlice";
+import {
+  getAllProductSubCategories,
+  getAllSubCategoriesWithoutPagination,
+} from "@/redux/slices/productCategorySlices/SubCategorySlices/getAllSubCategories";
+import {
+  getAllCategories,
+  getCategories,
+} from "@/redux/slices/productCategorySlices/getCategoriesSlice";
 import { createChildCategory } from "@/redux/slices/productCategorySlices/ChildCategorySlices/createChildCategorySlice";
 import { toast } from "react-toastify";
 
@@ -27,15 +33,16 @@ const AddChildCategoryModal: React.FC<AddChildCategoryModalProps> = ({
     slug: "",
   });
   const dispatch = useDispatch<AppDispatch>();
-  const { categories } = useSelector(
+  const { allCategories } = useSelector(
     (state: RootState) => state.getAllCategories
   );
   const { subCategories } = useSelector(
     (state: RootState) => state.getAllProductSubCategories
   );
   useEffect(() => {
-    dispatch(getCategories());
-    dispatch(getAllProductSubCategories());
+    dispatch(getAllCategories());
+    dispatch(getAllSubCategoriesWithoutPagination());
+    console.log("first", subCategories);
   }, [dispatch]);
   const [iconPreview, setIconPreview] = useState<string | null>(null);
 
@@ -152,7 +159,7 @@ const AddChildCategoryModal: React.FC<AddChildCategoryModalProps> = ({
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-800"
               >
                 <option value="">Select Category</option>
-                {categories.map((category) => (
+                {allCategories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
