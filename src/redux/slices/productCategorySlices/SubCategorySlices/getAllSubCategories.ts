@@ -10,7 +10,7 @@ export interface ProductSubCategory {
   category?: {
     id: number;
     name: string;
-  }; // Optional nested category for UI display
+  };
 }
 
 export interface GetAllProductSubCategoriesState {

@@ -117,7 +117,7 @@ const MainCategoryPage = () => {
       render: (item: Category) => (
         <div className="flex gap-2">
           <button
-            className="text-blue-600 hover:text-blue-800"
+            className="text-blue-600 cursor-pointer hover:text-blue-800"
             title="Edit Category"
             onClick={() => {
               setSelectedCategory(item);
