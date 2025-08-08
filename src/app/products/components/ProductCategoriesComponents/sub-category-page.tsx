@@ -3,9 +3,11 @@
 import React, { useEffect, useState, useCallback } from "react";
 import CommonCustomTable from "@/common/commonCustomTable";
 import AddProductSubCategoryModal from "../../Models/AddSubCategoryModal";
+
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import { getAllProductSubCategories } from "@/redux/slices/productCategorySlices/SubCategorySlices/getAllSubCategories";
+import UpdateProductSubCategoryModal from "../../Models/UpdateProductSubCategoryModal";
 
 interface SubCategory {
   id: number;
@@ -13,6 +15,7 @@ interface SubCategory {
   subCategory: string;
   slug: string;
   status: boolean;
+  product_category_id?: number; // optional for now
 }
 
 const SubCategoryPage = () => {
@@ -24,6 +27,9 @@ const SubCategoryPage = () => {
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false); // ✅ new state
+  const [selectedSubCategory, setSelectedSubCategory] = useState<any>(null); // ✅ store row data
+
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -38,9 +44,9 @@ const SubCategoryPage = () => {
       slug: item.slug,
       status:
         typeof item.status === "boolean" ? item.status : item.status === 1,
+      product_category_id: item.product_category?.id || null,
     }));
 
-    // Apply search
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       formatted = formatted.filter(
@@ -51,7 +57,6 @@ const SubCategoryPage = () => {
       );
     }
 
-    // Apply filter
     if (filterStatus !== null) {
       formatted = formatted.filter((item) => item.status === filterStatus);
     }
@@ -61,6 +66,7 @@ const SubCategoryPage = () => {
 
   const handleSuccess = () => {
     setIsModalOpen(false);
+    setIsUpdateModalOpen(false); // ✅ close update modal also
     dispatch(getAllProductSubCategories(currentPage));
   };
 
@@ -111,9 +117,20 @@ const SubCategoryPage = () => {
       width: "150px",
       render: (item: SubCategory) => (
         <div className="flex gap-2">
+          {/* ✅ Edit Button */}
           <button
             className="text-blue-600 hover:text-blue-800"
             title="Edit Sub Category"
+            onClick={() => {
+              setSelectedSubCategory({
+                id: item.id,
+                name: item.subCategory,
+                slug: item.slug,
+                status: item.status ? 1 : 0,
+                product_category_id: item.product_category_id || 0,
+              });
+              setIsUpdateModalOpen(true);
+            }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -124,6 +141,8 @@ const SubCategoryPage = () => {
               <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
             </svg>
           </button>
+
+          {/* Delete Button (future implementation) */}
           <button
             className="text-red-600 hover:text-red-800"
             title="Delete Sub Category"
@@ -176,37 +195,13 @@ const SubCategoryPage = () => {
             onClick={() => dispatch(getAllProductSubCategories(currentPage))}
             disabled={loading}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-                clipRule="evenodd"
-              />
-            </svg>
-            {loading ? "Loading..." : "Refresh"}
+            Refresh
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
             disabled={loading}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
             Add Sub Category
           </button>
         </div>
@@ -225,11 +220,21 @@ const SubCategoryPage = () => {
         onSearch={(value) => setSearchTerm(value)}
       />
 
+      {/* Add Modal */}
       <AddProductSubCategoryModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleSuccess}
       />
+
+      {selectedSubCategory && (
+        <UpdateProductSubCategoryModal
+          isOpen={isUpdateModalOpen}
+          onClose={() => setIsUpdateModalOpen(false)}
+          onSuccess={handleSuccess}
+          subCategory={selectedSubCategory}
+        />
+      )}
     </div>
   );
 };
