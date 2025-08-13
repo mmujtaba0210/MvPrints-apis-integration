@@ -31,6 +31,19 @@ import createAttributeReducer from "@/redux/slices/Product/productAttributionSli
 import fetchAttributesReducer from "@/redux/slices/Product/productAttributionSlice/fetchAttributesSlice";
 import updateAttributeReducer from "@/redux/slices/Product/productAttributionSlice/updateAttributeSlice";
 
+//label Slice import
+
+import getLabelsReducer from "@/redux/slices/Product/Label/getLabelsSlice";
+import createLabelReducer from "@/redux/slices/Product/Label/createLabelSlice";
+import updateLabelReducer from "@/redux/slices/Product/Label/updateLabelSlice";
+import deleteLabelReducer from "@/redux/slices/Product/Label/deleteLabelSlice";
+
+//label Slice import
+
+import getColorReducer from "@/redux/slices/Product/Color/getColorSlice";
+import createColorReducer from "@/redux/slices/Product/Color/createColorSlice";
+import updateColorReducer from "@/redux/slices/Product/Color/updateColorSlice";
+import deleteColorReducer from "@/redux/slices/Product/Color/deleteColorSlice";
 //brands slice import
 
 import createBrandReducer from "@/redux/slices/Product/productBrandSlice/createProductBrandSlice";
@@ -75,6 +88,20 @@ const store = configureStore({
     createAttribute: createAttributeReducer,
     fetchAttributes: fetchAttributesReducer,
     updateProductAttributes: updateAttributeReducer,
+
+    //labels
+
+    getLabels: getLabelsReducer,
+    createLabel: createLabelReducer,
+    updateLabel: updateLabelReducer,
+    deleteLabel: deleteLabelReducer,
+
+    //labels
+
+    getColor: getColorReducer,
+    createColor: createColorReducer,
+    updateColor: updateColorReducer,
+    deleteColor: deleteColorReducer,
 
     //brands
 

@@ -82,7 +82,7 @@ const UpdateAttributesModal: React.FC<UpdateAttributesModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden border border-gray-100">
-        <div className="bg-gradient-to-r from-green-600 to-green-500 px-8 py-5 flex justify-between items-center">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-5 flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold text-white">
               Update Print Attribute
@@ -128,7 +128,7 @@ const UpdateAttributesModal: React.FC<UpdateAttributesModalProps> = ({
                 value={formData.attributeName}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-gray-800"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-800"
                 placeholder="e.g. Paper Type, Finishing"
               />
             </div>
@@ -147,7 +147,7 @@ const UpdateAttributesModal: React.FC<UpdateAttributesModalProps> = ({
                 value={formData.attributeValue}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-gray-800"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-800"
                 placeholder="e.g. Glossy, Matte, UV Coating"
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -168,7 +168,7 @@ const UpdateAttributesModal: React.FC<UpdateAttributesModalProps> = ({
                 rows={3}
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-gray-800"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-800"
                 placeholder="Provide details about this attribute..."
               />
             </div>
@@ -184,7 +184,7 @@ const UpdateAttributesModal: React.FC<UpdateAttributesModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg hover:from-green-700 hover:to-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-sm"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-sm"
             >
               Update Attribute
             </button>
