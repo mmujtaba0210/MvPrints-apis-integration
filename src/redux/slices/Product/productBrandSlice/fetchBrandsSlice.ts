@@ -46,7 +46,7 @@ export const fetchBrands = createAsyncThunk(
       );
 
       return {
-        brands: response.data.data, // list of brands
+        brands: response.data.data.records, // list of brands
         totalPages: response.data.meta?.last_page || 1, // adjust according to API response
         currentPage: page,
       };

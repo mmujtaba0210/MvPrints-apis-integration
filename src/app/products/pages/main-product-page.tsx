@@ -21,6 +21,8 @@ import PrintAttributesPage from "../components/other/print-attributes-page";
 import ProductDeliveryTimeTable from "../components/ProductDeliveryComponents/product-delivery-time-page";
 import AllProductsTable from "../components/all-prodcuts-table";
 import DigitalProductsPage from "../components/DigitalProductComponents/digital-product-page";
+import MainProductLabelsPage from "../components/ProductLabelComponent/ProductLabelMainPage";
+import MainProductColorsPage from "../components/ProductColorComponent/MainProductColorPage";
 
 export const MainProductPage = () => {
   const tabs = [
@@ -71,6 +73,18 @@ export const MainProductPage = () => {
       label: "Deactivated Products",
       icon: <FiAlertCircle size={18} />,
       content: <DeactivatedProductsPage />,
+    },
+    {
+      id: "product-labels",
+      label: "Product Labels",
+      icon: <FiHelpCircle size={18} />,
+      content: <MainProductLabelsPage />,
+    },
+    {
+      id: "product-colors",
+      label: "Product Colors",
+      icon: <FiHelpCircle size={18} />,
+      content: <MainProductColorsPage />,
     },
     {
       id: "print-brand",
