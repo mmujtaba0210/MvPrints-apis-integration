@@ -95,6 +95,7 @@ export const getAllProductSubCategoriesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
+
       .addCase(
         getAllProductSubCategories.fulfilled,
         (
@@ -109,10 +110,25 @@ export const getAllProductSubCategoriesSlice = createSlice({
           state.totalPages = action.payload.totalPages;
         }
       )
-      .addCase(getAllProductSubCategories.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
+
+      .addCase(getAllSubCategoriesWithoutPagination.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        getAllSubCategoriesWithoutPagination.fulfilled,
+        (state, action: PayloadAction<ProductSubCategory[]>) => {
+          state.loading = false;
+          state.subCategories = action.payload;
+        }
+      )
+      .addCase(
+        getAllSubCategoriesWithoutPagination.rejected,
+        (state, action) => {
+          state.loading = false;
+          state.error = action.payload as string;
+        }
+      );
   },
 });
 

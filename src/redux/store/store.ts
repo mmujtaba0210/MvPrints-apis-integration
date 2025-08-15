@@ -6,7 +6,8 @@ import authReducer from "../slices/authSlice/authSlice";
 
 import createProductReducer from "../slices/productSlices/createProductSlice";
 import updateProductReducer from "@/redux/slices/productSlices/updateProductSlice";
-import getAllProductsReducer from "@/redux/slices/productSlices/getAllProductsSlice";
+import fetchProductsReducer from "@/redux/slices/productSlices/getAllProductsSlice";
+import deleteProductReducer from "@/redux/slices/productSlices/deleteProductSlice";
 
 //products Category reducers import
 
@@ -64,7 +65,8 @@ const store = configureStore({
 
     createProduct: createProductReducer,
     updateProduct: updateProductReducer,
-    getAllProducts: getAllProductsReducer,
+    fetchProducts: fetchProductsReducer,
+    deleteProduct: deleteProductReducer,
 
     //products Category reducers
 

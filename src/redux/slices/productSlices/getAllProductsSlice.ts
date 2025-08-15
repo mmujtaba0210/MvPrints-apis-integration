@@ -1,78 +1,102 @@
+// src/redux/slices/productSlices/fetchProductsSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
-export interface Product {
-  id: number;
-  name: string;
-  type: string;
-  price: string;
-  description: string;
-  specification: string;
-  return_policy: string;
-  product_category_id: number;
-  product_sub_category_id: number;
-  product_child_category_id: number;
-  label_ids: number[];
-  // Add other fields if your API returns more
+const BASE_URL =
+  process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000/api";
+
+interface ProductSEO {
+  title: string;
+  slug: string;
+  keywords: string;
+  meta_tags: string[];
+  tags: string[];
+  meta_description: string;
 }
 
-interface GetAllProductsState {
+interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  type: string;
+  category: string;
+  sub_category: string;
+  child_category: string;
+  brand: string;
+  delivery_days: number | null;
+  varient: string;
+  is_shipping_cost: boolean;
+  shipping_cost: string;
+  shipping_location: string;
+  model: string;
+  description: string;
+  specification: string;
+  refund_policy: string;
+  allow_wholesale: boolean;
+  price: string;
+  discount: string;
+  sku: string;
+  stock: number;
+  is_active: boolean;
+  seo: ProductSEO;
+  media: any[];
+  labels: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+interface FetchProductsState {
+  data: Product[];
   loading: boolean;
-  products: Product[];
   error: string | null;
 }
 
-const initialState: GetAllProductsState = {
+const initialState: FetchProductsState = {
+  data: [],
   loading: false,
-  products: [],
   error: null,
 };
-const BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000/api";
-export const getAllProducts = createAsyncThunk(
-  "product/getAllProducts",
+
+export const fetchProducts = createAsyncThunk<Product[]>(
+  "products/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/products`);
-      return response.data;
-    } catch (error: any) {
+      const res = await axios.get(`${BASE_URL}admin/products/digital`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+      return res.data.data || res.data;
+    } catch (err: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch products"
+        err.response?.data?.message || "Failed to fetch products"
       );
     }
   }
 );
 
-export const getAllProductsSlice = createSlice({
-  name: "getAllProducts",
+const fetchProductsSlice = createSlice({
+  name: "fetchProducts",
   initialState,
-  reducers: {
-    resetGetAllProducts: (state) => {
-      state.loading = false;
-      state.products = [];
-      state.error = null;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getAllProducts.pending, (state) => {
+      .addCase(fetchProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(
-        getAllProducts.fulfilled,
+        fetchProducts.fulfilled,
         (state, action: PayloadAction<Product[]>) => {
           state.loading = false;
-          state.products = action.payload;
+          state.data = action.payload;
         }
       )
-      .addCase(getAllProducts.rejected, (state, action) => {
+      .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
   },
 });
 
-export const { resetGetAllProducts } = getAllProductsSlice.actions;
-
-export default getAllProductsSlice.reducer;
+export default fetchProductsSlice.reducer;
