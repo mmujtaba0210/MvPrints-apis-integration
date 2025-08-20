@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { ProductInformationForm } from "./components/ProductInformationForm";
@@ -12,13 +12,9 @@ import { MediaForm } from "./components/mediaForm";
 import { ShippingForm } from "./components/ShippingForm";
 import { SEOForm } from "./components/SeoForm";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  createProduct,
-  resetStatus,
-} from "@/redux/slices/productSlices/createProductSlice";
+import { createProduct } from "@/redux/slices/productSlices/createProductSlice";
 import { AppDispatch, RootState } from "@/redux/store/store";
-import { toast } from "react-toastify";
-import { string } from "prop-types";
+
 const steps = [
   { id: "Product Information", component: ProductInformationForm },
   { id: "Product Identifiers", component: ProductIdentifiersForm },
@@ -31,6 +27,7 @@ const steps = [
 ];
 
 export const AddProductForm = () => {
+  const [laststeps, setLastSteps] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [allowWholesale, setAllowWholesale] = useState(false);
   const [freeShipping, setFreeShipping] = useState(false);
@@ -67,26 +64,73 @@ export const AddProductForm = () => {
     { id: "4", name: "Business Laptops", parentId: "2" },
   ];
 
-  const onSubmit = (data: any) => {
-    if (currentStep + 1 == steps.length - 1) {
-      console.log("Blocked accidental submit on wrong step");
-      console.log("cuurent", currentStep);
-      console.log("steps", steps.length - 1);
-      return;
-    }
-    dispatch(createProduct(data));
-    console.log(data);
-  };
+  const nextStep = async () => {
+    // Run validation for current step before moving forward
 
-  const nextStep = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
+    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
   };
 
   const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+  };
+
+  const onSubmit = (data: any) => {
+    console.log(data);
+    if (laststeps) {
+      const transformedData = {
+        // Basic product info
+        name: data.productName,
+        slug: data.slug,
+        type: data.type,
+        model: data.model,
+        description: data.description,
+        specification: data.specification,
+        refund_policy: data.refundPolicy,
+
+        // Categories & Brand
+        product_category_id: Number(data.category),
+        product_sub_category_id: Number(data.subCategory),
+        product_child_category_id: Number(data.childCategory),
+        product_brand_id: Number(data.brand),
+        product_deleivery_time_id: Number(data.deliveryTimeId),
+
+        // Pricing
+        varient: data.varient,
+        allow_wholesale: data.allowWholesale ? 1 : 0,
+        price: Number(data.retailPrice),
+        discount: Number(data.discountAmount),
+        sku: data.sku,
+        stock: Number(data.stock),
+
+        // Shipping
+        is_shipping_cost: data.isShippingCost ? 1 : 0,
+        shipping_cost: Number(data.shippingCost),
+        shipping_location: data.shippingLocation,
+
+        // Status
+        is_active: data.isActive ? 1 : 0,
+
+        // SEO
+        seo_title: data.seoTitle,
+        seo_slug: data.seoSlug,
+        seo_keywords: data.seoKeywords,
+        seo_meta_description: data.seoMetaDescription,
+        seo_meta_tags: data.seoMetaTags || [],
+        seo_tags: data.seoTags || [],
+
+        // Labels (convert to array of numbers)
+        labels: data.labels?.map((l: any) => Number(l)) || [],
+
+        // Media (assuming your form returns something like this)
+        media:
+          data.media?.map((m: any) => ({
+            type: m.type,
+            upload_by: m.uploadBy || undefined,
+          })) || [],
+      };
+
+      dispatch(createProduct(transformedData));
+      console.log("Submitting product:", transformedData);
     }
   };
 
@@ -150,32 +194,33 @@ export const AddProductForm = () => {
           setFreeShipping={setFreeShipping}
         />
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-between pt-6 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={prevStep}
-            disabled={currentStep === 0}
-            className={`px-4 py-2 rounded-lg flex items-center ${
-              currentStep === 0
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            <FiChevronLeft className="mr-1" /> Previous
-          </button>
+        {/* Navigation buttons */}
+        <div className="flex justify-between mt-4">
+          {currentStep > 0 && (
+            <button
+              type="button" // never submit
+              onClick={prevStep}
+              className="px-4 py-2 bg-gray-200 rounded"
+            >
+              Previous
+            </button>
+          )}
+
           {currentStep < steps.length - 1 ? (
             <button
-              type="button"
+              type="button" // prevent accidental submit
               onClick={nextStep}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center"
+              className="px-4 py-2 bg-blue-500 text-white rounded"
             >
-              Next <FiChevronRight className="ml-1" />
+              Next
             </button>
           ) : (
             <button
-              type="submit"
-              className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+              onClick={() => {
+                setLastSteps(true);
+                onSubmit;
+              }}
+              className="px-4 py-2 bg-green-500 text-white rounded"
             >
               Submit Product
             </button>

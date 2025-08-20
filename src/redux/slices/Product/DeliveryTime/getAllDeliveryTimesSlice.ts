@@ -6,14 +6,18 @@ const BASE_URL =
 
 export const getAllDeliveryTimes = createAsyncThunk(
   "deliveryTimes/getAll",
-  async (_, { rejectWithValue }) => {
+  async (page: number, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}admin/delivery-times`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-      return response.data.data;
+      const response = await axios.get(
+        `${BASE_URL}admin/product-deleivery-times/pagination?page=${[page]}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+      console.log(response.data.data.records);
+      return response.data.data.records;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
