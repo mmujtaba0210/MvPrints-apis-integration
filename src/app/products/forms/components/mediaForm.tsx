@@ -8,11 +8,7 @@ interface MediaFormProps {
   setValue: any;
 }
 
-export const MediaForm = ({
-  register,
-  errors,
-  setValue,
-}: MediaFormProps) => {
+export const MediaForm = ({ register, errors, setValue }: MediaFormProps) => {
   const [featureImage, setFeatureImage] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [uploadType, setUploadType] = useState("file");
@@ -22,6 +18,10 @@ export const MediaForm = ({
   const handleFeatureImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size must be under 5MB");
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setFeatureImage(reader.result as string);
@@ -31,22 +31,23 @@ export const MediaForm = ({
     }
   };
 
-  const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const readFileAsDataURL = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleGalleryChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      const newImages: string[] = [];
-      
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          newImages.push(reader.result as string);
-          if (newImages.length === files.length) {
-            setGalleryImages([...galleryImages, ...newImages]);
-            setValue("galleryImages", files);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+      const newImages = await Promise.all(files.map(readFileAsDataURL));
+      setGalleryImages((prev) => [...prev, ...newImages]);
+      setValue("galleryImages", [...(galleryImages || []), ...files]);
     }
   };
 
@@ -72,7 +73,7 @@ export const MediaForm = ({
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-medium text-gray-900">Media</h3>
-      
+
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div className="space-y-4">
           <div>
@@ -100,7 +101,9 @@ export const MediaForm = ({
                 className="mt-1 flex flex-col items-center justify-center h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500"
               >
                 <FiUpload className="h-10 w-10 text-gray-400" />
-                <span className="mt-2 text-sm text-gray-600">Upload Feature Image</span>
+                <span className="mt-2 text-sm text-gray-600">
+                  Upload Feature Image
+                </span>
               </div>
             )}
             <input
@@ -193,7 +196,9 @@ export const MediaForm = ({
                 type="button"
                 onClick={() => setUploadType("file")}
                 className={`px-4 py-2 text-sm font-medium rounded-l-md ${
-                  uploadType === "file" ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'
+                  uploadType === "file"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-100 text-gray-700"
                 }`}
               >
                 <FiUpload className="inline mr-1" /> File
@@ -202,7 +207,9 @@ export const MediaForm = ({
                 type="button"
                 onClick={() => setUploadType("link")}
                 className={`px-4 py-2 text-sm font-medium rounded-r-md ${
-                  uploadType === "link" ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'
+                  uploadType === "link"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-100 text-gray-700"
                 }`}
               >
                 <FiLink className="inline mr-1" /> Link

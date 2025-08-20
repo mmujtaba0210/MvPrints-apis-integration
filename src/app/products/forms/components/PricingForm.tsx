@@ -1,4 +1,27 @@
 import { CustomInput } from "@/common/customInputField";
+import {
+  UseFormRegister,
+  FieldValues,
+  FieldErrors,
+  Control,
+} from "react-hook-form";
+
+export interface CommonFormProps {
+  register: UseFormRegister<FieldValues>;
+  errors: FieldErrors<FieldValues>;
+  control: Control<FieldValues>;
+  setValue: any;
+
+  categories: { id: string; name: string }[];
+  subCategories: { id: string; name: string; parentId: string }[];
+  childCategories: { id: string; name: string; parentId: string }[];
+
+  allowWholesale: boolean;
+  setAllowWholesale: (value: boolean) => void;
+  freeShipping: boolean;
+  setFreeShipping: (value: boolean) => void;
+}
+interface PricingFormProps extends CommonFormProps {}
 
 interface PricingFormProps {
   register: any;
@@ -16,7 +39,7 @@ export const PricingForm = ({
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-medium text-gray-900">Pricing</h3>
-      
+
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <CustomInput
           label="Default Retail Price"
@@ -45,8 +68,8 @@ export const PricingForm = ({
             <p className="text-xs text-gray-500">Enable wholesale pricing</p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               checked={allowWholesale}
               onChange={() => setAllowWholesale(!allowWholesale)}
               className="sr-only peer"
