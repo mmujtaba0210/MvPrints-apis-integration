@@ -117,7 +117,6 @@ export const AddProductForm = () => {
         seo_meta_tags: data.seoMetaTags || [],
         seo_tags: data.seoTags || [],
 
-        // Labels (convert to array of numbers)
         labels: data.labels,
 
         // Media (assuming your form returns something like this)
