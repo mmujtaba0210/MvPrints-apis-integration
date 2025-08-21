@@ -58,10 +58,45 @@ const initialState: FetchProductsState = {
 };
 
 export const fetchProducts = createAsyncThunk<Product[]>(
-  "products/fetchAll",
+  "products/fetchPrints",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(`${BASE_URL}admin/products/prints`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+      return res.data.data || res.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch products"
+      );
+    }
+  }
+);
+export const fetchDigitalProducts = createAsyncThunk<Product[]>(
+  "products/fetchDigital",
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get(`${BASE_URL}admin/products/digital`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+      return res.data.data || res.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch products"
+      );
+    }
+  }
+);
+
+export const fetchQuotationProducts = createAsyncThunk<Product[]>(
+  "products/fetchQuotation",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(`${BASE_URL}admin/products/quotation`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -80,6 +115,7 @@ const fetchProductsSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
+    // prints
     builder
       .addCase(fetchProducts.pending, (state) => {
         state.loading = true;
@@ -93,6 +129,42 @@ const fetchProductsSlice = createSlice({
         }
       )
       .addCase(fetchProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // digital
+    builder
+      .addCase(fetchDigitalProducts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchDigitalProducts.fulfilled,
+        (state, action: PayloadAction<Product[]>) => {
+          state.loading = false;
+          state.data = action.payload;
+        }
+      )
+      .addCase(fetchDigitalProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // quotation
+    builder
+      .addCase(fetchQuotationProducts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchQuotationProducts.fulfilled,
+        (state, action: PayloadAction<Product[]>) => {
+          state.loading = false;
+          state.data = action.payload;
+        }
+      )
+      .addCase(fetchQuotationProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

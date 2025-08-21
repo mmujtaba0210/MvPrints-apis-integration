@@ -54,7 +54,6 @@ const initialState: ProductState = {
 };
 const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000/api";
-// Async thunk
 export const createProduct = createAsyncThunk<
   any, // Response type
   ProductPayload, // Argument type
@@ -68,7 +67,9 @@ export const createProduct = createAsyncThunk<
     });
     return response.data;
   } catch (error: any) {
-    return console.log(error.response?.data || "Failed to create product");
+    return rejectWithValue(
+      error.response?.data || { message: "Failed to create product" }
+    );
   }
 });
 
