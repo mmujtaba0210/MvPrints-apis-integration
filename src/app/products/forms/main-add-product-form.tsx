@@ -75,13 +75,12 @@ export const AddProductForm = () => {
   };
 
   const onSubmit = (data: any) => {
-    console.log(data);
     if (laststeps) {
       const transformedData = {
         // Basic product info
         name: data.productName,
         slug: data.slug,
-        type: data.type,
+        type: data.listingType,
         model: data.model,
         description: data.description,
         specification: data.specification,
@@ -119,7 +118,7 @@ export const AddProductForm = () => {
         seo_tags: data.seoTags || [],
 
         // Labels (convert to array of numbers)
-        labels: data.labels?.map((l: any) => Number(l)) || [],
+        labels: data.labels,
 
         // Media (assuming your form returns something like this)
         media:
