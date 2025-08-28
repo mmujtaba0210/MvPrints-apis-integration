@@ -61,7 +61,7 @@ export const fetchProducts = createAsyncThunk<Product[]>(
   "products/fetchPrints",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${BASE_URL}admin/products/prints`, {
+      const res = await axios.get(`${BASE_URL}admin/products/prints/list`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -78,7 +78,7 @@ export const fetchDigitalProducts = createAsyncThunk<Product[]>(
   "products/fetchDigital",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${BASE_URL}admin/products/digital`, {
+      const res = await axios.get(`${BASE_URL}admin/products/digital/list`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -96,7 +96,7 @@ export const fetchQuotationProducts = createAsyncThunk<Product[]>(
   "products/fetchQuotation",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${BASE_URL}admin/products/quotation`, {
+      const res = await axios.get(`${BASE_URL}admin/products/quotation/list`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },

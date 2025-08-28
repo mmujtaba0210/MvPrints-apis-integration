@@ -79,19 +79,25 @@ export const AddQuotationProductForm = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white rounded-xl shadow-sm">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Add Quotation Product</h1>
-      
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">
+        Add Quotation Product
+      </h1>
+
       {/* Progress Steps */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
           {steps.map((step, index) => (
             <div
               key={step.id}
-              className={`flex flex-col items-center ${index < steps.length - 1 ? "flex-1" : ""}`}
+              className={`flex flex-col items-center ${
+                index < steps.length - 1 ? "flex-1" : ""
+              }`}
             >
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  index <= currentStep ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-600"
+                  index <= currentStep
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-600"
                 }`}
               >
                 {index + 1}
@@ -122,9 +128,11 @@ export const AddQuotationProductForm = () => {
           errors={errors}
           control={control}
           setValue={setValue}
-          categories={categories}
-          subCategories={subCategories}
-          childCategories={childCategories}
+          {...(CurrentFormComponent === ProductInformationForm && {
+            categories,
+            subCategories,
+            childCategories,
+          })}
           allowWholesale={allowWholesale}
           setAllowWholesale={setAllowWholesale}
           freeShipping={freeShipping}
