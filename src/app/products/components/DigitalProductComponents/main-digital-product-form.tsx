@@ -127,7 +127,9 @@ export const AddDigitalProductForm = () => {
           control={control}
           setValue={setValue}
           {...(CurrentFormComponent === ProductInformationForm ||
-          CurrentFormComponent === ProductDetailsForm
+          CurrentFormComponent === ProductDetailsForm ||
+          CurrentFormComponent === MediaForm ||
+          CurrentFormComponent === SEOForm
             ? {
                 categories,
                 subCategories,

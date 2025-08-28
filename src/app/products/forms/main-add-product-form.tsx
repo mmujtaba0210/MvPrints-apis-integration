@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { ProductInformationForm } from "./components/ProductInformationForm";
@@ -12,8 +12,12 @@ import { MediaForm } from "./components/mediaForm";
 import { ShippingForm } from "./components/ShippingForm";
 import { SEOForm } from "./components/SeoForm";
 import { useDispatch, useSelector } from "react-redux";
-import { createProduct } from "@/redux/slices/productSlices/createProductSlice";
+import {
+  createProduct,
+  resetCreateProduct,
+} from "@/redux/slices/productSlices/createProductSlice";
 import { AppDispatch, RootState } from "@/redux/store/store";
+import { toast } from "react-toastify";
 
 const steps = [
   { id: "Product Information", component: ProductInformationForm },
@@ -35,6 +39,36 @@ export const AddProductForm = () => {
   const { loading, success, error } = useSelector(
     (state: RootState) => state.createProduct
   );
+
+  useEffect(() => {
+    if (success) {
+      toast.success("✅ Product created successfully!");
+      dispatch(resetCreateProduct());
+    }
+  }, [success, dispatch]);
+  useEffect(() => {
+    if (error) {
+      // If backend returns validation errors
+      const errorObj = error as {
+        errors?: Record<string, string[]>;
+        message?: string;
+      };
+      if (typeof error === "object" && errorObj.errors) {
+        Object.entries(errorObj.errors).forEach(([field, messages]) => {
+          (messages as string[]).forEach((msg) =>
+            toast.error(`${field}: ${msg}`)
+          );
+        });
+      } else {
+        toast.error(
+          typeof error === "object" && "message" in error
+            ? errorObj.message
+            : error || "❌ Failed to create product"
+        );
+      }
+      dispatch(resetCreateProduct());
+    }
+  }, [error, dispatch]);
   const {
     register,
     handleSubmit,
@@ -83,23 +117,23 @@ export const AddProductForm = () => {
         type: data.listingType,
         model: data.model,
         description: data.description,
-        specification: data.specification,
-        refund_policy: data.refundPolicy,
+        specification: data.specifications,
+        refund_policy: data.returnPolicy,
 
         // Categories & Brand
         product_category_id: Number(data.category),
         product_sub_category_id: Number(data.subCategory),
         product_child_category_id: Number(data.childCategory),
-        product_brand_id: Number(data.brand),
+        product_brand_id: Number(data.product_brand_id),
         product_deleivery_time_id: Number(data.deliveryTimeId),
 
         // Pricing
-        varient: data.varient,
+        varient: data.variant,
         allow_wholesale: data.allowWholesale ? 1 : 0,
         price: Number(data.retailPrice),
         discount: Number(data.discountAmount),
         sku: data.sku,
-        stock: Number(data.stock),
+        stock: data.stockNumber,
 
         // Shipping
         is_shipping_cost: data.isShippingCost ? 1 : 0,
@@ -111,11 +145,25 @@ export const AddProductForm = () => {
 
         // SEO
         seo_title: data.seoTitle,
-        seo_slug: data.seoSlug,
-        seo_keywords: data.seoKeywords,
-        seo_meta_description: data.seoMetaDescription,
-        seo_meta_tags: data.seoMetaTags || [],
-        seo_tags: data.seoTags || [],
+        seo_slug: data.slug,
+        seo_keywords: data.keywords,
+        seo_meta_description: data.metaDescription,
+        seo_meta_tags: Array.isArray(data.metaTags)
+          ? data.metaTags
+          : typeof data.metaTags === "string"
+          ? data.metaTags
+              .split(",")
+              .map((tag: string) => tag.trim())
+              .filter(Boolean)
+          : [],
+        seo_tags: Array.isArray(data.tags)
+          ? data.tags
+          : typeof data.tags === "string"
+          ? data.tags
+              .split(",")
+              .map((tag: string) => tag.trim())
+              .filter(Boolean)
+          : [],
 
         labels: data.labels,
 
@@ -127,8 +175,11 @@ export const AddProductForm = () => {
           })) || [],
       };
 
-      dispatch(createProduct(transformedData));
-      console.log("Submitting product:", transformedData);
+      if (laststeps) {
+        dispatch(createProduct(transformedData));
+        setLastSteps(false);
+        console.log("Submitting product:", transformedData);
+      }
     }
   };
 
@@ -183,13 +234,15 @@ export const AddProductForm = () => {
           errors={errors}
           control={control}
           setValue={setValue}
-          categories={categories}
-          subCategories={subCategories}
-          childCategories={childCategories}
           allowWholesale={allowWholesale}
           setAllowWholesale={setAllowWholesale}
           freeShipping={freeShipping}
           setFreeShipping={setFreeShipping}
+          {...(CurrentFormComponent === ProductInformationForm && {
+            categories,
+            subCategories,
+            childCategories,
+          })}
         />
 
         {/* Navigation buttons */}

@@ -4,56 +4,24 @@ import React, { useEffect, useState } from "react";
 import CommonCustomTable from "@/common/commonCustomTable";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
-
+import { AddProductModal } from "../Models/AddProductModal";
+import { fetchProducts } from "@/redux/slices/productSlices/getAllProductsSlice";
+import {
+  updateProduct,
+  resetUpdateState,
+} from "@/redux/slices/productSlices/updateProductSlice";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import UpdateProductModal from "../Models/UpdateProductModal";
+import { toast } from "react-toastify";
 import {
   deleteProduct,
   resetDeleteState,
 } from "@/redux/slices/productSlices/deleteProductSlice";
-import { AddProductModal } from "../Models/AddProductModal";
-import { fetchProducts } from "@/redux/slices/productSlices/getAllProductsSlice";
-import { FaTrash } from "react-icons/fa";
-
-interface ProductSEO {
-  title: string;
-  slug: string;
-  keywords: string;
-  meta_tags: string[];
-  tags: string[];
-  meta_description: string;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  slug: string;
-  type: string;
-  category: string;
-  sub_category: string;
-  child_category: string;
-  brand: string;
-  delivery_days: number | null;
-  varient: string;
-  is_shipping_cost: boolean;
-  shipping_cost: string;
-  shipping_location: string;
-  model: string;
-  description: string;
-  specification: string;
-  refund_policy: string;
-  allow_wholesale: boolean;
-  price: string;
-  discount: string;
-  sku: string;
-  stock: number;
-  is_active: boolean;
-  seo: ProductSEO;
-  media: any[];
-  labels: string[];
-  created_at: string;
-  updated_at: string;
-}
 
 const AllProductsTable = () => {
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+
   const dispatch = useDispatch<AppDispatch>();
   const { data, loading, error } = useSelector(
     (state: RootState) => state.fetchProducts
@@ -61,21 +29,42 @@ const AllProductsTable = () => {
   const { success: deleteSuccess } = useSelector(
     (state: RootState) => state.deleteProduct
   );
+  const {
+    loading: updateLoading,
+    success: updateSuccess,
+    error: updateError,
+  } = useSelector((state: RootState) => state.updateProduct);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
+  // fetch products initially
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
+  // handle delete refresh
   useEffect(() => {
     if (deleteSuccess) {
       dispatch(fetchProducts());
       dispatch(resetDeleteState());
     }
   }, [deleteSuccess, dispatch]);
+
+  // handle update refresh
+  useEffect(() => {
+    if (updateSuccess) {
+      toast.success("✅ Product updated successfully!");
+      dispatch(fetchProducts());
+      dispatch(resetUpdateState());
+      setEditModalOpen(false);
+    }
+    if (updateError) {
+      toast.error(updateError);
+      dispatch(resetUpdateState());
+    }
+  }, [updateSuccess, updateError, dispatch]);
 
   const handleDelete = (id: number) => {
     if (confirm("Are you sure you want to delete this product?")) {
@@ -107,58 +96,20 @@ const AllProductsTable = () => {
     { key: "sku", header: "SKU" },
     { key: "stock", header: "Stock" },
     {
-      key: "seo.meta_tags",
-      header: "Meta Tags",
-      render: (item: Product) => (
-        <div className="flex flex-wrap gap-1">
-          {item.seo.meta_tags.map((tag, i) => (
-            <span
-              key={i}
-              className="bg-blue-100 text-blue-800 px-2 py-1 rounded"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      ),
-    },
-    {
-      key: "seo.tags",
-      header: "Tags",
-      render: (item: Product) => (
-        <div className="flex flex-wrap gap-1">
-          {item.seo.tags.map((tag, i) => (
-            <span
-              key={i}
-              className="bg-green-100 text-green-800 px-2 py-1 rounded"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      ),
-    },
-    {
-      key: "labels",
-      header: "Labels",
-      render: (item: Product) => (
-        <div className="flex flex-wrap gap-1">
-          {item.labels.map((label, i) => (
-            <span
-              key={i}
-              className="bg-purple-100 text-purple-800 px-2 py-1 rounded"
-            >
-              {label}
-            </span>
-          ))}
-        </div>
-      ),
-    },
-    {
       key: "actions",
       header: "Actions",
-      render: (item: Product) => (
+      render: (item: any) => (
         <div className="flex gap-2">
+          <button
+            className="text-blue-600 cursor-pointer "
+            onClick={() => {
+              setSelectedProduct(item);
+              setEditModalOpen(true);
+              console.log(item);
+            }}
+          >
+            <FaEdit />
+          </button>
           <button
             className="text-red-600"
             onClick={() => handleDelete(item.id)}
@@ -168,11 +119,6 @@ const AllProductsTable = () => {
         </div>
       ),
     },
-  ];
-
-  const filterOptions = [
-    { value: "Published", label: "Published" },
-    { value: "Draft", label: "Draft" },
   ];
 
   return (
@@ -198,7 +144,7 @@ const AllProductsTable = () => {
 
       {error && <div className="text-red-600 mb-4">Error: {error}</div>}
 
-      <CommonCustomTable<Product>
+      <CommonCustomTable
         data={filteredData}
         columns={columns}
         currentPage={1}
@@ -212,6 +158,15 @@ const AllProductsTable = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={() => dispatch(fetchProducts())}
+      />
+
+      <UpdateProductModal
+        isOpen={editModalOpen}
+        product={selectedProduct}
+        onClose={() => setEditModalOpen(false)}
+        onUpdate={(updatedData) =>
+          dispatch(updateProduct({ id: updatedData.id, updatedData }))
+        }
       />
     </div>
   );

@@ -1,27 +1,4 @@
 import { CustomInput } from "@/common/customInputField";
-import {
-  UseFormRegister,
-  FieldValues,
-  FieldErrors,
-  Control,
-} from "react-hook-form";
-
-export interface CommonFormProps {
-  register: UseFormRegister<FieldValues>;
-  errors: FieldErrors<FieldValues>;
-  control: Control<FieldValues>;
-  setValue: any;
-
-  categories: { id: string; name: string }[];
-  subCategories: { id: string; name: string; parentId: string }[];
-  childCategories: { id: string; name: string; parentId: string }[];
-
-  allowWholesale: boolean;
-  setAllowWholesale: (value: boolean) => void;
-  freeShipping: boolean;
-  setFreeShipping: (value: boolean) => void;
-}
-interface PricingFormProps extends CommonFormProps {}
 
 interface PricingFormProps {
   register: any;
@@ -41,6 +18,7 @@ export const PricingForm = ({
       <h3 className="text-lg font-medium text-gray-900">Pricing</h3>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        {/* Default Retail Price */}
         <CustomInput
           label="Default Retail Price"
           name="retailPrice"
@@ -51,6 +29,7 @@ export const PricingForm = ({
           errors={errors}
         />
 
+        {/* Discount Amount */}
         <CustomInput
           label="Discount Amount"
           name="discountAmount"
@@ -60,6 +39,18 @@ export const PricingForm = ({
           errors={errors}
         />
 
+        {/* ✅ Stock Number */}
+        <CustomInput
+          label="Stock Number"
+          name="stockNumber"
+          register={register}
+          required
+          placeholder="Enter stock quantity"
+          type="number"
+          errors={errors}
+        />
+
+        {/* Allow Wholesale Toggle */}
         <div className="flex items-center justify-between sm:col-span-2">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -78,6 +69,7 @@ export const PricingForm = ({
           </label>
         </div>
 
+        {/* Wholesale Fields */}
         {allowWholesale && (
           <>
             <CustomInput

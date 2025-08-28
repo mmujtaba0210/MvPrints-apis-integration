@@ -12,6 +12,7 @@ import { getAllCategories } from "@/redux/slices/productCategorySlices/getCatego
 import { getAllSubCategoriesWithoutPagination } from "@/redux/slices/productCategorySlices/SubCategorySlices/getAllSubCategories";
 import { fetchChildCategories } from "@/redux/slices/productCategorySlices/ChildCategorySlices/fetchChildCategorySlice";
 import { getLabels } from "@/redux/slices/Product/Label/getLabelsSlice";
+import { fetchBrands } from "@/redux/slices/Product/productBrandSlice/fetchBrandsSlice"; // ✅ import brands slice
 
 interface ProductInformationFormProps {
   register: any;
@@ -40,6 +41,7 @@ export const ProductInformationForm = ({
     (state: RootState) => state.fetchChildCategories
   );
   const { data: labels } = useSelector((state: RootState) => state.getLabels);
+  const { brands } = useSelector((state: RootState) => state.fetchBrands); // ✅ brands state
 
   // 🔹 fetch on mount
   useEffect(() => {
@@ -47,6 +49,7 @@ export const ProductInformationForm = ({
     dispatch(getAllSubCategoriesWithoutPagination());
     dispatch(fetchChildCategories(1));
     dispatch(getLabels({ page: 1 }));
+    dispatch(fetchBrands(1));
   }, [dispatch]);
 
   // 🔹 label toggle logic (also update form state)
@@ -58,10 +61,6 @@ export const ProductInformationForm = ({
       setValue("labels", updated); // update RHF form state
       return updated;
     });
-  };
-
-  const onSubmit = (data: any) => {
-    console.log("Form Submitted:", data);
   };
 
   return (
@@ -217,15 +216,35 @@ export const ProductInformationForm = ({
             </p>
           )}
         </div>
-      </div>
 
-      {/* Submit button */}
-      <button
-        type="submit"
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-      >
-        Save Product
-      </button>
+        {/* ✅ Product Brand */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Product Brand <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <select
+              {...register("product_brand_id", {
+                required: "Product brand is required",
+              })}
+              className="block w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none"
+            >
+              <option value="">Select brand</option>
+              {brands?.map((brand: any) => (
+                <option key={brand.id} value={brand.id}>
+                  {brand.name}
+                </option>
+              ))}
+            </select>
+            <FiChevronDown className="absolute right-3 top-4 h-5 w-5 text-gray-400" />
+          </div>
+          {errors.product_brand_id && (
+            <p className="text-sm text-red-600">
+              {errors.product_brand_id.message as string}
+            </p>
+          )}
+        </div>
+      </div>
     </form>
   );
 };
