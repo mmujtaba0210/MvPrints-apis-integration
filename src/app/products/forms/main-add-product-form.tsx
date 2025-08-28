@@ -109,7 +109,6 @@ export const AddProductForm = () => {
   };
 
   const onSubmit = (data: any) => {
-    console.log("beforeData", data);
     if (laststeps) {
       const transformedData = {
         // Basic product info
@@ -166,8 +165,7 @@ export const AddProductForm = () => {
               .filter(Boolean)
           : [],
 
-        // Labels (convert to array of numbers)
-        labels: data.labels?.map((l: any) => Number(l)) || [],
+        labels: data.labels,
 
         // Media (assuming your form returns something like this)
         media:
