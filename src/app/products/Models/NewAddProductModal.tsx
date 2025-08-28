@@ -142,7 +142,7 @@ const NewAddProductModal: React.FC<AddProductModalProps> = ({
       dispatch(getAllSubCategoriesWithoutPagination());
       dispatch(fetchChildCategories(1)); // initial page or default
       dispatch(fetchBrands(1));
-      dispatch(getAllDeliveryTimes());
+      dispatch(getAllDeliveryTimes(1));
     }
   }, [isOpen, dispatch]);
 
