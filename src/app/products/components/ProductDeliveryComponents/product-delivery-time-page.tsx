@@ -1,71 +1,55 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CommonCustomTable from "@/common/commonCustomTable";
-import { useTableData } from "@/common/useTableData";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store/store";
+import { getAllDeliveryTimes } from "@/redux/slices/Product/DeliveryTime/getAllDeliveryTimesSlice";
 import AddProductDeliveryTimeModal from "../../Models/AddProductDeliveryModal";
-import { useForm } from "react-hook-form";
+import { FaEdit } from "react-icons/fa";
+import { MdDeleteForever } from "react-icons/md";
+import { deleteDeliveryTime } from "@/redux/slices/Product/DeliveryTime/deleteDeliveryTimeSlice";
+import { toast } from "react-toastify";
 
 interface ProductDeliveryTime {
   id: number;
   name: string;
-  minDays: number;
-  maxDays: number;
-  status: "Active" | "Inactive";
+  min_days: number;
+  max_days: number;
+  status: boolean;
 }
 
-const mockData: ProductDeliveryTime[] = [
-  {
-    id: 1,
-    name: "Standard Delivery",
-    minDays: 3,
-    maxDays: 5,
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Express Delivery",
-    minDays: 1,
-    maxDays: 2,
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Extended Delivery",
-    minDays: 7,
-    maxDays: 14,
-    status: "Inactive",
-  },
-];
-
 const ProductDeliveryTimeTable = () => {
-  const fetchData = React.useCallback(() => mockData, []);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-
-  const {
-    paginatedData,
-    currentPage,
-    totalPages,
-    setCurrentPage,
-    setSearchQuery,
-    setStatusFilter,
-    error,
-    reload,
-  } = useTableData<ProductDeliveryTime>(
-    fetchData,
-    ["name", "status"],
-    "status"
+  const dispatch = useDispatch<AppDispatch>();
+  const { deliveryTimes, totalPages, loading, error } = useSelector(
+    (state: RootState) => state.getAllDeliveryTimes
   );
+
+  const [editData, setEditData] = useState<ProductDeliveryTime | null>(null);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    dispatch(getAllDeliveryTimes(currentPage));
+  }, [dispatch, currentPage]);
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this delivery time?")) return;
+
+    try {
+      await dispatch(deleteDeliveryTime(id)).unwrap();
+      toast.success("Delivery time deleted successfully");
+      dispatch(getAllDeliveryTimes(currentPage)); // refresh list
+    } catch (err: any) {
+      toast.error(err || "Failed to delete delivery time");
+    }
+  };
 
   const columns = [
     {
       key: "id",
-      header: "ID",
+      header: "Sr #",
       width: "80px",
     },
     {
@@ -77,39 +61,36 @@ const ProductDeliveryTimeTable = () => {
       ),
     },
     {
-      key: "minDays",
+      key: "min_days",
       header: "Min Days",
       width: "120px",
       render: (item: ProductDeliveryTime) => (
-        <span className="text-sm text-gray-600">{item.minDays} days</span>
+        <span className="text-sm text-gray-600">{item.min_days} days</span>
       ),
     },
     {
-      key: "maxDays",
+      key: "max_days",
       header: "Max Days",
       width: "120px",
       render: (item: ProductDeliveryTime) => (
-        <span className="text-sm text-gray-600">{item.maxDays} days</span>
+        <span className="text-sm text-gray-600">{item.max_days} days</span>
       ),
     },
     {
       key: "status",
       header: "Status",
       width: "120px",
-      render: (item: ProductDeliveryTime) => {
-        const statusStyles = {
-          Active: "bg-green-100 text-green-600",
-          Inactive: "bg-gray-100 text-gray-600",
-        };
-        
-        return (
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-semibold ${statusStyles[item.status]}`}
-          >
-            {item.status}
-          </span>
-        );
-      },
+      render: (item: ProductDeliveryTime) => (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+            item.status
+              ? "bg-green-100 text-green-600"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
+          {item.status ? "Active" : "Inactive"}
+        </span>
+      ),
     },
     {
       key: "options",
@@ -117,21 +98,22 @@ const ProductDeliveryTimeTable = () => {
       width: "150px",
       render: (item: ProductDeliveryTime) => (
         <div className="flex gap-2">
-          <button 
-            className="text-blue-600 hover:text-blue-800"
+          <button
+            onClick={() => {
+              setEditData(item);
+              setIsModalOpen(true);
+            }}
+            className="text-blue-600 text-lg cursor-pointer hover:text-blue-800"
             title="Edit"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-            </svg>
+            <FaEdit />
           </button>
-          <button 
-            className="text-red-600 hover:text-red-800"
+          <button
+            className="text-red-600 text-lg cursor-pointer hover:text-red-800"
             title="Delete"
+            onClick={() => handleDelete(item.id)}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
+            <MdDeleteForever />
           </button>
         </div>
       ),
@@ -139,23 +121,14 @@ const ProductDeliveryTimeTable = () => {
   ];
 
   const filterOptions = [
-    { value: "Active", label: "Active" },
-    { value: "Inactive", label: "Inactive" },
+    { value: "true", label: "Active" },
+    { value: "false", label: "Inactive" },
   ];
 
   if (error) {
     return (
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <strong className="font-bold">Error: </strong>
-        <span className="block sm:inline">{error.message}</span>
-        <button 
-          onClick={reload}
-          className="absolute top-0 right-0 px-4 py-3"
-        >
-          <svg className="fill-current h-6 w-6 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-            <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
-          </svg>
-        </button>
+      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+        Error: {error}
       </div>
     );
   }
@@ -163,39 +136,48 @@ const ProductDeliveryTimeTable = () => {
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="p-4 border-b flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-800">Product Delivery Times</h2>
+        <h2 className="text-xl font-semibold text-gray-800">
+          Product Delivery Times
+        </h2>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setIsModalOpen(true);
+            setEditData(null);
+          }}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
-          Add New
+          + Add New
         </button>
       </div>
+
       <CommonCustomTable<ProductDeliveryTime>
-        data={paginatedData}
+        data={deliveryTimes}
         columns={columns}
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={setCurrentPage}
-        onSearch={setSearchQuery}
-        onFilter={setStatusFilter}
+        onPageChange={() => dispatch(getAllDeliveryTimes(currentPage))}
+        onSearch={() => {}}
+        onFilter={() => {}}
         filterOptions={filterOptions}
         title="Product Delivery Times List"
+        isLoading={loading}
       />
 
       <AddProductDeliveryTimeModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={() => {
-          console.log("Delivery time added successfully");
           setIsModalOpen(false);
-          reload();
+          setEditData({
+            id: 0,
+            name: "",
+            min_days: 0,
+            max_days: 0,
+            status: false,
+          });
+          dispatch(getAllDeliveryTimes(currentPage)); // refresh list
         }}
-        register={register}
-        errors={errors}
+        editData={editData}
       />
     </div>
   );

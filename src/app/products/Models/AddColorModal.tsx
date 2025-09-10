@@ -46,6 +46,7 @@ export default function AddColorModal({
         toast.success("Color updated successfully!");
       } else {
         await dispatch(createColor(fd)).unwrap();
+        setColorName("");
         toast.success("Color created successfully!");
       }
       onSuccess();

@@ -86,7 +86,7 @@ const CommonCustomTable = <T,>({
           <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
           <span className="mt-2 text-violet-600 font-medium">Loading...</span>
         </div>
-      ) : data.length === 0 ? (
+      ) : data.length === 0 || data === null || data === undefined ? (
         <div className="flex flex-col items-center justify-center py-10">
           <span className="text-gray-500 font-medium">No data found.</span>
         </div>

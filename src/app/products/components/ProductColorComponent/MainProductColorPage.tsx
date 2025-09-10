@@ -6,9 +6,10 @@ import { getColors } from "@/redux/slices/Product/Color/getColorSlice";
 import { deleteColor } from "@/redux/slices/Product/Color/deleteColorSlice";
 import CommonCustomTable from "@/common/commonCustomTable";
 import AddColorModal from "../../Models/AddColorModal";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import Image from "next/image";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 
 export default function MainProductColorsPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -33,7 +34,7 @@ export default function MainProductColorsPage() {
         <div className="flex ">
           {item.file_path ? (
             <Image
-              src={`${IMAGE_BASE}${item.file_path}`}
+              src={`${item.file_path}`}
               alt={item.color_name}
               width={50}
               height={50}
@@ -51,7 +52,7 @@ export default function MainProductColorsPage() {
       render: (item: any) => (
         <div className="flex gap-2">
           <button
-            className="px-2 py-1 bg-yellow-500 text-white rounded"
+            className="text-lg text-blue-500 cursor-pointer  rounded"
             onClick={() => {
               setEditData(item);
               setModalOpen(true);
@@ -60,14 +61,16 @@ export default function MainProductColorsPage() {
             <FaEdit />
           </button>
           <button
-            className="px-2 py-1 bg-red-500 text-white rounded"
+            className="text-lg text-red-500 cursor-pointer rounded"
             onClick={async () => {
+              alert("Are you sure you want to delete this color?");
+
               await dispatch(deleteColor(item.id)).unwrap();
               toast.success("Color deleted!");
               dispatch(getColors({ page: currentPage }));
             }}
           >
-            <FaTrash />
+            <MdDelete />
           </button>
         </div>
       ),
@@ -106,6 +109,7 @@ export default function MainProductColorsPage() {
         onSuccess={() => dispatch(getColors({ page: currentPage }))}
         editData={editData}
       />
+      <ToastContainer position="top-right" autoClose={2000} />
     </div>
   );
 }

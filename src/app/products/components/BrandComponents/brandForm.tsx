@@ -1,8 +1,9 @@
 "use client";
 
 import { createBrand } from "@/redux/slices/Product/productBrandSlice/createProductBrandSlice";
+import { fetchBrands } from "@/redux/slices/Product/productBrandSlice/fetchBrandsSlice";
 import { AppDispatch, RootState } from "@/redux/store/store";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -13,11 +14,8 @@ interface BrandFormData {
   metaTitle: string;
   metaDescription: string;
 }
-interface BrandFormProps {
-  onSubmit: (data: BrandFormData) => void;
-}
 
-const BrandForm = () => {
+const BrandForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const {
     register,
     handleSubmit,
@@ -26,7 +24,11 @@ const BrandForm = () => {
   } = useForm<BrandFormData>();
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const dispatch = useDispatch<AppDispatch>();
-  const { loading } = useSelector((state: RootState) => state.createBrand);
+  const { currentPage } = useSelector((state: RootState) => state.fetchBrands);
+
+  useEffect(() => {
+    dispatch(fetchBrands(currentPage));
+  }, [dispatch, currentPage]);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -46,7 +48,7 @@ const BrandForm = () => {
           console.error("Failed to create brand:", error);
           toast.error("Failed to create brand");
           toast.success("Created Successfully");
-          console.log(dataR);
+          dispatch(fetchBrands(currentPage));
         });
     } catch (error) {
       console.log(error);
@@ -54,10 +56,11 @@ const BrandForm = () => {
     }
 
     setLogoPreview(null);
+    if (onSuccess) onSuccess(); // close modal
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg ">
       <h2 className="text-xl font-semibold mb-4  text-gray-700">
         Add New Brand
       </h2>

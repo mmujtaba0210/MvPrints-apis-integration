@@ -18,7 +18,6 @@ export const getLabels = createAsyncThunk(
           },
         }
       );
-      console.log(res.data.data.pagination.last_page);
       return res.data;
     } catch (error: any) {
       return console.log(error.response?.data || "Failed to fetch labels");
@@ -53,7 +52,7 @@ const getLabelsSlice = createSlice({
       })
       .addCase(getLabels.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload.data.records;
+        state.data = action.payload.data.records || [];
         state.totalPages = action.payload.data.pagination.last_page;
         state.currentPage = action.payload.data.pagination.current_page;
       })

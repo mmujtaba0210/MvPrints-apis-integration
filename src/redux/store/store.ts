@@ -31,6 +31,7 @@ import createChildCategoryReducer from "@/redux/slices/productCategorySlices/Chi
 import createAttributeReducer from "@/redux/slices/Product/productAttributionSlice/productAttributionSlice";
 import fetchAttributesReducer from "@/redux/slices/Product/productAttributionSlice/fetchAttributesSlice";
 import updateAttributeReducer from "@/redux/slices/Product/productAttributionSlice/updateAttributeSlice";
+import deleteAttributionReducer from "@/redux/slices/Product/productAttributionSlice/deleteAttributionSlice";
 
 //label Slice import
 
@@ -45,17 +46,20 @@ import getColorReducer from "@/redux/slices/Product/Color/getColorSlice";
 import createColorReducer from "@/redux/slices/Product/Color/createColorSlice";
 import updateColorReducer from "@/redux/slices/Product/Color/updateColorSlice";
 import deleteColorReducer from "@/redux/slices/Product/Color/deleteColorSlice";
+
 //brands slice import
 
 import createBrandReducer from "@/redux/slices/Product/productBrandSlice/createProductBrandSlice";
 import fetchBrandsReducer from "@/redux/slices/Product/productBrandSlice/fetchBrandsSlice";
 import updateBrandReducer from "@/redux/slices/Product/productBrandSlice/updateBrandSlice";
+import deleteBrandReducer from "@/redux/slices/Product/productBrandSlice/deleteBrandSlice";
 
 // product delivery time reducers
 
 import getAllDeliveryTimesReducer from "@/redux/slices/Product/DeliveryTime/getAllDeliveryTimesSlice";
 import createDeliveryTimeReducer from "@/redux/slices/Product/DeliveryTime/createDeliveryTimeSlice";
 import updateDeliveryTimeReducer from "@/redux/slices/Product/DeliveryTime/updateDeliveryTimeSlice";
+import deleteDeliveryTimeReducer from "@/redux/slices/Product/DeliveryTime/deleteDeliveryTimeSlice";
 
 const store = configureStore({
   reducer: {
@@ -90,6 +94,7 @@ const store = configureStore({
     createAttribute: createAttributeReducer,
     fetchAttributes: fetchAttributesReducer,
     updateProductAttributes: updateAttributeReducer,
+    deleteAttribution: deleteAttributionReducer,
 
     //labels
 
@@ -98,7 +103,7 @@ const store = configureStore({
     updateLabel: updateLabelReducer,
     deleteLabel: deleteLabelReducer,
 
-    //labels
+    //colors
 
     getColor: getColorReducer,
     createColor: createColorReducer,
@@ -110,12 +115,14 @@ const store = configureStore({
     createBrand: createBrandReducer,
     fetchBrands: fetchBrandsReducer,
     updateBrand: updateBrandReducer,
+    deleteBrand: deleteBrandReducer,
 
     //  New delivery time slices
 
     getAllDeliveryTimes: getAllDeliveryTimesReducer,
     createDeliveryTime: createDeliveryTimeReducer,
     updateDeliveryTime: updateDeliveryTimeReducer,
+    deleteDeliveryTime: deleteDeliveryTimeReducer,
   },
 });
 
