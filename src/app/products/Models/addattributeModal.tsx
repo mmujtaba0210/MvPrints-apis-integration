@@ -49,6 +49,11 @@ const CreateAttributesModal: React.FC<CreateAttributesModalProps> = ({
         })
       ).unwrap();
       toast.success("Attribute created successfully!");
+      setFormData({
+        attributeName: "",
+        attributeValue: "",
+        description: "",
+      });
       onSuccess();
       onClose();
     } catch (error) {

@@ -8,16 +8,22 @@ export const createDeliveryTime = createAsyncThunk(
   "deliveryTimes/create",
   async (
     payload: {
-      delivery_option: string;
-      minimum_days: string;
-      maximum_days: string;
+      name: string;
+      min_days: number;
+      max_days: number;
+      status: number;
     },
     { rejectWithValue }
   ) => {
     try {
+      const formData = new FormData();
+      formData.append("name", payload.name);
+      formData.append("min_days", String(payload.min_days));
+      formData.append("max_days", String(payload.max_days));
+      formData.append("status", String(payload.status));
       const response = await axios.post(
-        `${BASE_URL}admin/delivery-times`,
-        payload,
+        `${BASE_URL}admin/product-deleivery-times`,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -26,7 +32,7 @@ export const createDeliveryTime = createAsyncThunk(
       );
       return response.data.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+      return console.log(error.response?.data || error.message);
     }
   }
 );

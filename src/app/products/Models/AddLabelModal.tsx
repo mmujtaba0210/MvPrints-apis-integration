@@ -60,6 +60,11 @@ export default function LabelModal({
       } else {
         await dispatch(createLabel(fd)).unwrap();
         toast.success("Label created successfully!");
+        setFormData({
+          name: "",
+          color: "",
+          description: "",
+        });
       }
       onSuccess();
       onClose();

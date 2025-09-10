@@ -1,27 +1,52 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000/api";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000/api";
 
+// ✅ Update Delivery Time (PUT with FormData)
 export const updateDeliveryTime = createAsyncThunk(
   "deliveryTimes/update",
   async (
-    { id, payload }: { id: string; payload: { delivery_option: string; minimum_days: string; maximum_days: string } },
+    {
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: {
+        name: string;
+        min_days: number;
+        max_days: number;
+        status: number;
+      };
+    },
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.put(
-        `${BASE_URL}admin/delivery-times/${id}`,
-        payload,
+      const formData = new FormData();
+      formData.append("name", payload.name);
+      formData.append("min_days", String(payload.min_days));
+      formData.append("max_days", String(payload.max_days));
+      formData.append("status", String(payload.status));
+      formData.append("_method", "PUT");
+      // 1 = active, 0 = inactive
+
+      const response = await axios.post(
+        `${BASE_URL}admin/product-deleivery-times/${id}`,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
+
       return response.data.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+      return console.log(
+        error.response?.data || error.message || "Something went wrong"
+      );
     }
   }
 );
