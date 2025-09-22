@@ -21,7 +21,9 @@ export const AddDigitalProductModal = ({
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         {/* Modal Header */}
         <div className="sticky top-0 bg-white z-10 border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-800">Add New Digital Product</h2>
+          <h2 className="text-xl font-bold text-gray-800">
+            Add New Digital Product
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100"

@@ -1,36 +1,35 @@
-import { useState, useRef } from "react";
-import { FiUpload, FiTrash2, FiImage, FiLink } from "react-icons/fi";
+import { useState, useRef, useEffect } from "react";
+import { FiUpload, FiTrash2, FiLink, FiPlus } from "react-icons/fi";
 import { CustomInput } from "@/common/customInputField";
-import { FiPlus } from "react-icons/fi";
+
 interface MediaFormProps {
   register: any;
   errors: any;
   setValue: any;
+  watch: any;
 }
 
-export const MediaForm = ({ register, errors, setValue }: MediaFormProps) => {
+export const MediaForm = ({
+  register,
+  errors,
+  setValue,
+  watch,
+}: MediaFormProps) => {
   const [featureImage, setFeatureImage] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [uploadType, setUploadType] = useState("file");
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFeatureImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (file.size > 5 * 1024 * 1024) {
-        alert("File size must be under 5MB");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFeatureImage(reader.result as string);
-        setValue("featureImage", file);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  // 👀 Watch form values so we can build media[]
+  const videoUpload = watch("videoUpload");
+  const videoLink = watch("videoLink");
+  const pdfSpecification = watch("pdfSpecification");
+  const additionalFile = watch("additionalFile");
+  const additionalLink = watch("additionalLink");
 
+  // --- Helpers ---
   const readFileAsDataURL = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -40,6 +39,21 @@ export const MediaForm = ({ register, errors, setValue }: MediaFormProps) => {
     });
   };
 
+  const handleFeatureImageChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size must be under 5MB");
+        return;
+      }
+      const preview = await readFileAsDataURL(file);
+      setFeatureImage(preview);
+      setValue("featureImage", file);
+    }
+  };
+
   const handleGalleryChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -47,7 +61,7 @@ export const MediaForm = ({ register, errors, setValue }: MediaFormProps) => {
       const files = Array.from(e.target.files);
       const newImages = await Promise.all(files.map(readFileAsDataURL));
       setGalleryImages((prev) => [...prev, ...newImages]);
-      setValue("galleryImages", [...(galleryImages || []), ...files]);
+      setValue("galleryImages", [...(watch("galleryImages") || []), ...files]);
     }
   };
 
@@ -57,18 +71,94 @@ export const MediaForm = ({ register, errors, setValue }: MediaFormProps) => {
   };
 
   const removeGalleryImage = (index: number) => {
-    const newImages = [...galleryImages];
-    newImages.splice(index, 1);
-    setGalleryImages(newImages);
+    const newPreview = [...galleryImages];
+    newPreview.splice(index, 1);
+    setGalleryImages(newPreview);
+
+    const currentFiles = watch("galleryImages") || [];
+    currentFiles.splice(index, 1);
+    setValue("galleryImages", currentFiles);
   };
 
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
+  const triggerFileInput = () => fileInputRef.current?.click();
+  const triggerGalleryInput = () => galleryInputRef.current?.click();
 
-  const triggerGalleryInput = () => {
-    galleryInputRef.current?.click();
-  };
+  // --- Build unified media[] whenever inputs change ---
+  useEffect(() => {
+    const media: any[] = [];
+
+    // Feature Image
+    if (watch("featureImage")) {
+      media.push({
+        type: "is_featured",
+        upload_by: "upload_by_file",
+        file: watch("featureImage"),
+      });
+    }
+
+    // Gallery Images
+    if (watch("galleryImages") && watch("galleryImages").length > 0) {
+      watch("galleryImages").forEach((file: File) => {
+        media.push({
+          type: "gallery",
+          upload_by: "upload_by_file",
+          file,
+        });
+      });
+    }
+
+    // PDF Specification
+    if (pdfSpecification && pdfSpecification[0]) {
+      media.push({
+        type: "pdf",
+        upload_by: "upload_by_file",
+        file: pdfSpecification[0],
+      });
+    }
+
+    // Video Upload
+    if (videoUpload && videoUpload[0]) {
+      media.push({
+        type: "video",
+        upload_by: "upload_by_file",
+        file: videoUpload[0],
+      });
+    }
+
+    // Video Link
+    if (videoLink) {
+      media.push({
+        type: "video",
+        upload_by: "upload_by_link",
+        link: videoLink,
+      });
+    }
+
+    // Additional File / Link
+    if (additionalFile && additionalFile[0]) {
+      media.push({
+        upload_by: "upload_by_file",
+        file: additionalFile[0],
+      });
+    } else if (additionalLink) {
+      media.push({
+        type: "file",
+        upload_by: "upload_by_link",
+        link: additionalLink,
+      });
+    }
+
+    // 👌 Set the unified media[] in form state
+    setValue("media", media);
+  }, [
+    featureImage,
+    galleryImages,
+    videoUpload,
+    videoLink,
+    pdfSpecification,
+    additionalFile,
+    additionalLink,
+  ]);
 
   return (
     <div className="space-y-6">
@@ -76,6 +166,7 @@ export const MediaForm = ({ register, errors, setValue }: MediaFormProps) => {
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div className="space-y-4">
+          {/* --- Feature Image --- */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Feature Image <span className="text-red-500">*</span>
@@ -115,6 +206,7 @@ export const MediaForm = ({ register, errors, setValue }: MediaFormProps) => {
             />
           </div>
 
+          {/* --- Gallery --- */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Set Gallery
@@ -155,6 +247,7 @@ export const MediaForm = ({ register, errors, setValue }: MediaFormProps) => {
         </div>
 
         <div className="space-y-4">
+          {/* --- Video Upload --- */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Video Upload
@@ -167,6 +260,7 @@ export const MediaForm = ({ register, errors, setValue }: MediaFormProps) => {
             />
           </div>
 
+          {/* --- Video Link --- */}
           <CustomInput
             label="Video Link"
             name="videoLink"
@@ -175,6 +269,7 @@ export const MediaForm = ({ register, errors, setValue }: MediaFormProps) => {
             errors={errors}
           />
 
+          {/* --- PDF --- */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               PDF Specification
@@ -187,6 +282,7 @@ export const MediaForm = ({ register, errors, setValue }: MediaFormProps) => {
             />
           </div>
 
+          {/* --- Upload Type Toggle --- */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Select Upload Type
@@ -217,6 +313,7 @@ export const MediaForm = ({ register, errors, setValue }: MediaFormProps) => {
             </div>
           </div>
 
+          {/* --- Additional File or Link --- */}
           {uploadType === "file" ? (
             <div>
               <label className="block text-sm font-medium text-gray-700">

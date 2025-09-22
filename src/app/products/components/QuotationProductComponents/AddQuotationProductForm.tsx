@@ -34,6 +34,7 @@ export const AddQuotationProductForm = () => {
     control,
     setValue,
     formState: { errors },
+    watch,
   } = useForm();
 
   // Mock data for categories
@@ -124,6 +125,7 @@ export const AddQuotationProductForm = () => {
       {/* Current Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <CurrentFormComponent
+          watch={watch}
           register={register}
           errors={errors}
           control={control}
