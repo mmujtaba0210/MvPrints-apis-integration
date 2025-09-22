@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { ProductInformationForm } from "./components/ProductInformationForm";
 import { ProductIdentifiersForm } from "./components/ProductIdentifiersForm";
 import { PricingForm } from "./components/PricingForm";
@@ -74,6 +73,7 @@ export const AddProductForm = () => {
     handleSubmit,
     control,
     setValue,
+    watch,
     formState: { errors },
   } = useForm();
 
@@ -110,76 +110,86 @@ export const AddProductForm = () => {
 
   const onSubmit = (data: any) => {
     if (laststeps) {
-      const transformedData = {
-        // Basic product info
-        name: data.productName,
-        slug: data.slug,
-        type: data.listingType,
-        model: data.model,
-        description: data.description,
-        specification: data.specifications,
-        refund_policy: data.returnPolicy,
+      const formData = new FormData();
 
-        // Categories & Brand
-        product_category_id: Number(data.category),
-        product_sub_category_id: Number(data.subCategory),
-        product_child_category_id: Number(data.childCategory),
-        product_brand_id: Number(data.product_brand_id),
-        product_deleivery_time_id: Number(data.deliveryTimeId),
+      // Basic product info
+      formData.append("name", data.productName);
+      formData.append("slug", data.slug);
+      formData.append("type", data.listingType);
+      formData.append("model", data.model);
+      formData.append("description", data.description);
+      formData.append("specification", data.specifications);
+      formData.append("refund_policy", data.returnPolicy);
 
-        // Pricing
-        varient: data.variant,
-        allow_wholesale: data.allowWholesale ? 1 : 0,
-        price: Number(data.retailPrice),
-        discount: Number(data.discountAmount),
-        sku: data.sku,
-        stock: data.stockNumber,
+      // Categories & Brand
+      formData.append("product_category_id", String(data.category));
+      formData.append("product_sub_category_id", String(data.subCategory));
+      formData.append("product_child_category_id", String(data.childCategory));
+      formData.append("product_brand_id", String(data.product_brand_id));
+      formData.append("product_deleivery_time_id", String(data.deliveryTimeId));
 
-        // Shipping
-        is_shipping_cost: data.isShippingCost ? 1 : 0,
-        shipping_cost: Number(data.shippingCost),
-        shipping_location: data.shippingLocation,
+      // Pricing
+      formData.append("varient", data.variant);
+      formData.append("allow_wholesale", data.allowWholesale ? "1" : "0");
+      formData.append("price", String(data.retailPrice));
+      formData.append("discount", String(data.discountAmount));
+      formData.append("sku", data.sku);
+      formData.append("stock", String(data.stockNumber));
 
-        // Status
-        is_active: data.isActive ? 1 : 0,
+      // Shipping
+      formData.append("is_shipping_cost", data.isShippingCost ? "1" : "0");
+      formData.append("shipping_cost", String(data.shippingCost));
+      formData.append("shipping_location", data.shippingLocation);
 
-        // SEO
-        seo_title: data.seoTitle,
-        seo_slug: data.slug,
-        seo_keywords: data.keywords,
-        seo_meta_description: data.metaDescription,
-        seo_meta_tags: Array.isArray(data.metaTags)
-          ? data.metaTags
-          : typeof data.metaTags === "string"
-          ? data.metaTags
-              .split(",")
-              .map((tag: string) => tag.trim())
-              .filter(Boolean)
-          : [],
-        seo_tags: Array.isArray(data.tags)
-          ? data.tags
-          : typeof data.tags === "string"
-          ? data.tags
-              .split(",")
-              .map((tag: string) => tag.trim())
-              .filter(Boolean)
-          : [],
+      // Status
+      formData.append("is_active", data.isActive ? "1" : "0");
 
-        labels: data.labels,
+      // SEO
+      formData.append("seo_title", data.seoTitle);
+      formData.append("seo_slug", data.slug);
+      formData.append("seo_keywords", data.keywords);
+      formData.append("seo_meta_description", data.metaDescription);
 
-        // Media (assuming your form returns something like this)
-        media:
-          data.media?.map((m: any) => ({
-            type: m.type,
-            upload_by: m.uploadBy || undefined,
-          })) || [],
-      };
-
-      if (laststeps) {
-        dispatch(createProduct(transformedData));
-        setLastSteps(false);
-        console.log("Submitting product:", transformedData);
+      if (Array.isArray(data.metaTags)) {
+        data.metaTags.forEach((tag: string, index: number) => {
+          formData.append(`seo_meta_tags[${index}]`, tag);
+        });
       }
+      if (Array.isArray(data.tags)) {
+        data.tags.forEach((tag: string, index: number) => {
+          formData.append(`seo_tags[${index}]`, tag);
+        });
+      }
+
+      // Labels
+      if (Array.isArray(data.labels)) {
+        data.labels.forEach((label: number, index: number) => {
+          formData.append(`labels[${index}]`, String(label));
+        });
+      }
+
+      // Media ✅
+      if (Array.isArray(data.media)) {
+        data.media.forEach((m: any, index: number) => {
+          if (m.type) {
+            formData.append(`media[${index}][type]`, m.type);
+          }
+          if (m.upload_by) {
+            formData.append(`media[${index}][upload_by]`, m.upload_by);
+          }
+          if (m.file) {
+            formData.append(`media[${index}][file_path]`, m.file); // File object
+          }
+          if (m.link) {
+            formData.append(`media[${index}][link]`, m.link);
+          }
+        });
+      }
+
+      console.log("📤 Sending FormData:", [...formData.entries()]);
+
+      dispatch(createProduct(formData as any)); // send to backend
+      setLastSteps(false);
     }
   };
 
@@ -231,6 +241,7 @@ export const AddProductForm = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <CurrentFormComponent
           register={register}
+          watch={watch}
           errors={errors}
           control={control}
           setValue={setValue}

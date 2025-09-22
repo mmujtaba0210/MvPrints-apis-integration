@@ -63,6 +63,7 @@ export const createProduct = createAsyncThunk<
     const response = await axios.post(`${BASE_URL}admin/products`, payload, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        "Content-Type": "multipart/form-data",
       },
     });
     return response.data;
