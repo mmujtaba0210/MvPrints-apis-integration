@@ -36,6 +36,7 @@ type Props = {
 const badgeColor: Record<string, string> = {
   Active: "bg-green-100 text-green-700",
   Inactive: "bg-gray-100 text-gray-700",
+  deactivated: "bg-gray-100 text-gray-700",
   Blocked: "bg-red-100 text-red-700",
   Pending: "bg-yellow-100 text-yellow-700",
   Processing: "bg-blue-100 text-blue-700",
@@ -49,8 +50,8 @@ const badgeColor: Record<string, string> = {
 };
 
 export default function CustomTable({
-  columns,
-  data,
+  columns = [],
+  data = [],
   showActions = true,
   onView,
   onEdit,
@@ -64,12 +65,19 @@ export default function CustomTable({
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filter data based on search term
-  const filteredData = data.filter((row) => {
-    return columns.some((col) => {
-      const value = String(row[col.field]).toLowerCase();
-      return value.includes(searchTerm.toLowerCase());
-    });
-  });
+  const filteredData = Array.isArray(data)
+    ? data.filter((row) => {
+        if (!row || typeof row !== "object") return false;
+        return Array.isArray(columns)
+          ? columns.some((col) => {
+              const rawValue = row[col.field];
+              if (rawValue == null) return false; // skip null/undefined
+              const value = String(rawValue).toLowerCase();
+              return value.includes(searchTerm.toLowerCase());
+            })
+          : false;
+      })
+    : [];
 
   // Pagination logic
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -99,7 +107,7 @@ export default function CustomTable({
       <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         {filters.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {filters.map((filter) => (
+            {(filters || []).map((filter) => (
               <button
                 key={filter.value}
                 onClick={() => onFilterChange?.(filter.value)}

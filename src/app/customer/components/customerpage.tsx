@@ -1,12 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomerFilters from "@/app/customer/components/customerFilters";
 import { filters } from "@/app/customer/configs/FilterConfigs";
-import {
-  Customer,
-  CustomerStatus,
-  TableColumn,
-} from "@/app/customer/types/customerTypes";
+import { Customer, CustomerStatus } from "@/app/customer/types/customerTypes";
 import CustomerTable from "./customerTable";
 
 const CustomersPage = () => {
@@ -41,7 +37,7 @@ const CustomersPage = () => {
       name: "Jane Smith",
       email: "jane@example.com",
       joinDate: "2023-03-20",
-      status: "banned",
+      status: "deactivated",
       totalOrders: 2,
       totalSpent: 350,
       subscriptionPlan: "Basic",
@@ -58,23 +54,51 @@ const CustomersPage = () => {
       tags: ["inactive"],
       avatar: "/images/chair1.jpg",
     },
+    {
+      id: 3,
+      name: "Alex Johnson",
+      email: "alex@example.com",
+      joinDate: "2023-05-12",
+      status: "deactivated",
+      totalOrders: 8,
+      totalSpent: 890,
+      subscriptionPlan: "Standard",
+      subscriptionExpiry: "2024-05-12",
+      affiliateBalance: 50,
+      lastWithdrawal: "2023-06-01",
+      lastTransaction: "2023-07-10",
+      verificationStatus: "verified",
+      lastPurchase: "2023-07-10",
+      tier: "Bronze",
+      location: "Chicago",
+      phone: "+1 555-321-9999",
+      notes: "Regular customer",
+      tags: ["returning"],
+      avatar: "/images/chair1.jpg",
+    },
   ];
 
-  const filteredData = allCustomers.filter((customer) => {
+  // ✅ Safe filtering logic
+  const filteredData = (allCustomers || []).filter((customer) => {
+    if (!customer || typeof customer !== "object") return false;
+
     const statusMatch =
-      activeFilter === "all" ||
-      (activeFilter === "banned" && customer.status === "banned");
+      activeFilter === "all"
+        ? true
+        : customer.status?.toLowerCase() === activeFilter.toLowerCase();
 
     const searchMatch =
       searchTerm === "" ||
-      Object.values(customer).some(
-        (val) =>
-          val && String(val).toLowerCase().includes(searchTerm.toLowerCase())
-      );
-
+      Object.values(customer).some((val) => {
+        if (val == null) return false; // Skip undefined/null
+        return String(val).toLowerCase().includes(searchTerm.toLowerCase());
+      });
     return statusMatch && searchMatch;
   });
-
+  useEffect(() => {
+    console.log(filteredData);
+  }, [filteredData]);
+  // ✅ Action handlers
   const handleView = (customer: Customer) => {
     console.log("View customer:", customer.id);
   };
@@ -87,6 +111,7 @@ const CustomersPage = () => {
     console.log("Delete customer:", customer.id);
   };
 
+  // ✅ Render
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -105,8 +130,9 @@ const CustomersPage = () => {
               filters={filters}
               activeFilter={activeFilter}
               onFilterChange={setActiveFilter}
-              //   searchTerm={searchTerm}
-              //   onSearchChange={setSearchTerm}
+              // Uncomment these when your CustomerFilters supports search
+              // searchTerm={searchTerm}
+              // onSearchChange={setSearchTerm}
             />
 
             <CustomerTable
@@ -114,7 +140,6 @@ const CustomersPage = () => {
               onView={handleView}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              activeFilter={activeFilter}
             />
           </div>
         </div>
