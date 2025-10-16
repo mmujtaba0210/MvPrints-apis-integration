@@ -14,17 +14,22 @@ import deleteProductReducer from "@/redux/slices/productSlices/deleteProductSlic
 import createCategoryReducer from "@/redux/slices/productCategorySlices/createCategorySlice";
 import updateCategoryReducer from "@/redux/slices/productCategorySlices/updateCategorySlice";
 import getAllCategoriesReducer from "@/redux/slices/productCategorySlices/getCategoriesSlice";
+import deleteMainCategoryReducer from "@/redux/slices/productCategorySlices/deleteMainCategorySlice";
 
 //sub category slices import
 
 import createProductSubCategoryReducer from "@/redux/slices/productCategorySlices/SubCategorySlices/createSubCategorySlice";
 import getAllProductSubCategoriesReducer from "@/redux/slices/productCategorySlices/SubCategorySlices/getAllSubCategories";
 import updateSubCategoryReducer from "@/redux/slices/productCategorySlices/SubCategorySlices/updateSubCategorySlice";
+import updateSubCategoryReducr, {
+  deleteSubCategory,
+} from "@/redux/slices/productCategorySlices/SubCategorySlices/deleteSubCategorySlice";
 
 //child category reducers import
 
 import fetchChildCategoryReducer from "@/redux/slices/productCategorySlices/ChildCategorySlices/fetchChildCategorySlice";
 import createChildCategoryReducer from "@/redux/slices/productCategorySlices/ChildCategorySlices/createChildCategorySlice";
+import deleteChildCategoryReducer from "@/redux/slices/productCategorySlices/ChildCategorySlices/deleteChildCategorySlice";
 
 //product attribution slice import
 
@@ -77,17 +82,20 @@ const store = configureStore({
     createCategory: createCategoryReducer,
     updateCategory: updateCategoryReducer,
     getAllCategories: getAllCategoriesReducer,
+    deleteMainCategory: deleteMainCategoryReducer,
 
     //sub categ
 
     createProductSubCategory: createProductSubCategoryReducer,
     getAllProductSubCategories: getAllProductSubCategoriesReducer,
     updateSubCategory: updateSubCategoryReducer,
+    deleteSubCategory: updateSubCategoryReducr,
 
     //child category reducers
 
     fetchChildCategories: fetchChildCategoryReducer,
     createChildCategory: createChildCategoryReducer,
+    deleteChildCategory: deleteChildCategoryReducer,
 
     //attribution slice reducers
 

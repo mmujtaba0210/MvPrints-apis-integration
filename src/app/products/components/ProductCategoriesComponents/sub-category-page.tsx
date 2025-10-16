@@ -6,8 +6,13 @@ import AddProductSubCategoryModal from "../../Models/AddSubCategoryModal";
 
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
-import { getAllProductSubCategories } from "@/redux/slices/productCategorySlices/SubCategorySlices/getAllSubCategories";
+import {
+  getAllProductSubCategories,
+  resetSubCategories,
+} from "@/redux/slices/productCategorySlices/SubCategorySlices/getAllSubCategories";
 import UpdateProductSubCategoryModal from "../../Models/UpdateProductSubCategoryModal";
+import { deleteSubCategory } from "@/redux/slices/productCategorySlices/SubCategorySlices/deleteSubCategorySlice";
+import { toast } from "react-toastify";
 
 interface SubCategory {
   id: number;
@@ -69,6 +74,16 @@ const SubCategoryPage = () => {
     setIsUpdateModalOpen(false); // ✅ close update modal also
     dispatch(getAllProductSubCategories(currentPage));
   };
+  const handleDelete = async (id: number) => {
+    try {
+      await dispatch(deleteSubCategory(id));
+      toast.success("Sub Category Deleted Successfully!");
+      setTimeout(() => dispatch(resetSubCategories()), 500);
+    } catch (error) {
+      console.log(error);
+      toast.error("Error Deleting Sub Category");
+    }
+  };
 
   const columns = [
     {
@@ -119,7 +134,7 @@ const SubCategoryPage = () => {
         <div className="flex gap-2">
           {/* ✅ Edit Button */}
           <button
-            className="text-blue-600 hover:text-blue-800"
+            className="text-blue-600  cursor-pointer hover:scale-110 transition-all duration-700 hover:text-blue-800"
             title="Edit Sub Category"
             onClick={() => {
               setSelectedSubCategory({
@@ -144,8 +159,12 @@ const SubCategoryPage = () => {
 
           {/* Delete Button (future implementation) */}
           <button
-            className="text-red-600 hover:text-red-800"
+            className="text-red-600  cursor-pointer hover:scale-110 transition-all duration-700 hover:text-red-800"
             title="Delete Sub Category"
+            onClick={() => {
+              handleDelete(item.id);
+              dispatch(getAllProductSubCategories(currentPage));
+            }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
