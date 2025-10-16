@@ -66,3 +66,4 @@ export type SidebarType =
   | "message"
   | "ticket"
   | "marketing"
+  | "banned-customers";

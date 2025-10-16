@@ -1,19 +1,41 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomerFilters from "@/app/customer/components/customerFilters";
 import { filters } from "@/app/customer/configs/FilterConfigs";
-import {
-  Customer,
-  CustomerStatus,
-  TableColumn,
-} from "@/app/customer/types/customerTypes";
 import CustomerTable from "./customerTable";
+
+// ✅ Declare types directly here instead of importing
+type CustomerStatus = "all" | "active" | "banned" | "deactivated";
+
+interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  joinDate: string;
+  status: CustomerStatus;
+  totalOrders: number;
+  totalSpent: number;
+  subscriptionPlan?: string;
+  subscriptionExpiry?: string;
+  affiliateBalance?: number;
+  lastWithdrawal?: string;
+  lastTransaction?: string;
+  verificationStatus?: string;
+  lastPurchase?: string;
+  tier?: string;
+  location?: string;
+  phone?: string;
+  notes?: string;
+  tags?: string[];
+  avatar?: string;
+}
 
 const CustomersPage = () => {
   const [activeFilter, setActiveFilter] = useState<CustomerStatus>("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const allCustomers: Customer[] = [
+  // ✅ Customer data with correct types
+  const [customers, setCustomers] = useState<Customer[]>([
     {
       id: 1,
       name: "John Doe",
@@ -41,7 +63,7 @@ const CustomersPage = () => {
       name: "Jane Smith",
       email: "jane@example.com",
       joinDate: "2023-03-20",
-      status: "banned",
+      status: "deactivated",
       totalOrders: 2,
       totalSpent: 350,
       subscriptionPlan: "Basic",
@@ -58,33 +80,83 @@ const CustomersPage = () => {
       tags: ["inactive"],
       avatar: "/images/chair1.jpg",
     },
-  ];
+    {
+      id: 3,
+      name: "Alex Johnson",
+      email: "alex@example.com",
+      joinDate: "2023-05-12",
+      status: "deactivated",
+      totalOrders: 8,
+      totalSpent: 890,
+      subscriptionPlan: "Standard",
+      subscriptionExpiry: "2024-05-12",
+      affiliateBalance: 50,
+      lastWithdrawal: "2023-06-01",
+      lastTransaction: "2023-07-10",
+      verificationStatus: "verified",
+      lastPurchase: "2023-07-10",
+      tier: "Bronze",
+      location: "Chicago",
+      phone: "+1 555-321-9999",
+      notes: "Regular customer",
+      tags: ["returning"],
+      avatar: "/images/chair1.jpg",
+    },
+  ]);
 
-  const filteredData = allCustomers.filter((customer) => {
+  // ✅ Filtering logic
+  const filteredData = customers.filter((customer) => {
+    if (!customer || typeof customer !== "object") return false;
+
     const statusMatch =
-      activeFilter === "all" ||
-      (activeFilter === "banned" && customer.status === "banned");
+      activeFilter === "all"
+        ? true
+        : customer.status.toLowerCase() === activeFilter.toLowerCase();
 
     const searchMatch =
       searchTerm === "" ||
-      Object.values(customer).some(
-        (val) =>
-          val && String(val).toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      Object.values(customer).some((val) => {
+        if (val == null) return false;
+        return String(val).toLowerCase().includes(searchTerm.toLowerCase());
+      });
 
     return statusMatch && searchMatch;
   });
 
-  const handleView = (customer: Customer) => {
-    console.log("View customer:", customer.id);
+  useEffect(() => {
+    console.log(filteredData);
+  }, [filteredData]);
+
+  // ✅ Handlers
+  const handleView = (customer: Customer) => console.log("View:", customer.id);
+  const handleEdit = (customer: Customer) => console.log("Edit:", customer.id);
+  const handleDelete = (customer: Customer) =>
+    console.log("Delete:", customer.id);
+
+  const handleBanToggle = (customer: Customer) => {
+    setCustomers((prev): Customer[] =>
+      prev.map((c) =>
+        c.id === customer.id
+          ? {
+              ...c,
+              status: c.status === "banned" ? "active" : "banned",
+            }
+          : c
+      )
+    );
   };
 
-  const handleEdit = (customer: Customer) => {
-    console.log("Edit customer:", customer.id);
-  };
-
-  const handleDelete = (customer: Customer) => {
-    console.log("Delete customer:", customer.id);
+  const handleDeactivateToggle = (customer: Customer) => {
+    setCustomers((prev): Customer[] =>
+      prev.map((c) =>
+        c.id === customer.id
+          ? {
+              ...c,
+              status: c.status === "deactivated" ? "active" : "deactivated",
+            }
+          : c
+      )
+    );
   };
 
   return (
@@ -105,8 +177,6 @@ const CustomersPage = () => {
               filters={filters}
               activeFilter={activeFilter}
               onFilterChange={setActiveFilter}
-              //   searchTerm={searchTerm}
-              //   onSearchChange={setSearchTerm}
             />
 
             <CustomerTable
@@ -114,7 +184,8 @@ const CustomersPage = () => {
               onView={handleView}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              activeFilter={activeFilter}
+              onBanToggle={handleBanToggle}
+              onDeactivateToggle={handleDeactivateToggle}
             />
           </div>
         </div>
