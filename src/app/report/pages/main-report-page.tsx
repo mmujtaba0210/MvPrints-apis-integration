@@ -1,10 +1,17 @@
 // app/settings/payment-settings/page.tsx
 "use client";
 
-import { FiCreditCard, FiDollarSign, FiUsers, FiPrinter } from "react-icons/fi";
+import {
+  FiCreditCard,
+  FiDollarSign,
+  FiUsers,
+  FiPrinter,
+  FiStar,
+} from "react-icons/fi";
 import AdminSalesReportTable from "../components/admin-sales-page";
 import ReferralPage from "../components/referral-report-page";
 import CustomTabs from "@/common/customtabbar";
+import PopularProductsPage from "@/app/products/components/PopularProductComponents/popular-products-page";
 
 export const MainReportPage = () => {
   const tabs = [
@@ -13,6 +20,12 @@ export const MainReportPage = () => {
       label: "Admin Sales Report",
       icon: <FiDollarSign />,
       content: <AdminSalesReportTable />,
+    },
+    {
+      id: "popular-products",
+      label: "Popular Products",
+      icon: <FiStar size={18} />,
+      content: <PopularProductsPage />,
     },
     {
       id: "referral-report",

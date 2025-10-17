@@ -23,9 +23,9 @@ export const MediaForm = ({
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
   // 👀 Watch form values so we can build media[]
-  const videoUpload = watch("videoUpload");
+  const videoUpload = watch("videos");
   const videoLink = watch("videoLink");
-  const pdfSpecification = watch("pdfSpecification");
+  const pdfSpecification = watch("pdfs");
   const additionalFile = watch("additionalFile");
   const additionalLink = watch("additionalLink");
 
@@ -38,7 +38,9 @@ export const MediaForm = ({
       reader.readAsDataURL(file);
     });
   };
-
+  useEffect(() => {
+    console.log("video", videoUpload);
+  }, [videoUpload]);
   const handleFeatureImageChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -50,7 +52,7 @@ export const MediaForm = ({
       }
       const preview = await readFileAsDataURL(file);
       setFeatureImage(preview);
-      setValue("featureImage", file);
+      setValue("images", file);
     }
   };
 
@@ -61,7 +63,7 @@ export const MediaForm = ({
       const files = Array.from(e.target.files);
       const newImages = await Promise.all(files.map(readFileAsDataURL));
       setGalleryImages((prev) => [...prev, ...newImages]);
-      setValue("galleryImages", [...(watch("galleryImages") || []), ...files]);
+      setValue("galleryImages", [...(watch("gallery_images") || []), ...files]);
     }
   };
 
@@ -75,7 +77,7 @@ export const MediaForm = ({
     newPreview.splice(index, 1);
     setGalleryImages(newPreview);
 
-    const currentFiles = watch("galleryImages") || [];
+    const currentFiles = watch("gallery_images") || [];
     currentFiles.splice(index, 1);
     setValue("galleryImages", currentFiles);
   };
@@ -88,17 +90,17 @@ export const MediaForm = ({
     const media: any[] = [];
 
     // Feature Image
-    if (watch("featureImage")) {
+    if (watch("gallery_images")) {
       media.push({
         type: "is_featured",
         upload_by: "upload_by_file",
-        file: watch("featureImage"),
+        file: watch("media"),
       });
     }
 
     // Gallery Images
-    if (watch("galleryImages") && watch("galleryImages").length > 0) {
-      watch("galleryImages").forEach((file: File) => {
+    if (watch("gallery_images") && watch("gallery_images").length > 0) {
+      watch("gallery_images").forEach((file: File) => {
         media.push({
           type: "gallery",
           upload_by: "upload_by_file",
@@ -276,7 +278,7 @@ export const MediaForm = ({
             </label>
             <input
               type="file"
-              {...register("pdfSpecification")}
+              {...register("pdfs")}
               accept=".pdf"
               className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />

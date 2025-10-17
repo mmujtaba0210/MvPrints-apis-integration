@@ -15,13 +15,32 @@ export const PricingForm = ({
 }: PricingFormProps) => {
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-medium text-gray-900">Pricing</h3>
+      <h3 className="text-3xl font-bold text-gray-900">Pricing</h3>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        {/* ✅ Variant (Select Field) */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Variant <span className="text-red-500">*</span>
+          </label>
+          <select
+            {...register("varient", { required: "Variant is required" })}
+            className="block w-full px-4 py-3 border border-gray-300 rounded-lg"
+          >
+            <option value="">Select variant</option>
+            <option value="per_item">Per Item</option>
+            <option value="whole_order">Wholesale</option>
+          </select>
+          {errors.variant && (
+            <p className="text-sm text-red-600">
+              {errors.variant.message as string}
+            </p>
+          )}
+        </div>
         {/* Default Retail Price */}
         <CustomInput
           label="Default Retail Price"
-          name="retailPrice"
+          name="price"
           register={register}
           required
           placeholder="0.00"
@@ -32,7 +51,7 @@ export const PricingForm = ({
         {/* Discount Amount */}
         <CustomInput
           label="Discount Amount"
-          name="discountAmount"
+          name="discount"
           register={register}
           placeholder="0.00"
           type="number"
@@ -42,7 +61,7 @@ export const PricingForm = ({
         {/* ✅ Stock Number */}
         <CustomInput
           label="Stock Number"
-          name="stockNumber"
+          name="stock"
           register={register}
           required
           placeholder="Enter stock quantity"

@@ -62,13 +62,13 @@ export default function CharitiesPage() {
 
             <div>
               {/* <CharityTab/> */}
-              {/* {charities.length > 0 ? (
-                <CharityTable/>
+              {charities.length > 0 ? (
+                <CharitiesPage />
               ) : (
                 <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-500">
                   No charities added yet. Add your first charity using the form.
                 </div>
-              )} */}
+              )}
             </div>
           </div>
         </div>

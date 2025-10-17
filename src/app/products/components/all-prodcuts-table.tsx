@@ -11,18 +11,22 @@ import {
   resetUpdateState,
 } from "@/redux/slices/productSlices/updateProductSlice";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import UpdateProductModal from "../Models/UpdateProductModal";
 import { toast } from "react-toastify";
 import {
   deleteProduct,
   resetDeleteState,
 } from "@/redux/slices/productSlices/deleteProductSlice";
+import UpdateProductModal from "../Models/NewUpdateProductModal";
 
 const AllProductsTable = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
   const dispatch = useDispatch<AppDispatch>();
+
   const { data, loading, error } = useSelector(
     (state: RootState) => state.fetchProducts
   );
@@ -35,24 +39,21 @@ const AllProductsTable = () => {
     error: updateError,
   } = useSelector((state: RootState) => state.updateProduct);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-
-  // fetch products initially
+  // ✅ Fetch all products initially
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  // handle delete refresh
+  // ✅ Handle Delete Success
   useEffect(() => {
     if (deleteSuccess) {
+      toast.success("🗑️ Product deleted successfully!");
       dispatch(fetchProducts());
       dispatch(resetDeleteState());
     }
   }, [deleteSuccess, dispatch]);
 
-  // handle update refresh
+  // ✅ Handle Update Success
   useEffect(() => {
     if (updateSuccess) {
       toast.success("✅ Product updated successfully!");
@@ -66,12 +67,14 @@ const AllProductsTable = () => {
     }
   }, [updateSuccess, updateError, dispatch]);
 
+  // ✅ Delete Product Handler
   const handleDelete = (id: number) => {
     if (confirm("Are you sure you want to delete this product?")) {
       dispatch(deleteProduct(id));
     }
   };
 
+  // ✅ Search and Filter Logic
   const filteredData = data.filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -83,29 +86,27 @@ const AllProductsTable = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // ✅ Table Columns
   const columns = [
     { key: "name", header: "Name" },
-    { key: "slug", header: "Slug" },
-    { key: "type", header: "Type" },
+
     { key: "category", header: "Category" },
-    { key: "sub_category", header: "Sub Category" },
-    { key: "child_category", header: "Child Category" },
-    { key: "brand", header: "Brand" },
+
     { key: "price", header: "Price" },
-    { key: "discount", header: "Discount" },
+
     { key: "sku", header: "SKU" },
-    { key: "stock", header: "Stock" },
+
     {
       key: "actions",
       header: "Actions",
       render: (item: any) => (
         <div className="flex gap-2">
           <button
-            className="text-blue-600 cursor-pointer "
+            className="text-blue-600 cursor-pointer"
             onClick={() => {
               setSelectedProduct(item);
               setEditModalOpen(true);
-              console.log(item);
+              console.log("🛠 Editing Product:", item);
             }}
           >
             <FaEdit />
@@ -123,6 +124,7 @@ const AllProductsTable = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">All Products</h1>
         <div className="flex gap-4">
@@ -142,8 +144,10 @@ const AllProductsTable = () => {
         </div>
       </div>
 
+      {/* Error Message */}
       {error && <div className="text-red-600 mb-4">Error: {error}</div>}
 
+      {/* Product Table */}
       <CommonCustomTable
         data={filteredData}
         columns={columns}
@@ -154,20 +158,22 @@ const AllProductsTable = () => {
         onSearch={(query: string) => setSearchQuery(query)}
       />
 
+      {/* ✅ Add Product Modal */}
       <AddProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={() => dispatch(fetchProducts())}
       />
 
-      <UpdateProductModal
-        isOpen={editModalOpen}
-        product={selectedProduct}
-        onClose={() => setEditModalOpen(false)}
-        onUpdate={(updatedData) =>
-          dispatch(updateProduct({ id: updatedData.id, updatedData }))
-        }
-      />
+      {/* ✅ Update Product Modal */}
+      {editModalOpen && selectedProduct && (
+        <UpdateProductModal
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          product={selectedProduct}
+          onUpdate={() => dispatch(fetchProducts())}
+        />
+      )}
     </div>
   );
 };

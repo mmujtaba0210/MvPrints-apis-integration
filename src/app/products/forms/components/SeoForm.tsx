@@ -5,18 +5,15 @@ interface SEOFormProps {
   errors: any;
 }
 
-export const SEOForm = ({
-  register,
-  errors,
-}: SEOFormProps) => {
+export const SEOForm = ({ register, errors }: SEOFormProps) => {
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-medium text-gray-900">SEO</h3>
-      
+
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <CustomInput
           label="Title"
-          name="seoTitle"
+          name="seo.title"
           register={register}
           placeholder="SEO title"
           errors={errors}
@@ -24,7 +21,7 @@ export const SEOForm = ({
 
         <CustomInput
           label="Slug"
-          name="slug"
+          name="seo_slug"
           register={register}
           placeholder="product-slug"
           errors={errors}
@@ -35,7 +32,7 @@ export const SEOForm = ({
             Keywords
           </label>
           <input
-            {...register("keywords")}
+            {...register("seo.keywords")}
             placeholder="comma, separated, keywords"
             className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
           />
@@ -47,7 +44,7 @@ export const SEOForm = ({
             Meta Tags
           </label>
           <textarea
-            {...register("metaTags")}
+            {...register("seo.meta_tags")}
             rows={2}
             className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
             placeholder="Meta tags"
@@ -59,7 +56,7 @@ export const SEOForm = ({
             Tags
           </label>
           <input
-            {...register("tags")}
+            {...register("seo.tags")}
             placeholder="tag1, tag2, tag3"
             className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
           />
@@ -71,7 +68,7 @@ export const SEOForm = ({
             Meta Description
           </label>
           <textarea
-            {...register("metaDescription")}
+            {...register("seo.meta_description")}
             rows={4}
             className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
             placeholder="Meta description for search engines"

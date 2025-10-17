@@ -15,7 +15,7 @@ import {
   resetUpdateState,
 } from "@/redux/slices/productSlices/updateProductSlice";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import UpdateProductModal from "../../Models/UpdateProductModal";
+import UpdateProductModal from "../../Models/NewUpdateProductModal";
 import { toast } from "react-toastify";
 import {
   deleteProduct,
@@ -89,16 +89,11 @@ const AllProductsTable = () => {
 
   const columns = [
     { key: "name", header: "Name" },
-    { key: "slug", header: "Slug" },
-    { key: "type", header: "Type" },
+
     { key: "category", header: "Category" },
-    { key: "sub_category", header: "Sub Category" },
-    { key: "child_category", header: "Child Category" },
-    { key: "brand", header: "Brand" },
+
     { key: "price", header: "Price" },
-    { key: "discount", header: "Discount" },
     { key: "sku", header: "SKU" },
-    { key: "stock", header: "Stock" },
     {
       key: "actions",
       header: "Actions",
@@ -163,14 +158,15 @@ const AllProductsTable = () => {
         onSuccess={() => dispatch(fetchProducts())}
       />
 
-      <UpdateProductModal
-        isOpen={editModalOpen}
-        product={selectedProduct}
-        onClose={() => setEditModalOpen(false)}
-        onUpdate={(updatedData) =>
-          dispatch(updateProduct({ id: updatedData.id, updatedData }))
-        }
-      />
+      {/* ✅ Update Product Modal */}
+      {editModalOpen && selectedProduct && (
+        <UpdateProductModal
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          product={selectedProduct}
+          onSuccess={() => dispatch(fetchProducts())}
+        />
+      )}
     </div>
   );
 };

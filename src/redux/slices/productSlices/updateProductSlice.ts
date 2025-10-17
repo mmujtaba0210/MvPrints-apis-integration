@@ -5,19 +5,32 @@ interface UpdateProductPayload {
   id: number;
   updatedData: any;
 }
+
 const BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000/api";
+  process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000/api/"; // ✅ added trailing slash
+
 export const updateProduct = createAsyncThunk(
   "products/updateProduct",
   async ({ id, updatedData }: UpdateProductPayload, { rejectWithValue }) => {
     try {
       const response = await axios.put(
         `${BASE_URL}admin/products/${id}`,
-        updatedData
+        updatedData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Error updating product");
+      console.log("❌ Update product error:", error.response?.data);
+
+      // ✅ Properly return error so .rejected reducer can handle it
+      return rejectWithValue(
+        error.response?.data?.message || "Error updating product"
+      );
     }
   }
 );

@@ -1,4 +1,7 @@
 import { CustomInput } from "@/common/customInputField";
+import { RootState } from "@/redux/store/store";
+import { FiChevronDown } from "react-icons/fi";
+import { useSelector } from "react-redux";
 
 interface ProductIdentifiersFormProps {
   register: any;
@@ -9,11 +12,40 @@ export const ProductIdentifiersForm = ({
   register,
   errors,
 }: ProductIdentifiersFormProps) => {
+  const { brands } = useSelector((state: RootState) => state.fetchBrands);
+
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-medium text-gray-900">Product Identifiers</h3>
+      <h3 className="text-2xl  font-bold text-gray-900">Product Identifiers</h3>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        {/* Product Brand */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Product Brand <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <select
+              {...register("product_brand_id", {
+                required: "Product brand is required",
+              })}
+              className="block w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none"
+            >
+              <option value="">Select brand</option>
+              {brands?.map((brand: any) => (
+                <option key={brand.id} value={brand.id}>
+                  {brand.name}
+                </option>
+              ))}
+            </select>
+            <FiChevronDown className="absolute right-3 top-4 h-5 w-5 text-gray-400" />
+          </div>
+          {errors.product_brand_id && (
+            <p className="text-sm text-red-600">
+              {errors.product_brand_id.message as string}
+            </p>
+          )}
+        </div>
         {/* SKU */}
         <CustomInput
           label="Product SKU"
@@ -43,26 +75,6 @@ export const ProductIdentifiersForm = ({
           placeholder="Enter model"
           errors={errors}
         />
-
-        {/* ✅ Variant (Select Field) */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Variant <span className="text-red-500">*</span>
-          </label>
-          <select
-            {...register("variant", { required: "Variant is required" })}
-            className="block w-full px-4 py-3 border border-gray-300 rounded-lg"
-          >
-            <option value="">Select variant</option>
-            <option value="per_item">Per Item</option>
-            <option value="whole_order">Wholesale</option>
-          </select>
-          {errors.variant && (
-            <p className="text-sm text-red-600">
-              {errors.variant.message as string}
-            </p>
-          )}
-        </div>
       </div>
     </div>
   );

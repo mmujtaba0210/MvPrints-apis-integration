@@ -34,7 +34,7 @@ const BASE_URL =
 
 export const fetchChildCategories = createAsyncThunk(
   "childCategories/fetchAll",
-  async (page: number = 1, { rejectWithValue }) => {
+  async (page: number | string = 1, { rejectWithValue }) => {
     try {
       const response = await axios.get(
         `${BASE_URL}admin/product-child-categories/pagination?page=${page}`,

@@ -67,7 +67,7 @@ export const ShippingForm = ({
             Delivery Time
           </label>
           <select
-            {...register("deliveryTimeId", { required: true })}
+            {...register("delivery_days", { required: true })}
             className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Select delivery time</option>
@@ -90,7 +90,7 @@ export const ShippingForm = ({
         {!freeShipping && (
           <CustomInput
             label="Shipping Cost"
-            name="shippingCost"
+            name="shipping_cost"
             register={register}
             placeholder="0.00"
             type="number"
@@ -104,7 +104,7 @@ export const ShippingForm = ({
             Shipping Location
           </label>
           <select
-            {...register("shippingLocation")}
+            {...register("shipping_location")}
             className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Select shipping location</option>

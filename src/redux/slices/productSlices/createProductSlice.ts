@@ -68,7 +68,7 @@ export const createProduct = createAsyncThunk<
     });
     return response.data;
   } catch (error: any) {
-    return rejectWithValue(
+    return console.log(
       error.response?.data || { message: "Failed to create product" }
     );
   }

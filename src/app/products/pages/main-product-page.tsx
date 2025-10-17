@@ -44,12 +44,7 @@ export const MainProductPage = () => {
       icon: <FiFileText size={18} />,
       content: <QuotationProductsPage />,
     },
-    {
-      id: "popular-products",
-      label: "Popular Products",
-      icon: <FiStar size={18} />,
-      content: <PopularProductsPage />,
-    },
+
     {
       id: "product-reviews",
       label: "Product Reviews",
