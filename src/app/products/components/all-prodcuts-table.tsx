@@ -126,7 +126,7 @@ const AllProductsTable = () => {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">All Products</h1>
+        <h1 className="text-2xl font-bold">Physical Products</h1>
         <div className="flex gap-4">
           <button
             className="bg-gray-200 px-4 py-2 rounded-lg"

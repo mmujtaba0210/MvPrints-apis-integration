@@ -12,7 +12,7 @@ interface FinanceTableProps<T> {
   onSearch: (query: string) => void;
   onFilter?: (filter: boolean | "") => void;
   filterOptions?: FilterOption[];
-  title: string;
+  title?: string;
   isLoading?: boolean;
 }
 
@@ -50,11 +50,11 @@ const CommonCustomTable = <T,>({
             <input
               type="text"
               placeholder="Search..."
-              className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 text-black"
+              className="pl-10 pr-1 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 text-black w-32 lg:w-40"
               onChange={(e) => onSearch(e.target.value)}
             />
           </div>
-          {onFilter && filterOptions && (
+          {/* {onFilter && filterOptions && (
             <div className="relative">
               <select
                 className="appearance-none pl-3 pr-8 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 text-black"
@@ -77,7 +77,7 @@ const CommonCustomTable = <T,>({
 
               <FaFilter className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
             </div>
-          )}
+          )} */}
         </div>
       </div>
 

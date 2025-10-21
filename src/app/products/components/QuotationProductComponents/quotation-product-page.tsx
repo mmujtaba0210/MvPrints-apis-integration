@@ -21,6 +21,7 @@ import {
   deleteProduct,
   resetDeleteState,
 } from "@/redux/slices/productSlices/deleteProductSlice";
+import { AddQuotationProductModal } from "../../Models/AddQuotationProductModal";
 
 const AllProductsTable = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -152,7 +153,7 @@ const AllProductsTable = () => {
         onSearch={(query: string) => setSearchQuery(query)}
       />
 
-      <AddProductModal
+      <AddQuotationProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={() => dispatch(fetchProducts())}

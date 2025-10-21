@@ -11,19 +11,16 @@ const SocialLinksForm = () => {
     linkedin: "",
     youtube: "",
     whatsapp: "",
-    telegram: "",
+
     tiktok: "",
     pinterest: "",
-    snapchat: "",
-    reddit: "",
-    discord: ""
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setSocialLinks(prev => ({
+    setSocialLinks((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -38,13 +35,18 @@ const SocialLinksForm = () => {
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Social Media Links</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Social Media Links
+          </h1>
           <p className="mt-2 text-lg text-gray-600">
             Add all your social media profiles to connect with your audience
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white shadow-xl rounded-2xl overflow-hidden">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white shadow-xl rounded-2xl overflow-hidden"
+        >
           <div className="max-h-[calc(100vh-250px)] overflow-y-auto p-6 sm:p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Row 1 */}
@@ -99,15 +101,6 @@ const SocialLinksForm = () => {
                 className="bg-green-50/50"
               />
 
-              {/* Row 3 */}
-              <CustomInput
-                label="Telegram"
-                name="telegram"
-                placeholder="https://t.me/yourchannel"
-                value={socialLinks.telegram}
-                onChange={handleChange}
-                className="bg-blue-50/30"
-              />
               <CustomInput
                 label="TikTok"
                 name="tiktok"
@@ -123,32 +116,6 @@ const SocialLinksForm = () => {
                 value={socialLinks.pinterest}
                 onChange={handleChange}
                 className="bg-red-100/50"
-              />
-
-              {/* Row 4 */}
-              <CustomInput
-                label="Snapchat"
-                name="snapchat"
-                placeholder="https://snapchat.com/add/yourusername"
-                value={socialLinks.snapchat}
-                onChange={handleChange}
-                className="bg-yellow-100/50"
-              />
-              <CustomInput
-                label="Reddit"
-                name="reddit"
-                placeholder="https://reddit.com/user/yourusername"
-                value={socialLinks.reddit}
-                onChange={handleChange}
-                className="bg-orange-50/50"
-              />
-              <CustomInput
-                label="Discord"
-                name="discord"
-                placeholder="https://discord.gg/yourinvite"
-                value={socialLinks.discord}
-                onChange={handleChange}
-                className="bg-indigo-50/50"
               />
             </div>
           </div>

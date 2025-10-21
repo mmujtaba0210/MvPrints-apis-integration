@@ -3,29 +3,11 @@
 import { useState } from "react";
 import CharityForm from "../components/charityForm";
 import { Charity } from "../types/charityTypes";
+import CharitiesTable from "../components/charityTable";
 
 export default function CharitiesPage() {
   const [charities, setCharities] = useState<Charity[]>([]);
   const [editingCharity, setEditingCharity] = useState<Charity | null>(null);
-
-  const handleSubmit = (charityData: Omit<Charity, "id">) => {
-    if (editingCharity) {
-      // Update existing charity
-      setCharities((prev) =>
-        prev.map((c) =>
-          c.id === editingCharity.id ? { ...editingCharity, ...charityData } : c
-        )
-      );
-      setEditingCharity(null);
-    } else {
-      // Add new charity
-      const newCharity: Charity = {
-        ...charityData,
-        id: Date.now().toString(),
-      };
-      setCharities((prev) => [...prev, newCharity]);
-    }
-  };
 
   const handleEdit = (charity: Charity) => {
     setEditingCharity(charity);
@@ -53,7 +35,6 @@ export default function CharitiesPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
               <CharityForm
-                onSubmit={handleSubmit}
                 initialData={editingCharity || undefined}
                 onCancel={editingCharity ? handleCancelEdit : undefined}
                 isEditing={!!editingCharity}
@@ -61,14 +42,7 @@ export default function CharitiesPage() {
             </div>
 
             <div>
-              {/* <CharityTab/> */}
-              {charities.length > 0 ? (
-                <CharitiesPage />
-              ) : (
-                <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-500">
-                  No charities added yet. Add your first charity using the form.
-                </div>
-              )}
+              <CharitiesTable />
             </div>
           </div>
         </div>

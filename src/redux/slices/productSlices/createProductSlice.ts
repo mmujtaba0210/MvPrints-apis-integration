@@ -55,8 +55,8 @@ const initialState: ProductState = {
 const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000/api";
 export const createProduct = createAsyncThunk<
-  any, // Response type
-  ProductPayload, // Argument type
+  any,
+  ProductPayload,
   { rejectValue: string }
 >("product/create", async (payload, { rejectWithValue }) => {
   try {

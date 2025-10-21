@@ -66,6 +66,13 @@ import createDeliveryTimeReducer from "@/redux/slices/Product/DeliveryTime/creat
 import updateDeliveryTimeReducer from "@/redux/slices/Product/DeliveryTime/updateDeliveryTimeSlice";
 import deleteDeliveryTimeReducer from "@/redux/slices/Product/DeliveryTime/deleteDeliveryTimeSlice";
 
+// charity slices import
+
+import createCharityReducer from "@/redux/slices/Charities/createCharitySlice";
+import getCharitiesReducer from "@/redux/slices/Charities/getCharitiesSlice";
+import deleteCharityReducer from "@/redux/slices/Charities/deleteCharitySlice";
+import updateCharityReducer from "@/redux/slices/Charities/updateCharitySlice";
+
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -131,6 +138,13 @@ const store = configureStore({
     createDeliveryTime: createDeliveryTimeReducer,
     updateDeliveryTime: updateDeliveryTimeReducer,
     deleteDeliveryTime: deleteDeliveryTimeReducer,
+
+    //charity slices
+
+    createCharity: createCharityReducer,
+    getCharities: getCharitiesReducer,
+    deleteCharity: deleteCharityReducer,
+    updateCharity: updateCharityReducer,
   },
 });
 
