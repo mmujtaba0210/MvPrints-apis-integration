@@ -18,8 +18,16 @@ import {
   FaListAlt,
   FaGift,
   FaCog,
+  FaCreditCard,
+  FaDollarSign,
+  FaExchangeAlt,
+  FaChild,
+  FaMoneyBillWave,
+  FaPiggyBank,
+  FaChartLine,
+  FaUniversity,
 } from "react-icons/fa";
-import { FaMessage, FaTicket } from "react-icons/fa6";
+import { FaMessage, FaShield, FaTicket } from "react-icons/fa6";
 import { SidebarType } from "../types/sidebar";
 
 interface NavItem {
@@ -48,8 +56,32 @@ const navItems: NavItem[] = [
     ],
   },
   { text: "Quotation", icon: <FaHome />, link: "quotation" },
-  { text: "Customers", icon: <FaUsers />, link: "customers" },
-  { text: "Financing", icon: <FaChartBar />, link: "finance" },
+  {
+    text: "Customers",
+    icon: <FaUsers />,
+    link: "customers",
+    subItems: [
+      { text: "All Customers", icon: <FaUsers />, link: "all-customers" },
+      // { text: "Banned Customers", icon: <FaUsers />, link: "banned-customers" },
+      { text: "Customer Verification", icon: <FaShield />, link: "customer-verification" },
+      { text: "Subscription Plans", icon: <FaCreditCard />, link: "subscription-plan" },
+      { text: "Affiliate Withdrawals", icon: <FaDollarSign />, link: "affilate-withdrawl" },
+      { text: "Customer Transactions", icon: <FaExchangeAlt />, link: "customer-transaction" },
+    ],
+  },
+  {
+    text: "Financing",
+    icon: <FaMoneyBillWave />,
+    link: "finance",
+    subItems: [
+      { text: "Business Advantage", icon: <FaChartLine />, link: "business-advantage" },
+      { text: "Business Advantage Verification", icon: <FaShield />, link: "business-advantage-verification" },
+      { text: "Business Preferred", icon: <FaUniversity />, link: "business-preferred" },
+      { text: "Business Preferred Verification", icon: <FaShield />, link: "business-preferred-verification" },
+      { text: "Business Store", icon: <FaPiggyBank />, link: "business-store" },
+      { text: "Business Store Verification", icon: <FaShield />, link: "business-store-verification" },
+    ],
+  },
   {
     text: "Products",
     icon: <FaBoxes />,

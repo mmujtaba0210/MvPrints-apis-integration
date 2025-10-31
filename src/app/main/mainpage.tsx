@@ -28,22 +28,31 @@ import SocialLinksForm from "../../views/settings/socialsettings/pages/social-li
 import MessagesPage from "../support/pages/message-page";
 import MainMarketingPage from "../marketing/pages/main-marketing-page";
 import OrderDetailsPage from "../orders/orderdetails/orderdetailspage";
-import CustomerSettingsPage from "../customer/page";
-import MainFinancePage from "../finanacing/page";
-import PointsManagementPage from "../loyality/page";
+import AllCustomersPage from "../customer/components/customerpage";
+import BannedCustomersPage from "../customer/components/customerpage";
+import CustomerVerificationPage from "../customer/components/customer-verification-page";
+import SubscriptionPlanPage from "../customer/components/subscription-plans-page";
+import AffiliateWithdrawalPage from "../customer/components/affilate-withdrawl-page";
+import CustomerTransactionPage from "../customer/components/transaction-page";
+import BusinessAdvantagePage from "../finanacing/components/business-advantage-table";
+import BusinessAdvantageVerificationPage from "../finanacing/components/business-advantage-verification-page";
+import BusinessPreferredPage from "../finanacing/components/business-preferred-page";
+import BusinessPreferredVerificationPage from "../finanacing/components/business-preferred-verification";
+import BusinessStorePage from "../finanacing/components/business-store-page";
+import BusinessStoreVerificationPage from "../finanacing/components/business-store-verification";
 import { logout } from "@/redux/slices/authSlice/authSlice";
 import { useRouter } from "next/navigation";
-// import CharitiesPage from "../donations/charity/page";
-// import MainBlogsPage from "../blog/page";
 
 const MainPage: React.FC = () => {
   const [selectedSection, setSelectedSection] =
     useState<SidebarType>("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const router = useRouter();
+  
   const handleSelect = (section: SidebarType) => {
     setSelectedSection(section);
   };
+  
   const handleLogout = async () => {
     await logout();
     toast.success("Logout Successfully");
@@ -51,6 +60,7 @@ const MainPage: React.FC = () => {
       router.push("/auth");
     }, 500);
   };
+
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
@@ -121,29 +131,32 @@ const MainPage: React.FC = () => {
             "flex-1 overflow-y-auto p-3 bg-[#e1e4e8d4] transition-all duration-300 w-full scrollbar-hide"
           )}
         >
-          {/* <h2 className="text-xl font-bold capitalize mb-6 text-black">
-            {selectedSection.replace(/-/g, ' ')}
-          </h2> */}
+          {/* Customer Sections */}
+          {selectedSection === "all-customers" && <AllCustomersPage />}
+          {selectedSection === "banned-customers" && <BannedCustomersPage />}
+          {selectedSection === "customer-verification" && <CustomerVerificationPage />}
+          {selectedSection === "subscription-plan" && <SubscriptionPlanPage />}
+          {selectedSection === "affilate-withdrawl" && <AffiliateWithdrawalPage />}
+          {selectedSection === "customer-transaction" && <CustomerTransactionPage />}
 
-          {/* Render the selected section */}
+          {/* Financing Sections */}
+          {selectedSection === "business-advantage" && <BusinessAdvantagePage />}
+          {selectedSection === "business-advantage-verification" && <BusinessAdvantageVerificationPage />}
+          {selectedSection === "business-preferred" && <BusinessPreferredPage />}
+          {selectedSection === "business-preferred-verification" && <BusinessPreferredVerificationPage />}
+          {selectedSection === "business-store" && <BusinessStorePage />}
+          {selectedSection === "business-store-verification" && <BusinessStoreVerificationPage />}
+
+          {/* Other Sections */}
           {selectedSection === "order-details" && <OrderDetailsPage />}
           {selectedSection === "all-orders" && <AllOrdersPage />}
           {selectedSection === "refund-order" && <RefundOrdersPage />}
           {selectedSection === "order-proof" && <OrderProofsPage />}
-          {selectedSection === "order-verification" && (
-            <OrderVerificationPage />
-          )}
-          {selectedSection === "customers" && <CustomerSettingsPage />}
+          {selectedSection === "order-verification" && <OrderVerificationPage />}
           {selectedSection === "quotation" && <QuotationsPage />}
-          {selectedSection === "finance" && <MainFinancePage />}
-          {selectedSection === "loyality" && <PointsManagementPage />}
           {selectedSection === "gift-cards" && <GiftCardsPage />}
-          {selectedSection === "gift-card-transactions" && (
-            <GiftCardTransactionsPage />
-          )}
+          {selectedSection === "gift-card-transactions" && <GiftCardTransactionsPage />}
           {selectedSection === "marketing" && <MainMarketingPage />}
-          {/* {selectedSection === "charity" && <CharitiesPage />} */}
-          {/* {selectedSection === "donations" && <DonationsTable />} */}
           {selectedSection === "staff" && <StaffTable />}
           {selectedSection === "roles" && <RolesTable />}
           {selectedSection === "general-settings" && <GeneralSettingsPage />}
@@ -153,7 +166,6 @@ const MainPage: React.FC = () => {
           {selectedSection === "product-category" && <ProductCategoriesPage />}
           {selectedSection === "menu-settings" && <MenuSettingsMainpage />}
           {selectedSection === "reports" && <MainReportPage />}
-          {/* {selectedSection === "blog" && <MainBlogsPage />} */}
           {selectedSection === "email-settings" && <MainEmailSettingsPage />}
           {selectedSection === "social-settings" && <SocialLinksForm />}
           {selectedSection === "message" && <MessagesPage />}

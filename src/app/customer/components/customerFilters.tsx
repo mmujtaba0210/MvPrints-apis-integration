@@ -1,5 +1,6 @@
 import React from 'react';
-import { FilterOption, CustomerStatus } from '@/app/customer/types/customerTypes';
+import { FilterOption } from '@/app/customer/types/customerTypes';
+type CustomerStatus = "all" | "active" | "banned" | "deactivated";
 
 interface CustomerFiltersProps {
   filters: FilterOption[];

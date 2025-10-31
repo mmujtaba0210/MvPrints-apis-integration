@@ -1,29 +1,33 @@
-// app/settings/page.tsx
 "use client";
 
 import LeftSideTabs from "@/common/customlefttabbar";
-import { FiCreditCard, FiDollarSign, FiShield } from "react-icons/fi";
+import { FiCreditCard, FiDollarSign, FiShield, FiUsers, FiUserX } from "react-icons/fi";
 import CustomersPage from "./components/customerpage";
 import SubscriptionPlanPage from "./components/subscription-plans-page";
 import SubscriptionTransactionPage from "./components/subscription-transaction-page";
 import AffiliateWithdrawalPage from "./components/affilate-withdrawl-page";
-import TransactionPage from "./components/transaction-page";
 import CustomerVerificationPage from "./components/customer-verification-page";
 
-export default function CustomerSettingsPage() {
+interface CustomerSettingsPageProps {
+  activeTab?: string;
+}
+
+export default function CustomerSettingsPage({ 
+  activeTab = "all-customers" 
+}: CustomerSettingsPageProps) {
   const tabs = [
     {
       id: "all-customers",
       label: "All Customers",
-      icon: <FiCreditCard size={18} />,
+      icon: <FiUsers size={18} />,
       content: <CustomersPage />,
     },
-    {
-      id: "banned-customers",
-      label: "Banned Customers",
-      icon: <FiCreditCard size={18} />,
-      content: <CustomersPage />,
-    },
+    // {
+    //   id: "banned-customers",
+    //   label: "Banned Customers",
+    //   icon: <FiUserX size={18} />,
+    //   content: <CustomersPage />, // You might want a different component for banned customers
+    // },
     {
       id: "subscription-plans",
       label: "Subscription Plans",
@@ -43,12 +47,6 @@ export default function CustomerSettingsPage() {
       content: <AffiliateWithdrawalPage />,
     },
     {
-      id: "transactions",
-      label: "Transactions",
-      icon: <FiDollarSign size={18} />,
-      content: <TransactionPage />,
-    },
-    {
       id: "customer-verification",
       label: "Customer Verification",
       icon: <FiShield size={18} />,
@@ -60,7 +58,7 @@ export default function CustomerSettingsPage() {
     <div style={{ height: "calc(100vh - 64px)" }}>
       <LeftSideTabs
         tabs={tabs}
-        defaultActiveTab="all-customers"
+        defaultActiveTab={activeTab}
         tabWidth="260px"
         tabStyle={{
           fontSize: "14px",
