@@ -6,6 +6,10 @@ import CustomerTable from "./customerTable";
 
 // ✅ Declare types directly here instead of importing
 type CustomerStatus = "all" | "active" | "banned" | "deactivated";
+<<<<<<< HEAD
+=======
+
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
 interface Customer {
   id: number;
   name: string;
@@ -29,6 +33,7 @@ interface Customer {
   avatar?: string;
 }
 
+<<<<<<< HEAD
 // ✅ API Response Types
 interface ApiCustomer {
   id: number;
@@ -55,6 +60,8 @@ interface ApiResponse {
   };
 }
 
+=======
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
 const CustomersPage = () => {
   const [activeFilter, setActiveFilter] = useState<CustomerStatus>("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -62,6 +69,7 @@ const CustomersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+<<<<<<< HEAD
   // ✅ API Configuration
   const API_URL = "https://testbackend.mecarviprints.com/api/admin/customers";
   const TOKEN = "48|NOtPrzpY4Sk2H1raMxmygMzCFto3I2Sg8MAkcNQx31ef5f49";
@@ -122,6 +130,77 @@ const CustomersPage = () => {
   useEffect(() => {
     fetchCustomers();
   }, []);
+=======
+  // ✅ Customer data with correct types
+  const [customers, setCustomers] = useState<Customer[]>([
+    {
+      id: 1,
+      name: "John Doe",
+      email: "john@example.com",
+      joinDate: "2023-01-15",
+      status: "banned",
+      totalOrders: 5,
+      totalSpent: 1200,
+      subscriptionPlan: "Premium",
+      subscriptionExpiry: "2024-01-15",
+      affiliateBalance: 150,
+      lastWithdrawal: "2023-05-01",
+      lastTransaction: "2023-05-10",
+      verificationStatus: "verified",
+      lastPurchase: "2023-05-10",
+      tier: "Gold",
+      location: "New York",
+      phone: "+1 555-123-4567",
+      notes: "VIP customer",
+      tags: ["frequent-buyer", "high-value"],
+      avatar: "/images/chair1.jpg",
+    },
+    {
+      id: 2,
+      name: "Jane Smith",
+      email: "jane@example.com",
+      joinDate: "2023-03-20",
+      status: "deactivated",
+      totalOrders: 2,
+      totalSpent: 350,
+      subscriptionPlan: "Basic",
+      subscriptionExpiry: "2023-09-20",
+      affiliateBalance: 0,
+      lastWithdrawal: "",
+      lastTransaction: "2023-04-15",
+      verificationStatus: "pending",
+      lastPurchase: "2023-04-15",
+      tier: "Silver",
+      location: "Los Angeles",
+      phone: "+1 555-987-6543",
+      notes: "Account suspended for policy violation",
+      tags: ["inactive"],
+      avatar: "/images/chair1.jpg",
+    },
+    {
+      id: 3,
+      name: "Alex Johnson",
+      email: "alex@example.com",
+      joinDate: "2023-05-12",
+      status: "deactivated",
+      totalOrders: 8,
+      totalSpent: 890,
+      subscriptionPlan: "Standard",
+      subscriptionExpiry: "2024-05-12",
+      affiliateBalance: 50,
+      lastWithdrawal: "2023-06-01",
+      lastTransaction: "2023-07-10",
+      verificationStatus: "verified",
+      lastPurchase: "2023-07-10",
+      tier: "Bronze",
+      location: "Chicago",
+      phone: "+1 555-321-9999",
+      notes: "Regular customer",
+      tags: ["returning"],
+      avatar: "/images/chair1.jpg",
+    },
+  ]);
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
 
   // ✅ Filtering logic
   const filteredData = customers.filter((customer) => {
@@ -142,6 +221,13 @@ const CustomersPage = () => {
     return statusMatch && searchMatch;
   });
 
+<<<<<<< HEAD
+=======
+  useEffect(() => {
+    console.log(filteredData);
+  }, [filteredData]);
+
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
   // ✅ Handlers
   const handleView = (customer: Customer) => console.log("View:", customer.id);
   const handleEdit = (customer: Customer) => console.log("Edit:", customer.id);
@@ -172,11 +258,14 @@ const CustomersPage = () => {
           : c
       )
     );
+<<<<<<< HEAD
   };
 
   // ✅ Refresh customers
   const handleRefresh = () => {
     fetchCustomers();
+=======
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
   };
 
   // ✅ Render loading state
@@ -247,6 +336,7 @@ const CustomersPage = () => {
               onFilterChange={setActiveFilter}
             />
 
+<<<<<<< HEAD
             {filteredData.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-gray-500">No customers found.</p>
@@ -261,6 +351,16 @@ const CustomersPage = () => {
                 onDeactivateToggle={handleDeactivateToggle}
               />
             )}
+=======
+            <CustomerTable
+              data={filteredData}
+              onView={handleView}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onBanToggle={handleBanToggle}
+              onDeactivateToggle={handleDeactivateToggle}
+            />
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
           </div>
         </div>
       </div>

@@ -1,6 +1,17 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
+<<<<<<< HEAD
 import { Eye, Edit3, Trash2, Ban, RefreshCcw, Power, X } from "lucide-react";
+=======
+import {
+  Eye,
+  Edit3,
+  Trash2,
+  Ban,
+  RefreshCcw,
+  Power,
+} from "lucide-react"; // ✅ icons
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
 
 type CustomerStatus = "all" | "active" | "banned" | "deactivated";
 
@@ -12,7 +23,22 @@ export interface Customer {
   status: CustomerStatus;
   totalOrders: number;
   totalSpent: number;
+<<<<<<< HEAD
   phone?: string;
+=======
+  subscriptionPlan?: string;
+  subscriptionExpiry?: string;
+  affiliateBalance?: number;
+  lastWithdrawal?: string;
+  lastTransaction?: string;
+  verificationStatus?: string;
+  lastPurchase?: string;
+  tier?: string;
+  location?: string;
+  phone?: string;
+  notes?: string;
+  tags?: string[];
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
   avatar?: string;
 }
 
@@ -23,7 +49,10 @@ interface CustomerTableProps {
   onDelete: (customer: Customer) => void;
   onBanToggle: (customer: Customer) => void;
   onDeactivateToggle: (customer: Customer) => void;
+<<<<<<< HEAD
   onDataChanged?: () => void;
+=======
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
 }
 
 const CustomerTable: React.FC<CustomerTableProps> = ({
@@ -33,6 +62,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
   onDelete,
   onBanToggle,
   onDeactivateToggle,
+<<<<<<< HEAD
   onDataChanged, // Add this to props destructuring
 }) => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
@@ -50,6 +80,13 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
   const API_TOKEN = "48|NOtPrzpY4Sk2H1raMxmygMzCFto3I2Sg8MAkcNQx31ef5f49";
   const BASE_URL = "https://testbackend.mecarviprints.com/api/admin";
 
+=======
+}) => {
+  const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  // ✅ Close dropdown when clicking outside
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -63,6 +100,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+<<<<<<< HEAD
   const showAlert = (message: string, isSuccess: boolean = true) => {
     alert(`${isSuccess ? "✅ Success:" : "❌ Error:"} ${message}`);
   };
@@ -232,6 +270,8 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
   const isAnyActionLoading = (id: number) =>
     Object.keys(loading).some((key) => key.includes(id.toString()));
 
+=======
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
   return (
     <div className="overflow-x-auto mt-6">
       <table className="min-w-full border border-gray-200 divide-y divide-gray-200">
@@ -286,13 +326,18 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
               </td>
 
               {/* ✅ Dropdown */}
+<<<<<<< HEAD
               <td className="px-6 py-3 relative">
+=======
+              <td className="px-6 py-3 relative" >
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
                 <button
                   onClick={() =>
                     setOpenDropdown(
                       openDropdown === customer.id ? null : customer.id
                     )
                   }
+<<<<<<< HEAD
                   className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50"
                   disabled={isAnyActionLoading(customer.id)}
                 >
@@ -307,10 +352,26 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
                     <ul className="py-1 text-sm text-black">
                       <li
                         onClick={() => openViewModal(customer)}
+=======
+                  className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                >
+                  Actions ⌄
+                </button>
+
+                {openDropdown === customer.id && (
+                  <div className="absolute z-10 right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg">
+                    <ul className="py-1 text-sm text-black">
+                      <li
+                        onClick={() => {
+                          onView(customer);
+                          setOpenDropdown(null);
+                        }}
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
                         className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
                       >
                         <Eye size={16} /> View
                       </li>
+<<<<<<< HEAD
 
                       <li
                         onClick={() => openEditModal(customer)}
@@ -321,13 +382,39 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
 
                       <li
                         onClick={() => handleDelete(customer)}
+=======
+                      {onEdit && (
+                        <li
+                          onClick={() => {
+                            onEdit(customer);
+                            setOpenDropdown(null);
+                          }}
+                          className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
+                        >
+                          <Edit3 size={16} /> Edit
+                        </li>
+                      )}
+                      <li
+                        onClick={() => {
+                          onDelete(customer);
+                          setOpenDropdown(null);
+                        }}
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
                         className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
                       >
                         <Trash2 size={16} /> Delete
                       </li>
+<<<<<<< HEAD
 
                       <li
                         onClick={() => handleBanToggle(customer)}
+=======
+                      <li
+                        onClick={() => {
+                          onBanToggle(customer);
+                          setOpenDropdown(null);
+                        }}
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
                         className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
                       >
                         {customer.status === "banned" ? (
@@ -340,9 +427,17 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
                           </>
                         )}
                       </li>
+<<<<<<< HEAD
 
                       <li
                         onClick={() => handleDeactivateToggle(customer)}
+=======
+                      <li
+                        onClick={() => {
+                          onDeactivateToggle(customer);
+                          setOpenDropdown(null);
+                        }}
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
                         className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
                       >
                         {customer.status === "deactivated" ? (
@@ -363,6 +458,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
           ))}
         </tbody>
       </table>
+<<<<<<< HEAD
 
       {/* ✅ View Modal */}
       {viewCustomer && (
@@ -470,6 +566,8 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
           </div>
         </div>
       )}
+=======
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
     </div>
   );
 };

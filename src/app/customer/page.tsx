@@ -21,6 +21,15 @@ export default function CustomerSettingsPage({
       label: "All Customers",
       icon: <FiUsers size={18} />,
       content: <CustomersPage />,
+<<<<<<< HEAD
+=======
+    },
+    {
+      id: "banned-customers",
+      label: "Banned Customers",
+      icon: <FiUserX size={18} />,
+      content: <CustomersPage />, // You might want a different component for banned customers
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
     },
     // {
     //   id: "banned-customers",

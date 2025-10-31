@@ -62,7 +62,11 @@ const navItems: NavItem[] = [
     link: "customers",
     subItems: [
       { text: "All Customers", icon: <FaUsers />, link: "all-customers" },
+<<<<<<< HEAD
       // { text: "Banned Customers", icon: <FaUsers />, link: "banned-customers" },
+=======
+      { text: "Banned Customers", icon: <FaUsers />, link: "banned-customers" },
+>>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
       { text: "Customer Verification", icon: <FaShield />, link: "customer-verification" },
       { text: "Subscription Plans", icon: <FaCreditCard />, link: "subscription-plan" },
       { text: "Affiliate Withdrawals", icon: <FaDollarSign />, link: "affilate-withdrawl" },
