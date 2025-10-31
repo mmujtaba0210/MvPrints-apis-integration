@@ -7,6 +7,7 @@ interface MediaFormProps {
   errors: any;
   setValue: any;
   watch: any;
+  existingMedia?: any; // 🟩 New: existing product media for edit mode
 }
 
 export const MediaForm = ({
@@ -14,6 +15,7 @@ export const MediaForm = ({
   errors,
   setValue,
   watch,
+  existingMedia = {},
 }: MediaFormProps) => {
   const [featureImage, setFeatureImage] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
@@ -22,14 +24,30 @@ export const MediaForm = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  // 👀 Watch form values so we can build media[]
+  // Watch current form fields
   const videoUpload = watch("videos");
   const videoLink = watch("videoLink");
   const pdfSpecification = watch("pdfs");
   const additionalFile = watch("additionalFile");
   const additionalLink = watch("additionalLink");
 
-  // --- Helpers ---
+  // 🟩 Load existing media on edit
+  useEffect(() => {
+    if (existingMedia?.media?.length) {
+      const featured = existingMedia.media.find(
+        (m: any) => m.type === "is_featured"
+      );
+      const gallery = existingMedia.media.filter(
+        (m: any) => m.type === "gallery"
+      );
+
+      if (featured?.file_path) setFeatureImage(featured.file_path);
+      if (gallery?.length)
+        setGalleryImages(gallery.map((g: any) => g.file_path));
+    }
+  }, [existingMedia]);
+
+  // 🧩 Helper: Convert file to base64 for preview
   const readFileAsDataURL = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -38,9 +56,8 @@ export const MediaForm = ({
       reader.readAsDataURL(file);
     });
   };
-  useEffect(() => {
-    console.log("video", videoUpload);
-  }, [videoUpload]);
+
+  // 🟩 Handlers
   const handleFeatureImageChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -69,7 +86,7 @@ export const MediaForm = ({
 
   const removeFeatureImage = () => {
     setFeatureImage(null);
-    setValue("featureImage", null);
+    setValue("images", null);
   };
 
   const removeGalleryImage = (index: number) => {
@@ -85,31 +102,42 @@ export const MediaForm = ({
   const triggerFileInput = () => fileInputRef.current?.click();
   const triggerGalleryInput = () => galleryInputRef.current?.click();
 
-  // --- Build unified media[] whenever inputs change ---
+  // 🧠 Build media array dynamically for API
   useEffect(() => {
     const media: any[] = [];
 
-    // Feature Image
-    if (watch("gallery_images")) {
+    const featureFile = watch("images");
+    if (featureFile) {
       media.push({
         type: "is_featured",
         upload_by: "upload_by_file",
-        file: watch("media"),
+        file: featureFile,
+      });
+    } else if (featureImage && featureImage.startsWith("http")) {
+      media.push({
+        type: "is_featured",
+        file_path: featureImage,
       });
     }
 
-    // Gallery Images
-    if (watch("gallery_images") && watch("gallery_images").length > 0) {
-      watch("gallery_images").forEach((file: File) => {
+    const galleryFiles = watch("galleryImages") || [];
+    if (galleryFiles.length > 0) {
+      galleryFiles.forEach((file: File) => {
         media.push({
           type: "gallery",
           upload_by: "upload_by_file",
           file,
         });
       });
+    } else if (galleryImages.length && galleryImages[0].startsWith("http")) {
+      galleryImages.forEach((path) =>
+        media.push({
+          type: "gallery",
+          file_path: path,
+        })
+      );
     }
 
-    // PDF Specification
     if (pdfSpecification && pdfSpecification[0]) {
       media.push({
         type: "pdf",
@@ -118,7 +146,6 @@ export const MediaForm = ({
       });
     }
 
-    // Video Upload
     if (videoUpload && videoUpload[0]) {
       media.push({
         type: "video",
@@ -127,7 +154,6 @@ export const MediaForm = ({
       });
     }
 
-    // Video Link
     if (videoLink) {
       media.push({
         type: "video",
@@ -136,7 +162,6 @@ export const MediaForm = ({
       });
     }
 
-    // Additional File / Link
     if (additionalFile && additionalFile[0]) {
       media.push({
         upload_by: "upload_by_file",
@@ -150,7 +175,6 @@ export const MediaForm = ({
       });
     }
 
-    // 👌 Set the unified media[] in form state
     setValue("media", media);
   }, [
     featureImage,
@@ -256,7 +280,7 @@ export const MediaForm = ({
             </label>
             <input
               type="file"
-              {...register("videoUpload")}
+              {...register("videos")}
               accept="video/*"
               className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />

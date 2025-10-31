@@ -5,6 +5,8 @@ interface PricingFormProps {
   errors: any;
   allowWholesale: boolean;
   setAllowWholesale: (value: boolean) => void;
+  watch: any; // ✅ to handle variant/wholesale logic dynamically
+  setValue: any; // ✅ to sync state changes
 }
 
 export const PricingForm = ({
@@ -12,7 +14,11 @@ export const PricingForm = ({
   errors,
   allowWholesale,
   setAllowWholesale,
+  watch,
+  setValue,
 }: PricingFormProps) => {
+  const selectedVariant = watch("varient");
+
   return (
     <div className="space-y-6">
       <h3 className="text-3xl font-bold text-gray-900">Pricing</h3>
@@ -26,18 +32,21 @@ export const PricingForm = ({
           <select
             {...register("varient", { required: "Variant is required" })}
             className="block w-full px-4 py-3 border border-gray-300 rounded-lg"
+            defaultValue={selectedVariant || ""}
+            onChange={(e) => setValue("varient", e.target.value)}
           >
             <option value="">Select variant</option>
             <option value="per_item">Per Item</option>
             <option value="whole_order">Wholesale</option>
           </select>
-          {errors.variant && (
+          {errors.varient && (
             <p className="text-sm text-red-600">
-              {errors.variant.message as string}
+              {errors.varient.message as string}
             </p>
           )}
         </div>
-        {/* Default Retail Price */}
+
+        {/* ✅ Default Retail Price */}
         <CustomInput
           label="Default Retail Price"
           name="price"
@@ -48,7 +57,7 @@ export const PricingForm = ({
           errors={errors}
         />
 
-        {/* Discount Amount */}
+        {/* ✅ Discount Amount */}
         <CustomInput
           label="Discount Amount"
           name="discount"
@@ -69,7 +78,7 @@ export const PricingForm = ({
           errors={errors}
         />
 
-        {/* Allow Wholesale Toggle */}
+        {/* ✅ Allow Wholesale Toggle */}
         <div className="flex items-center justify-between sm:col-span-2">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -88,7 +97,7 @@ export const PricingForm = ({
           </label>
         </div>
 
-        {/* Wholesale Fields */}
+        {/* ✅ Wholesale Fields (Visible if AllowWholesale is true) */}
         {allowWholesale && (
           <>
             <CustomInput

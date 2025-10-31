@@ -1,16 +1,13 @@
-import { useState } from "react";
+"use client";
+
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useFieldArray, useWatch } from "react-hook-form";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
+import { CustomInput } from "@/common/customInputField";
 
-interface Size {
-  name: string;
-  qty: string;
-  price: string;
-}
-
-interface Attribute {
-  name: string;
-  options: string[];
-}
+import { RootState, AppDispatch } from "@/redux/store/store";
+import { fetchAttributes } from "@/redux/slices/Product/productAttributionSlice/fetchAttributesSlice";
 
 interface ProductVariationFormProps {
   register: any;
@@ -25,137 +22,118 @@ export const ProductVariationForm = ({
   control,
   setValue,
 }: ProductVariationFormProps) => {
-  // Default one size & one attribute with one option input
-  const [sizes, setSizes] = useState<Size[]>([
-    { name: "", qty: "", price: "" },
-  ]);
-  const [attributes, setAttributes] = useState<Attribute[]>([
-    { name: "", options: [] },
-  ]);
+  const dispatch = useDispatch<AppDispatch>();
 
-  const [optionInputs, setOptionInputs] = useState<{ [key: number]: string }>({
-    0: "",
+  // 🔹 Fetch attributes from Redux
+  const { attributes, loading } = useSelector(
+    (state: RootState) => state.fetchAttributes
+  );
+
+  useEffect(() => {
+    dispatch(fetchAttributes());
+  }, [dispatch]);
+
+  // 🔹 Watch selected attribute ID
+  const selectedAttributeId = useWatch({
+    control,
+    name: "selectedAttributeId",
   });
 
-  // --- Size Handlers ---
-  const addSize = () => {
-    setSizes([...sizes, { name: "", qty: "", price: "" }]);
-  };
+  // 🔹 Find selected attribute object
+  const selectedAttribute = attributes.find(
+    (attr) => attr.id === Number(selectedAttributeId)
+  );
 
-  const removeSize = (index: number) => {
-    const updated = [...sizes];
-    updated.splice(index, 1);
-    setSizes(updated);
-  };
+  // 🔹 Field Arrays for sizes and dynamic attribute values
+  const {
+    fields: sizeFields,
+    append: addSize,
+    remove: removeSize,
+  } = useFieldArray({
+    control,
+    name: "sizes",
+  });
 
-  const handleSizeChange = (
-    index: number,
-    field: keyof Size,
-    value: string
-  ) => {
-    const updated = [...sizes];
-    updated[index][field] = value;
-    setSizes(updated);
-  };
+  const {
+    fields: attributeFields,
+    append: addAttribute,
+    remove: removeAttribute,
+  } = useFieldArray({
+    control,
+    name: "attributes",
+  });
 
-  // --- Attribute Handlers ---
-  const addAttribute = () => {
-    const updated = [...attributes, { name: "", options: [] }];
-    setAttributes(updated);
-    setOptionInputs({ ...optionInputs, [updated.length - 1]: "" });
-  };
+  const { fields: valueFields, replace: replaceValues } = useFieldArray({
+    control,
+    name: "attributeValues",
+  });
 
-  const removeAttribute = (index: number) => {
-    const updated = [...attributes];
-    updated.splice(index, 1);
-    setAttributes(updated);
-  };
-
-  const handleAttributeNameChange = (index: number, value: string) => {
-    const updated = [...attributes];
-    updated[index].name = value;
-    setAttributes(updated);
-  };
-
-  const handleOptionInputChange = (index: number, value: string) => {
-    setOptionInputs({ ...optionInputs, [index]: value });
-  };
-
-  const handleAddOption = (index: number) => {
-    const newOption = optionInputs[index]?.trim();
-    if (!newOption) return;
-    const updated = [...attributes];
-    updated[index].options.push(newOption);
-    setAttributes(updated);
-    setOptionInputs({ ...optionInputs, [index]: "" });
-  };
-
-  const handleRemoveOption = (attrIndex: number, optionIndex: number) => {
-    const updated = [...attributes];
-    updated[attrIndex].options.splice(optionIndex, 1);
-    setAttributes(updated);
-  };
+  // 🔹 When attribute changes, populate its values dynamically
+  useEffect(() => {
+    if (selectedAttribute) {
+      const mappedValues = selectedAttribute.attribution_values.map((val) => ({
+        value: val,
+        price: "",
+        price_type: "per_item",
+      }));
+      replaceValues(mappedValues);
+    } else {
+      replaceValues([]);
+    }
+  }, [selectedAttribute, replaceValues]);
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-medium text-gray-900">Product Variation</h3>
+      <h3 className="text-3xl font-bold text-gray-900">Product Variation</h3>
 
-      {/* Sizes Section */}
+      {/* ===========================
+           Sizes Section (UNCHANGED)
+      ============================ */}
       <div className="space-y-4">
-        <h4 className="font-medium text-gray-700">Sizes</h4>
+        <h4 className="font-semibold text-gray-800">Sizes</h4>
 
-        {sizes.map((size, index) => (
-          <div key={index} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Size Name
-              </label>
-              <input
-                type="text"
-                value={size.name}
-                onChange={(e) =>
-                  handleSizeChange(index, "name", e.target.value)
-                }
-                placeholder="e.g. Small, Medium"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
+        {sizeFields.map((field, index) => (
+          <div
+            key={field.id}
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4 border border-gray-200 p-4 rounded-lg"
+          >
+            <CustomInput
+              label="Size Name"
+              name={`sizes.${index}.name`}
+              placeholder="e.g. Small, Medium"
+              register={register}
+              required
+              errors={errors}
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Quantity
-              </label>
-              <input
+            <CustomInput
+              label="Quantity"
+              name={`sizes.${index}.qty`}
+              placeholder="0"
+              type="number"
+              register={register}
+              required
+              errors={errors}
+            />
+
+            <div className="flex items-end gap-2">
+              <CustomInput
+                label="Price"
+                name={`sizes.${index}.price`}
+                placeholder="0.00"
                 type="number"
-                value={size.qty}
-                onChange={(e) => handleSizeChange(index, "qty", e.target.value)}
-                placeholder="0"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                register={register}
+                required
+                errors={errors}
               />
-            </div>
 
-            <div className="flex items-end space-x-2">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Price
-                </label>
-                <input
-                  type="number"
-                  value={size.price}
-                  onChange={(e) =>
-                    handleSizeChange(index, "price", e.target.value)
-                  }
-                  placeholder="0"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              {sizes.length > 1 && (
+              {sizeFields.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeSize(index)}
                   className="p-2 text-red-500 hover:text-red-700"
                 >
-                  <FiTrash2 className="h-5 w-5" />
+                  <FiTrash2 className="w-5 h-5" />
                 </button>
               )}
             </div>
@@ -164,51 +142,86 @@ export const ProductVariationForm = ({
 
         <button
           type="button"
-          onClick={addSize}
-          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          onClick={() => addSize({ name: "", qty: "", price: "" })}
+          className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           <FiPlus className="-ml-0.5 mr-2 h-4 w-4" />
           Add More Size
         </button>
       </div>
 
-      {/* Attributes Section */}
+      {/* ===========================
+           Attribute Section (UPDATED)
+      ============================ */}
       <div className="space-y-4">
-        <h4 className="font-medium text-gray-700">Attributes</h4>
+        <h4 className="font-semibold text-gray-800">Attributes</h4>
 
-        {attributes.map((attr, index) => (
-          <div key={index} className="p-4 border rounded-lg space-y-3">
-            <div className="flex justify-between items-center">
-              <input
-                type="text"
-                value={attr.name}
-                onChange={(e) =>
-                  handleAttributeNameChange(index, e.target.value)
-                }
-                placeholder="Attribute Name (e.g. Color)"
-                className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-              {attributes.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeAttribute(index)}
-                  className="ml-2 text-red-500 hover:text-red-700"
-                >
-                  <FiTrash2 className="h-5 w-5" />
-                </button>
-              )}
-            </div>
+        {/* Select Attribute Dropdown */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Select Attribute
+          </label>
+          <select
+            {...register("selectedAttributeId")}
+            className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">-- Select an Attribute --</option>
+            {attributes.map((attr) => (
+              <option key={attr.id} value={attr.id}>
+                {attr.name}
+              </option>
+            ))}
+          </select>
+          {loading && (
+            <p className="text-sm text-gray-500 mt-1">Loading attributes...</p>
+          )}
+        </div>
+
+        {/* Show Dynamic Attribute Values */}
+        {selectedAttribute && valueFields.length > 0 && (
+          <div className="space-y-4">
+            <h5 className="font-semibold text-gray-700">
+              {selectedAttribute.name} Values
+            </h5>
+
+            {valueFields.map((field, index) => (
+              <div
+                key={field.id}
+                className="grid grid-cols-1 sm:grid-cols-3 gap-4 border border-gray-200 p-4 rounded-lg"
+              >
+                <CustomInput
+                  label="Value"
+                  name={`attributeValues.${index}.value`}
+                  placeholder="Value"
+                  register={register}
+                  errors={errors}
+                />
+
+                <CustomInput
+                  label="Price"
+                  name={`attributeValues.${index}.price`}
+                  placeholder="0.00"
+                  type="number"
+                  register={register}
+                  errors={errors}
+                />
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Price Type
+                  </label>
+                  <select
+                    {...register(`attributeValues.${index}.price_type`)}
+                    className="w-full border border-gray-300 rounded-md p-2"
+                  >
+                    <option value="per_item">Per Item</option>
+                    <option value="whole_order">Whole Order</option>
+                  </select>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-
-        <button
-          type="button"
-          onClick={addAttribute}
-          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          <FiPlus className="-ml-0.5 mr-2 h-4 w-4" />
-          Attribute
-        </button>
+        )}
       </div>
     </div>
   );

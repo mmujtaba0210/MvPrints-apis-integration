@@ -1,6 +1,7 @@
 // src/redux/slices/product/createProductSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 interface ProductPayload {
   name: string;
@@ -66,8 +67,10 @@ export const createProduct = createAsyncThunk<
         "Content-Type": "multipart/form-data",
       },
     });
+    toast.success("✅ Product created successfully");
     return response.data;
   } catch (error: any) {
+    toast.error(error.response?.data || "❌ Failed to create product");
     return console.log(
       error.response?.data || { message: "Failed to create product" }
     );

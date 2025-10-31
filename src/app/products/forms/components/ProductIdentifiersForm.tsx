@@ -6,20 +6,24 @@ import { useSelector } from "react-redux";
 interface ProductIdentifiersFormProps {
   register: any;
   errors: any;
+  setValue: any;
+  watch: any;
 }
 
 export const ProductIdentifiersForm = ({
   register,
   errors,
+  setValue,
+  watch,
 }: ProductIdentifiersFormProps) => {
   const { brands } = useSelector((state: RootState) => state.fetchBrands);
 
   return (
     <div className="space-y-6">
-      <h3 className="text-2xl  font-bold text-gray-900">Product Identifiers</h3>
+      <h3 className="text-2xl font-bold text-gray-900">Product Identifiers</h3>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        {/* Product Brand */}
+        {/* ✅ Product Brand */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">
             Product Brand <span className="text-red-500">*</span>
@@ -30,6 +34,8 @@ export const ProductIdentifiersForm = ({
                 required: "Product brand is required",
               })}
               className="block w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none"
+              defaultValue={watch("product_brand_id") || ""}
+              onChange={(e) => setValue("product_brand_id", e.target.value)}
             >
               <option value="">Select brand</option>
               {brands?.map((brand: any) => (
@@ -46,7 +52,8 @@ export const ProductIdentifiersForm = ({
             </p>
           )}
         </div>
-        {/* SKU */}
+
+        {/* ✅ SKU */}
         <CustomInput
           label="Product SKU"
           name="sku"
@@ -56,7 +63,7 @@ export const ProductIdentifiersForm = ({
           errors={errors}
         />
 
-        {/* Manufacturer */}
+        {/* ✅ Manufacturer */}
         <CustomInput
           label="Manufacturer"
           name="manufacturer"
@@ -66,7 +73,7 @@ export const ProductIdentifiersForm = ({
           errors={errors}
         />
 
-        {/* Model */}
+        {/* ✅ Model */}
         <CustomInput
           label="Model"
           name="model"

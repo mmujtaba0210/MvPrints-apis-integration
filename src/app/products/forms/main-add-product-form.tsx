@@ -66,7 +66,14 @@ export const AddProductForm = ({
     },
     {
       title: "Product Identifiers",
-      component: <ProductIdentifiersForm register={register} errors={errors} />,
+      component: (
+        <ProductIdentifiersForm
+          setValue={setValue}
+          register={register}
+          errors={errors}
+          watch={watch}
+        />
+      ),
     },
     {
       title: "Pricing",
@@ -74,6 +81,8 @@ export const AddProductForm = ({
         <PricingForm
           register={register}
           errors={errors}
+          watch={watch}
+          setValue={setValue}
           allowWholesale={allowWholesale}
           setAllowWholesale={setAllowWholesale}
         />
@@ -127,189 +136,219 @@ export const AddProductForm = ({
     setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
   const prevStep = () => setCurrentStep((s) => Math.max(s - 1, 0));
 
-  // ✅ Handle Submit
   const onSubmit = async (data: any) => {
     console.log("data before", data);
+
     try {
+      // ✅ Convert keywords and tags only if they are strings
+      if (data.seo) {
+        if (typeof data.seo.keywords === "string") {
+          data.seo.keywords = data.seo.keywords
+            .split(",")
+            .map((k: string) => k.trim())
+            .filter(Boolean);
+        }
+
+        if (typeof data.seo.tags === "string") {
+          data.seo.tags = data.seo.tags
+            .split(",")
+            .map((t: string) => t.trim())
+            .filter(Boolean);
+        }
+      }
+
       const formData = new FormData();
 
-      // Basic product info
-      formData.append("name", data.name);
-      formData.append("slug", data.slug);
-      formData.append("type", data.type);
-      formData.append("model", data.model);
-      formData.append("description", data.description);
-      formData.append("specification", data.specification);
-      formData.append("refund_policy", data.refund_policy);
+      // 🟩 Basic product info
+      formData.append("name", data.name || "");
+      formData.append(
+        "slug",
+        data.seo_slug ||
+          data.slug ||
+          Math.random().toString(36).substring(2, 15)
+      );
+      formData.append("type", data.type || "");
+      formData.append("model", data.model || "");
+      formData.append("description", data.description || "");
+      formData.append("specification", data.specification || "");
+      formData.append("refund_policy", data.refund_policy || "");
 
-      // Categories & Brand
-      formData.append("product_category_id", String(data.category));
-      formData.append("product_sub_category_id", String(data.sub_category));
-      formData.append("product_child_category_id", String(data.child_category));
-      formData.append("product_brand_id", String(data.product_brand_id));
-      formData.append("product_deleivery_time_id", String(data.delivery_days));
+      // 🟩 Category & Brand (fix for update mode where field names differ)
+      formData.append(
+        "product_category_id",
+        String(data.product_category_id || data.category || "")
+      );
+      formData.append(
+        "product_sub_category_id",
+        String(data.product_sub_category_id || data.sub_category || "")
+      );
+      formData.append(
+        "product_child_category_id",
+        String(data.product_child_category_id || data.child_category || "")
+      );
+      formData.append(
+        "product_brand_id",
+        String(data.product_brand_id || data.brand || "")
+      );
+      formData.append(
+        "product_deleivery_time_id",
+        String(data.product_deleivery_time_id || data.delivery_days || "")
+      );
 
-      // Pricing
-      formData.append("varient", data.varient);
+      // 🟩 Pricing & Variant
+      formData.append("varient", data.varient || "");
       formData.append("allow_wholesale", data.allowWholesale ? "1" : "0");
-      formData.append("price", String(data.price));
-      formData.append("discount", String(data.discount));
-      formData.append("sku", data.sku);
-      formData.append("stock", String(data.stock));
+      formData.append("price", String(data.price || ""));
+      formData.append("discount", String(data.discount || ""));
+      formData.append("sku", data.sku || "");
+      formData.append("stock", String(data.stock || ""));
 
-      // Shipping
+      // 🟩 Shipping
       formData.append("is_shipping_cost", data.isShippingCost ? "1" : "0");
-      formData.append("shipping_cost", String(data.shipping_cost));
-      formData.append("shipping_location", data.shipping_location);
+      formData.append("shipping_cost", String(data.shipping_cost || 0));
+      formData.append("shipping_location", data.shipping_location || "");
 
-      // Status
+      // 🟩 Status
       formData.append("is_active", data.isActive ? "1" : "0");
 
-      // SEO
-      formData.append("seo_title", data.seo.title);
-      formData.append("seo_slug", data.seo.slug);
-      formData.append("seo_keywords", data.seo.keywords);
-      formData.append("seo_meta_description", data.seo.meta_description);
+      // 🟩 SEO
+      formData.append("seo_title", data.seo.title || "");
+      formData.append("seo_slug", data.seo_slug || "");
+      formData.append(
+        "seo_keywords",
+        Array.isArray(data.seo.keywords)
+          ? data.seo.keywords.join(",")
+          : data.seo.keywords || ""
+      );
+      formData.append("seo_meta_description", data.seo.meta_description || "");
 
       if (Array.isArray(data.seo.meta_tags)) {
         data.seo.meta_tags.forEach((tag: string, index: number) => {
           formData.append(`seo_meta_tags[${index}]`, tag);
         });
       }
+
       if (Array.isArray(data.seo.tags)) {
         data.seo.tags.forEach((tag: string, index: number) => {
           formData.append(`seo_tags[${index}]`, tag);
         });
       }
 
-      // Labels
+      // 🟩 Labels
       if (Array.isArray(data.labels)) {
         data.labels.forEach((label: number, index: number) => {
           formData.append(`labels[${index}]`, String(label));
         });
       }
 
-      // Media ✅
+      // 🟩 Media (with video support)
       if (Array.isArray(data.media)) {
         data.media.forEach((m: any, index: number) => {
-          if (m.type) {
-            formData.append(`media[${index}][type]`, m.type);
-          }
-          if (m.upload_by) {
+          if (m.type) formData.append(`media[${index}][type]`, m.type);
+          if (m.upload_by)
             formData.append(`media[${index}][upload_by]`, m.upload_by);
-          }
-          if (m.file) {
-            formData.append(`media[${index}][file_path]`, m.file); // File object
-          }
-          if (m.link) {
-            formData.append(`media[${index}][link]`, m.link);
+
+          const fileToAppend =
+            m.file instanceof File
+              ? m.file
+              : Array.isArray(m.file) && m.file[0] instanceof File
+              ? m.file[0]
+              : m.file?.file instanceof File
+              ? m.file.file
+              : null;
+
+          if (fileToAppend)
+            formData.append(`media[${index}][file_path]`, fileToAppend);
+
+          if (m.link) formData.append(`media[${index}][link]`, m.link);
+        });
+      }
+
+      // ✅ Include videos array
+      if (Array.isArray(data.videos)) {
+        data.videos.forEach((video: any, index: number) => {
+          if (video.file instanceof File) {
+            formData.append(`videos[${index}][file]`, video.file);
+          } else if (video.link) {
+            formData.append(`videos[${index}][link]`, video.link);
           }
         });
       }
 
+      // 🟩 Variations → sizes
+      if (Array.isArray(data.sizes)) {
+        data.sizes.forEach((size: any, index: number) => {
+          formData.append(`variations[${index}][name]`, size.name || "");
+          formData.append(
+            `variations[${index}][quantity]`,
+            String(size.qty || 0)
+          );
+          formData.append(
+            `variations[${index}][price]`,
+            String(size.price || 0)
+          );
+        });
+      }
+
+      // ✅ Attributes (with values, price, price_type)
+      if (Array.isArray(data.attributeValues) && data.selectedAttributeId) {
+        formData.append(
+          `attributions[0][id]`,
+          String(data.selectedAttributeId)
+        );
+
+        data.attributeValues.forEach((opt: any, index: number) => {
+          formData.append(
+            `attributions[0][options][${index}][value]`,
+            opt.value
+          );
+          formData.append(
+            `attributions[0][options][${index}][price]`,
+            String(opt.price)
+          );
+          formData.append(
+            `attributions[0][options][${index}][price_type]`,
+            opt.price_type
+          );
+        });
+      }
+
+      // 🟩 Wholesale
+      if (data.allowWholesale) {
+        formData.append(
+          `wholesales[0][quantity]`,
+          String(data.wholesaleQuantity || 0)
+        );
+        formData.append(
+          `wholesales[0][price]`,
+          String(data.wholesalePrice || 0)
+        );
+      }
+
       console.log("📤 Sending FormData:", [...formData.entries()]);
 
+      // 🟩 Submit to API
       if (mode === "add") {
         await dispatch(createProduct(formData as any)).unwrap();
         dispatch(fetchProducts());
         toast.success("✅ Product created successfully!");
       } else if (mode === "update") {
-        const updateFormData = new FormData();
-
-        // Basic product info
-        formData.append("name", data.name);
-        formData.append("slug", data.slug);
-        formData.append("type", data.type);
-        formData.append("model", data.model);
-        formData.append("description", data.description);
-        formData.append("specification", data.specification);
-        formData.append("refund_policy", data.refund_policy);
-
-        // Categories & Brand
-        formData.append("product_category_id", String(data.category));
-        formData.append("product_sub_category_id", String(data.sub_category));
-        formData.append(
-          "product_child_category_id",
-          String(data.child_category)
-        );
-        formData.append("product_brand_id", String(data.product_brand_id));
-        formData.append(
-          "product_deleivery_time_id",
-          String(data.delivery_days)
-        );
-
-        // Pricing
-        formData.append("varient", data.varient);
-        formData.append("allow_wholesale", data.allowWholesale ? "1" : "0");
-        formData.append("price", String(data.price));
-        formData.append("discount", String(data.discount));
-        formData.append("sku", data.sku);
-        formData.append("stock", String(data.stock));
-
-        // Shipping
-        formData.append("is_shipping_cost", data.isShippingCost ? "1" : "0");
-        formData.append("shipping_cost", String(data.shipping_cost));
-        formData.append("shipping_location", data.shipping_location);
-
-        // Status
-        formData.append("is_active", data.isActive ? "1" : "0");
-
-        // SEO
-        formData.append("seo_title", data.seo.title);
-        formData.append("seo_slug", data.seo.slug);
-        formData.append("seo_keywords", data.seo.keywords);
-        formData.append("seo_meta_description", data.seo.meta_description);
         formData.append("_method", "PUT");
 
-        if (Array.isArray(data.seo.meta_tags)) {
-          data.seo.meta_tags.forEach((tag: string, index: number) => {
-            formData.append(`seo_meta_tags[${index}]`, tag);
-          });
-        }
-        if (Array.isArray(data.seo.tags)) {
-          data.seo.tags.forEach((tag: string, index: number) => {
-            formData.append(`seo_tags[${index}]`, tag);
-          });
-        }
-
-        // Labels
-        if (Array.isArray(data.labels)) {
-          data.labels.forEach((label: number, index: number) => {
-            formData.append(`labels[${index}]`, String(label));
-          });
-        }
-
-        // Media ✅
-        if (Array.isArray(data.media)) {
-          data.media.forEach((m: any, index: number) => {
-            if (m.type) {
-              formData.append(`media[${index}][type]`, m.type);
-            }
-            if (m.upload_by) {
-              formData.append(`media[${index}][upload_by]`, m.upload_by);
-            }
-            if (m.file) {
-              formData.append(`media[${index}][file_path]`, m.file); // File object
-            }
-            if (m.link) {
-              formData.append(`media[${index}][link]`, m.link);
-            }
-          });
-        }
-
-        console.log("📤 Sending UPFormData:", [...formData.entries()]);
         await dispatch(
           updateProduct({
             id: data.id,
-            updatedData: updateFormData,
+            updatedData: formData,
           })
         ).unwrap();
+
         toast.success("✅ Product updated successfully!");
       }
 
       onSuccess?.();
       onClose?.();
     } catch (error: any) {
+      console.error("❌ Update product error:", error);
       toast.error(error?.message || "❌ Something went wrong");
     }
   };
