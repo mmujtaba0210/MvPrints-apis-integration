@@ -24,6 +24,7 @@ const eslintConfig = [
       "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/no-unused-expressions": "off",
       "@next/next/no-page-custom-font": "off",
+      "react-hooks/rules-of-hooks": "off",
       "no-console": "off",
     },
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import QuotationProductModal from "../components/QuotationProductComponents/AddProductModal/ProductModal";
+import ProductModal from "../pages/AddProductModal/ProductModal";
 
 interface AddProductModalProps {
   isOpen: boolean;
@@ -10,7 +10,7 @@ interface AddProductModalProps {
   onSuccess: () => void;
 }
 
-export const AddQuotationProductModal = ({
+export const AddProductModal = ({
   isOpen,
   onClose,
   mode,
@@ -18,7 +18,7 @@ export const AddQuotationProductModal = ({
   initialValues,
 }: AddProductModalProps) => {
   return (
-    <QuotationProductModal
+    <ProductModal
       open={isOpen}
       mode={mode}
       onClose={onClose}

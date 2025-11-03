@@ -3,7 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../slices/authSlice/authSlice";
 
 //products reducers import
-
+import paginatedProductsReducer from "../slices/productSlices/paginationProductSlice";
 import createProductReducer from "../slices/productSlices/createProductSlice";
 import updateProductReducer from "@/redux/slices/productSlices/updateProductSlice";
 import fetchProductsReducer from "@/redux/slices/productSlices/getAllProductsSlice";
@@ -78,7 +78,7 @@ const store = configureStore({
     auth: authReducer,
 
     //products reducers
-
+    paginatedProducts: paginatedProductsReducer,
     createProduct: createProductReducer,
     updateProduct: updateProductReducer,
     fetchProducts: fetchProductsReducer,

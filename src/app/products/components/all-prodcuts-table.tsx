@@ -4,19 +4,17 @@ import React, { useEffect, useState } from "react";
 import CommonCustomTable from "@/common/commonCustomTable";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
-import { AddProductModal } from "../Models/AddProductModal";
 import { fetchProducts } from "@/redux/slices/productSlices/getAllProductsSlice";
-import {
-  updateProduct,
-  resetUpdateState,
-} from "@/redux/slices/productSlices/updateProductSlice";
+
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { toast } from "react-toastify";
 import {
   deleteProduct,
   resetDeleteState,
 } from "@/redux/slices/productSlices/deleteProductSlice";
-import UpdateProductModal from "../Models/NewUpdateProductModal";
+import { AddProductModal } from "../Models/FAddProductModal";
+import { fetchPaginatedProducts } from "@/redux/slices/productSlices/paginationProductSlice";
+import { Loader2 } from "lucide-react";
 
 const AllProductsTable = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -28,44 +26,27 @@ const AllProductsTable = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const { data, loading, error } = useSelector(
-    (state: RootState) => state.fetchProducts
+    (state: RootState) => state.paginatedProducts
   );
+
   const { success: deleteSuccess } = useSelector(
     (state: RootState) => state.deleteProduct
   );
-  const {
-    loading: updateLoading,
-    success: updateSuccess,
-    error: updateError,
-  } = useSelector((state: RootState) => state.updateProduct);
 
   // ✅ Fetch all products initially
   useEffect(() => {
-    dispatch(fetchProducts());
+    dispatch(fetchPaginatedProducts({ page: 1, type: "prints" }));
+    console.log(data);
   }, [dispatch]);
 
   // ✅ Handle Delete Success
   useEffect(() => {
     if (deleteSuccess) {
       toast.success("🗑️ Product deleted successfully!");
-      dispatch(fetchProducts());
+      dispatch(fetchPaginatedProducts({ page: 1, type: "prints" }));
       dispatch(resetDeleteState());
     }
   }, [deleteSuccess, dispatch]);
-
-  // ✅ Handle Update Success
-  useEffect(() => {
-    if (updateSuccess) {
-      toast.success("✅ Product updated successfully!");
-      dispatch(fetchProducts());
-      dispatch(resetUpdateState());
-      setEditModalOpen(false);
-    }
-    if (updateError) {
-      toast.error(updateError);
-      dispatch(resetUpdateState());
-    }
-  }, [updateSuccess, updateError, dispatch]);
 
   // ✅ Delete Product Handler
   const handleDelete = (id: number) => {
@@ -75,16 +56,18 @@ const AllProductsTable = () => {
   };
 
   // ✅ Search and Filter Logic
-  const filteredData = data.filter((product) => {
-    const matchesSearch =
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus =
-      !statusFilter ||
-      (product.is_active ? "Published" : "Draft").toLowerCase() ===
-        statusFilter.toLowerCase();
-    return matchesSearch && matchesStatus;
-  });
+  const filteredData = data.filter(
+    (product: { name: string; category: string; is_active: any }) => {
+      const matchesSearch =
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus =
+        !statusFilter ||
+        (product.is_active ? "Published" : "Draft").toLowerCase() ===
+          statusFilter.toLowerCase();
+      return matchesSearch && matchesStatus;
+    }
+  );
 
   // ✅ Table Columns
   const columns = [
@@ -133,7 +116,13 @@ const AllProductsTable = () => {
             onClick={() => dispatch(fetchProducts())}
             disabled={loading}
           >
-            {loading ? "Loading..." : "Refresh"}
+            {loading ? (
+              <div className="flex items-center gap-2 text-gray-500">
+                <Loader2 className="animate-spin w-4 h-4" /> Please Wait ...
+              </div>
+            ) : (
+              "Refresh"
+            )}
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
@@ -154,7 +143,7 @@ const AllProductsTable = () => {
         currentPage={1}
         totalPages={1}
         onPageChange={() => {}}
-        title="Product List"
+        title="Physical Product List"
         onSearch={(query: string) => setSearchQuery(query)}
       />
 
@@ -162,16 +151,18 @@ const AllProductsTable = () => {
       <AddProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        mode="add"
         onSuccess={() => dispatch(fetchProducts())}
       />
 
       {/* ✅ Update Product Modal */}
       {editModalOpen && selectedProduct && (
-        <UpdateProductModal
+        <AddProductModal
           isOpen={editModalOpen}
           onClose={() => setEditModalOpen(false)}
-          product={selectedProduct}
-          onUpdate={() => dispatch(fetchProducts())}
+          onSuccess={() => dispatch(fetchProducts())}
+          mode="edit"
+          initialValues={selectedProduct}
         />
       )}
     </div>

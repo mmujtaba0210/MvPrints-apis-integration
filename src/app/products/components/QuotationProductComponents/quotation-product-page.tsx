@@ -4,24 +4,17 @@ import React, { useEffect, useState } from "react";
 import CommonCustomTable from "@/common/commonCustomTable";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
-import { AddProductModal } from "../../Models/AddProductModal";
-import {
-  fetchDigitalProducts,
-  fetchProducts,
-  fetchQuotationProducts,
-} from "@/redux/slices/productSlices/getAllProductsSlice";
-import {
-  updateProduct,
-  resetUpdateState,
-} from "@/redux/slices/productSlices/updateProductSlice";
+import { fetchProducts } from "@/redux/slices/productSlices/getAllProductsSlice";
+
 import { FaEdit, FaTrash } from "react-icons/fa";
-import UpdateProductModal from "../../Models/NewUpdateProductModal";
-import { toast } from "react-toastify";
+
 import {
   deleteProduct,
   resetDeleteState,
 } from "@/redux/slices/productSlices/deleteProductSlice";
 import { AddQuotationProductModal } from "../../Models/AddQuotationProductModal";
+import { fetchPaginatedProducts } from "@/redux/slices/productSlices/paginationProductSlice";
+import { Loader2 } from "lucide-react";
 
 const AllProductsTable = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -29,16 +22,11 @@ const AllProductsTable = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const { data, loading, error } = useSelector(
-    (state: RootState) => state.fetchProducts
+    (state: RootState) => state.paginatedProducts
   );
   const { success: deleteSuccess } = useSelector(
     (state: RootState) => state.deleteProduct
   );
-  const {
-    loading: updateLoading,
-    success: updateSuccess,
-    error: updateError,
-  } = useSelector((state: RootState) => state.updateProduct);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,30 +34,16 @@ const AllProductsTable = () => {
 
   // fetch products initially
   useEffect(() => {
-    dispatch(fetchQuotationProducts());
+    dispatch(fetchPaginatedProducts({ page: 1, type: "quotation" }));
   }, [dispatch]);
 
   // handle delete refresh
   useEffect(() => {
     if (deleteSuccess) {
-      dispatch(fetchQuotationProducts());
+      dispatch(fetchPaginatedProducts({ page: 1, type: "quotation" }));
       dispatch(resetDeleteState());
     }
   }, [deleteSuccess, dispatch]);
-
-  // handle update refresh
-  useEffect(() => {
-    if (updateSuccess) {
-      toast.success("✅ Product updated successfully!");
-      dispatch(fetchQuotationProducts());
-      dispatch(resetUpdateState());
-      setEditModalOpen(false);
-    }
-    if (updateError) {
-      toast.error(updateError);
-      dispatch(resetUpdateState());
-    }
-  }, [updateSuccess, updateError, dispatch]);
 
   const handleDelete = (id: number) => {
     if (confirm("Are you sure you want to delete this product?")) {
@@ -130,7 +104,13 @@ const AllProductsTable = () => {
             onClick={() => dispatch(fetchProducts())}
             disabled={loading}
           >
-            {loading ? "Loading..." : "Refresh"}
+            {loading ? (
+              <div className="flex items-center gap-2 text-gray-500">
+                <Loader2 className="animate-spin w-4 h-4" /> Please Wait ...
+              </div>
+            ) : (
+              "Refresh"
+            )}
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
@@ -153,18 +133,21 @@ const AllProductsTable = () => {
         onSearch={(query: string) => setSearchQuery(query)}
       />
 
+      {/* ✅ Add Product Modal */}
       <AddQuotationProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        mode="add"
         onSuccess={() => dispatch(fetchProducts())}
       />
 
       {/* ✅ Update Product Modal */}
       {editModalOpen && selectedProduct && (
-        <UpdateProductModal
+        <AddQuotationProductModal
           isOpen={editModalOpen}
           onClose={() => setEditModalOpen(false)}
-          product={selectedProduct}
+          mode="edit"
+          initialValues={selectedProduct}
           onSuccess={() => dispatch(fetchProducts())}
         />
       )}

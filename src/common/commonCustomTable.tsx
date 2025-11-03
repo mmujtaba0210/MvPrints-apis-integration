@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import React from "react";
 import { FaSearch, FaFilter } from "react-icons/fa";
 
@@ -82,13 +83,12 @@ const CommonCustomTable = <T,>({
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-10">
-          <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
-          <span className="mt-2 text-violet-600 font-medium">Loading...</span>
+        <div className="flex items-center gap-2 text-gray-500">
+          <Loader2 className="animate-spin w-4 h-4" /> Please Wait ...
         </div>
       ) : data.length === 0 || data === null || data === undefined ? (
-        <div className="flex flex-col items-center justify-center py-10">
-          <span className="text-gray-500 font-medium">No data found.</span>
+        <div className="flex items-center gap-2 text-gray-500">
+          <Loader2 className="animate-spin w-4 h-4" /> Please Wait ...
         </div>
       ) : (
         <>

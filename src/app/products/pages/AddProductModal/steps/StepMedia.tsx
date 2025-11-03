@@ -1,22 +1,14 @@
+"use client";
+
 import { useState, useRef, useEffect } from "react";
 import { FiUpload, FiTrash2, FiLink, FiPlus } from "react-icons/fi";
 import { CustomInput } from "@/common/customInputField";
 
-interface MediaFormProps {
-  register: any;
-  errors: any;
-  setValue: any;
-  watch: any;
-  existingMedia?: any; // 🟩 New: existing product media for edit mode
+interface StepProductMediaProps {
+  formik: any;
 }
 
-export const MediaForm = ({
-  register,
-  errors,
-  setValue,
-  watch,
-  existingMedia = {},
-}: MediaFormProps) => {
+export default function StepMedia({ formik }: StepProductMediaProps) {
   const [featureImage, setFeatureImage] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [uploadType, setUploadType] = useState("file");
@@ -24,30 +16,9 @@ export const MediaForm = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  // Watch current form fields
-  const videoUpload = watch("videos");
-  const videoLink = watch("videoLink");
-  const pdfSpecification = watch("pdfs");
-  const additionalFile = watch("additionalFile");
-  const additionalLink = watch("additionalLink");
+  const values = formik.values;
 
-  // 🟩 Load existing media on edit
-  useEffect(() => {
-    if (existingMedia?.media?.length) {
-      const featured = existingMedia.media.find(
-        (m: any) => m.type === "is_featured"
-      );
-      const gallery = existingMedia.media.filter(
-        (m: any) => m.type === "gallery"
-      );
-
-      if (featured?.file_path) setFeatureImage(featured.file_path);
-      if (gallery?.length)
-        setGalleryImages(gallery.map((g: any) => g.file_path));
-    }
-  }, [existingMedia]);
-
-  // 🧩 Helper: Convert file to base64 for preview
+  // 🧩 Convert File → Base64 for preview
   const readFileAsDataURL = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -57,7 +28,7 @@ export const MediaForm = ({
     });
   };
 
-  // 🟩 Handlers
+  // 🟢 Feature Image Upload
   const handleFeatureImageChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -69,121 +40,117 @@ export const MediaForm = ({
       }
       const preview = await readFileAsDataURL(file);
       setFeatureImage(preview);
-      setValue("images", file);
+      formik.setFieldValue("feature_image", file);
     }
   };
 
+  // 🟢 Gallery Upload
   const handleGalleryChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      const newImages = await Promise.all(files.map(readFileAsDataURL));
-      setGalleryImages((prev) => [...prev, ...newImages]);
-      setValue("galleryImages", [...(watch("gallery_images") || []), ...files]);
+      const previews = await Promise.all(files.map(readFileAsDataURL));
+      setGalleryImages((prev) => [...prev, ...previews]);
+      formik.setFieldValue("gallery_images", [
+        ...(values.gallery_images || []),
+        ...files,
+      ]);
     }
   };
 
+  // 🟢 Remove images
   const removeFeatureImage = () => {
     setFeatureImage(null);
-    setValue("images", null);
+    formik.setFieldValue("feature_image", null);
   };
 
   const removeGalleryImage = (index: number) => {
-    const newPreview = [...galleryImages];
-    newPreview.splice(index, 1);
-    setGalleryImages(newPreview);
+    const updated = [...galleryImages];
+    updated.splice(index, 1);
+    setGalleryImages(updated);
 
-    const currentFiles = watch("gallery_images") || [];
+    const currentFiles = [...(values.gallery_images || [])];
     currentFiles.splice(index, 1);
-    setValue("galleryImages", currentFiles);
+    formik.setFieldValue("gallery_images", currentFiles);
   };
 
   const triggerFileInput = () => fileInputRef.current?.click();
   const triggerGalleryInput = () => galleryInputRef.current?.click();
 
-  // 🧠 Build media array dynamically for API
   useEffect(() => {
     const media: any[] = [];
 
-    const featureFile = watch("images");
-    if (featureFile) {
+    if (values.feature_image) {
       media.push({
         type: "is_featured",
         upload_by: "upload_by_file",
-        file: featureFile,
-      });
-    } else if (featureImage && featureImage.startsWith("http")) {
-      media.push({
-        type: "is_featured",
-        file_path: featureImage,
+        file: values.feature_image,
       });
     }
 
-    const galleryFiles = watch("galleryImages") || [];
-    if (galleryFiles.length > 0) {
-      galleryFiles.forEach((file: File) => {
+    if (values.gallery_images?.length) {
+      values.gallery_images.forEach((file: File) =>
         media.push({
           type: "gallery",
           upload_by: "upload_by_file",
           file,
-        });
-      });
-    } else if (galleryImages.length && galleryImages[0].startsWith("http")) {
-      galleryImages.forEach((path) =>
-        media.push({
-          type: "gallery",
-          file_path: path,
         })
       );
     }
 
-    if (pdfSpecification && pdfSpecification[0]) {
+    if (values.pdfs?.length) {
       media.push({
         type: "pdf",
         upload_by: "upload_by_file",
-        file: pdfSpecification[0],
+        file: values.pdfs[0],
       });
     }
 
-    if (videoUpload && videoUpload[0]) {
+    if (values.videos?.length) {
       media.push({
         type: "video",
         upload_by: "upload_by_file",
-        file: videoUpload[0],
+        file: values.videos[0],
       });
     }
 
-    if (videoLink) {
+    if (values.video_link) {
       media.push({
         type: "video",
         upload_by: "upload_by_link",
-        link: videoLink,
+        link: values.video_link,
       });
     }
 
-    if (additionalFile && additionalFile[0]) {
+    if (values.additional_file?.length) {
       media.push({
         upload_by: "upload_by_file",
-        file: additionalFile[0],
+        file: values.additional_file[0],
       });
-    } else if (additionalLink) {
+    } else if (values.additional_link) {
       media.push({
-        type: "file",
         upload_by: "upload_by_link",
-        link: additionalLink,
+        link: values.additional_link,
       });
     }
 
-    setValue("media", media);
+    // ✅ Prevent infinite loop
+    const currentMedia = formik.values.media || [];
+    const newMediaString = JSON.stringify(media);
+    const oldMediaString = JSON.stringify(currentMedia);
+
+    if (newMediaString !== oldMediaString) {
+      formik.setFieldValue("media", media);
+    }
   }, [
-    featureImage,
-    galleryImages,
-    videoUpload,
-    videoLink,
-    pdfSpecification,
-    additionalFile,
-    additionalLink,
+    values.feature_image,
+    values.gallery_images,
+    values.pdfs,
+    values.videos,
+    values.video_link,
+    values.additional_file,
+    values.additional_link,
   ]);
 
   return (
@@ -280,8 +247,9 @@ export const MediaForm = ({
             </label>
             <input
               type="file"
-              {...register("videos")}
+              name="videos"
               accept="video/*"
+              onChange={(e) => formik.setFieldValue("videos", e.target.files)}
               className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />
           </div>
@@ -289,10 +257,11 @@ export const MediaForm = ({
           {/* --- Video Link --- */}
           <CustomInput
             label="Video Link"
-            name="videoLink"
-            register={register}
+            name="video_link"
+            value={values.video_link}
+            onChange={formik.handleChange}
             placeholder="https://example.com/video.mp4"
-            errors={errors}
+            errors={formik.errors}
           />
 
           {/* --- PDF --- */}
@@ -302,8 +271,9 @@ export const MediaForm = ({
             </label>
             <input
               type="file"
-              {...register("pdfs")}
+              name="pdfs"
               accept=".pdf"
+              onChange={(e) => formik.setFieldValue("pdfs", e.target.files)}
               className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />
           </div>
@@ -347,21 +317,25 @@ export const MediaForm = ({
               </label>
               <input
                 type="file"
-                {...register("additionalFile")}
+                name="additional_file"
+                onChange={(e) =>
+                  formik.setFieldValue("additional_file", e.target.files)
+                }
                 className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
             </div>
           ) : (
             <CustomInput
               label="Link"
-              name="additionalLink"
-              register={register}
+              name="additional_link"
+              value={values.additional_link}
+              onChange={formik.handleChange}
               placeholder="https://example.com/file.pdf"
-              errors={errors}
+              errors={formik.errors}
             />
           )}
         </div>
       </div>
     </div>
   );
-};
+}
