@@ -45,7 +45,7 @@ export const loginUser = createAsyncThunk<
 >("auth/loginUser", async (credentials, { rejectWithValue }) => {
   try {
     const res = await axios.post(
-      "https://testbackend.mecarviprints.com/api/auth/login",
+      "https://testbackend.mecarviprints.com/api/admin/auth/login",
       credentials,
       {
         headers: {
