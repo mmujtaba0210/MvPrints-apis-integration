@@ -9,10 +9,9 @@ export const deleteLabel = createAsyncThunk(
   "labels/delete",
   async (id: number, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("accessToken");
       await axios.delete(`${BASE_URL}admin/product-labels/${id}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
       return id;

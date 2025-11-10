@@ -1,24 +1,29 @@
 "use client";
-import { useState, useRef, ChangeEvent, DragEvent } from "react";
-import { CharityFormProps, Charity } from "../types/charityTypes";
+import { useState, useRef, ChangeEvent, DragEvent, FormEvent } from "react";
+import { CharityFormProps } from "../types/charityTypes";
+import { toast } from "react-toastify";
+import { createCharity } from "@/redux/slices/Charities/createCharitySlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store/store";
+import { fetchCharities } from "@/redux/slices/Charities/getCharitiesSlice";
 
 export default function CharityForm({
-  onSubmit,
   initialData,
   onCancel,
   isEditing = false,
 }: CharityFormProps) {
-  const [formData, setFormData] = useState<Omit<Charity, "id">>(
-    initialData || {
-      name: "",
-      description: "",
-      logo: "",
-    }
-  );
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading } = useSelector((state: RootState) => state.createCharity);
+
+  const [formData, setFormData] = useState({
+    name: initialData?.name || "",
+    description: initialData?.description || "",
+    logo: initialData?.logo || "",
+  });
+
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(
-    initialData?.logo && typeof initialData.logo === "string"
-      ? initialData.logo
-      : null
+    typeof initialData?.logo === "string" ? initialData.logo : null
   );
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -39,10 +44,7 @@ export default function CharityForm({
     e.preventDefault();
     setIsDragging(true);
   };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
+  const handleDragLeave = () => setIsDragging(false);
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -52,34 +54,48 @@ export default function CharityForm({
   };
 
   const processFile = (file: File | undefined) => {
-    if (file) {
-      if (!file.type.match("image.*")) {
-        alert("Please select an image file");
-        return;
-      }
-
-      setFormData((prev) => ({ ...prev, logo: file }));
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (!file.type.match("image.*")) {
+      toast.error("Please select a valid image file (PNG, JPG, GIF)");
+      return;
     }
+
+    setLogoFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setLogoPreview(reader.result as string);
+    reader.readAsDataURL(file);
   };
 
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
+  const triggerFileInput = () => fileInputRef.current?.click();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // ✅ Correct form submission with dispatch
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
-    if (!isEditing) {
+
+    if (!formData.name || !formData.description) {
+      toast.warning("Please fill in all required fields");
+      return;
+    }
+
+    const form = new FormData();
+    form.append("name", formData.name);
+    form.append("description", formData.description);
+    if (logoFile) form.append("file_path", logoFile);
+    else if (typeof formData.logo === "string")
+      form.append("file_path", formData.logo);
+
+    try {
+      const result = await dispatch(createCharity(form)).unwrap();
+
+      toast.success("Charity created successfully!");
+      dispatch(fetchCharities());
+      // ✅ Reset form after successful creation
       setFormData({ name: "", description: "", logo: "" });
+      setLogoFile(null);
       setLogoPreview(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to create charity");
     }
   };
 
@@ -90,7 +106,7 @@ export default function CharityForm({
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Charity Name Field */}
+        {/* Charity Name */}
         <div className="space-y-2">
           <label
             htmlFor="name"
@@ -105,12 +121,12 @@ export default function CharityForm({
             value={formData.name}
             onChange={handleChange}
             placeholder="Enter charity name"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition duration-200"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
 
-        {/* Description Field */}
+        {/* Description */}
         <div className="space-y-2">
           <label
             htmlFor="description"
@@ -124,22 +140,24 @@ export default function CharityForm({
             value={formData.description}
             onChange={handleChange}
             rows={4}
-            placeholder="Enter a brief description of the charity"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition duration-200"
+            placeholder="Enter charity description"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
 
-        {/* Logo Upload Field */}
+        {/* Logo Upload */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">
             Logo <span className="text-red-500">*</span>
           </label>
 
-          {/* Image Preview */}
-          {logoPreview && (
+          {logoPreview ? (
             <div className="mb-4 flex flex-col items-center">
-              <div className="relative group">
+              <div
+                className="relative group cursor-pointer"
+                onClick={triggerFileInput}
+              >
                 <img
                   src={logoPreview}
                   alt="Logo preview"
@@ -147,32 +165,21 @@ export default function CharityForm({
                 />
                 <button
                   type="button"
-                  onClick={() => setLogoPreview(null)}
+                  onClick={() => {
+                    setLogoPreview(null);
+                    setLogoFile(null);
+                  }}
                   className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   aria-label="Remove logo"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  ✕
                 </button>
               </div>
               <span className="text-sm text-gray-500 mt-1">
-                Click on the image to change
+                Click the image to change
               </span>
             </div>
-          )}
-
-          {/* Upload Area */}
-          {!logoPreview && (
+          ) : (
             <div
               className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all duration-200 ${
                 isDragging
@@ -212,8 +219,6 @@ export default function CharityForm({
 
           <input
             type="file"
-            id="logo"
-            name="logo"
             ref={fileInputRef}
             onChange={handleFileChange}
             accept="image/*"
@@ -222,22 +227,31 @@ export default function CharityForm({
           />
         </div>
 
-        {/* Form Actions */}
+        {/* Buttons */}
         <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
           {isEditing && onCancel && (
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition duration-200"
+              className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
             >
               Cancel
             </button>
           )}
           <button
             type="submit"
-            className="px-6 py-2.5 bg-blue-600 rounded-lg text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
+            disabled={loading}
+            className={`px-6 py-2.5 rounded-lg text-white font-medium transition duration-200 ${
+              loading
+                ? "bg-blue-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
-            {isEditing ? "Update Charity" : "Create Charity"}
+            {loading
+              ? "Saving..."
+              : isEditing
+              ? "Update Charity"
+              : "Create Charity"}
           </button>
         </div>
       </form>

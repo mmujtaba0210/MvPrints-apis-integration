@@ -1,8 +1,5 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-<<<<<<< HEAD
-import { Eye, Edit3, Trash2, Ban, RefreshCcw, Power, X } from "lucide-react";
-=======
 import {
   Eye,
   Edit3,
@@ -10,8 +7,7 @@ import {
   Ban,
   RefreshCcw,
   Power,
-} from "lucide-react"; // ✅ icons
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
+} from "lucide-react";
 
 type CustomerStatus = "all" | "active" | "banned" | "deactivated";
 
@@ -23,9 +19,6 @@ export interface Customer {
   status: CustomerStatus;
   totalOrders: number;
   totalSpent: number;
-<<<<<<< HEAD
-  phone?: string;
-=======
   subscriptionPlan?: string;
   subscriptionExpiry?: string;
   affiliateBalance?: number;
@@ -38,7 +31,6 @@ export interface Customer {
   phone?: string;
   notes?: string;
   tags?: string[];
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
   avatar?: string;
 }
 
@@ -49,10 +41,7 @@ interface CustomerTableProps {
   onDelete: (customer: Customer) => void;
   onBanToggle: (customer: Customer) => void;
   onDeactivateToggle: (customer: Customer) => void;
-<<<<<<< HEAD
   onDataChanged?: () => void;
-=======
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
 }
 
 const CustomerTable: React.FC<CustomerTableProps> = ({
@@ -62,31 +51,11 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
   onDelete,
   onBanToggle,
   onDeactivateToggle,
-<<<<<<< HEAD
-  onDataChanged, // Add this to props destructuring
-}) => {
-  const [openDropdown, setOpenDropdown] = useState<number | null>(null);
-  const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
-
-  const [viewCustomer, setViewCustomer] = useState<Customer | null>(null);
-  const [editCustomer, setEditCustomer] = useState<Customer | null>(null);
-  const [editForm, setEditForm] = useState({
-    name: "",
-    email: "",
-    status: "",
-  });
-
-  const API_TOKEN = "48|NOtPrzpY4Sk2H1raMxmygMzCFto3I2Sg8MAkcNQx31ef5f49";
-  const BASE_URL = "https://testbackend.mecarviprints.com/api/admin";
-
-=======
 }) => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   // ✅ Close dropdown when clicking outside
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -100,474 +69,157 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-<<<<<<< HEAD
-  const showAlert = (message: string, isSuccess: boolean = true) => {
-    alert(`${isSuccess ? "✅ Success:" : "❌ Error:"} ${message}`);
-  };
-
-  // ✅ Ban/Unban
-  const handleBanToggle = async (customer: Customer) => {
-    const actionKey = `ban-${customer.id}`;
-    setLoading((prev) => ({ ...prev, [actionKey]: true }));
-    try {
-      const response = await fetch(
-        `${BASE_URL}/customers/${customer.id}/ban-status`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${API_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const result = await response.json();
-      if (result.success) {
-        onBanToggle(customer);
-        showAlert(result.message);
-        onDataChanged?.(); // Refresh parent data
-      } else {
-        showAlert(result.message || "Failed to toggle ban status", false);
-      }
-    } catch (error) {
-      showAlert("Error toggling ban status", false);
-    } finally {
-      setLoading((prev) => ({ ...prev, [actionKey]: false }));
-      setOpenDropdown(null);
-    }
-  };
-
-  // ✅ Activate/Deactivate
-  const handleDeactivateToggle = async (customer: Customer) => {
-    const actionKey = `deactivate-${customer.id}`;
-    setLoading((prev) => ({ ...prev, [actionKey]: true }));
-    try {
-      const response = await fetch(
-        `${BASE_URL}/customers/${customer.id}/toggle-status`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${API_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const result = await response.json();
-      if (result.success) {
-        onDeactivateToggle(customer);
-        showAlert(result.message);
-        onDataChanged?.(); // Refresh parent data
-      } else {
-        showAlert(result.message || "Failed to toggle status", false);
-      }
-    } catch (error) {
-      showAlert("Error toggling status", false);
-    } finally {
-      setLoading((prev) => ({ ...prev, [actionKey]: false }));
-      setOpenDropdown(null);
-    }
-  };
-
-  // ✅ Update Customer API - FIXED VERSION
-  const handleUpdateCustomer = async (customerId: number, updatedData: any) => {
-    const actionKey = `update-${customerId}`;
-    setLoading((prev) => ({ ...prev, [actionKey]: true }));
-
-    try {
-      // Since the main update endpoint doesn't exist, we'll simulate the update
-      // by updating the local state and handling status changes through working endpoints
-      console.log(
-        "🔄 Simulating customer update (main endpoint not available)"
-      );
-
-      // Handle status changes through working endpoints
-      if (updatedData.status !== editCustomer?.status) {
-        await handleStatusChange(editCustomer!, updatedData.status);
-      }
-
-      // For name and email updates, we'll simulate success since the API endpoint doesn't exist
-      // In a real scenario, you would need to check with your backend team for the correct endpoint
-      const updatedCustomer: Customer = {
-        ...editCustomer!,
-        name: updatedData.name,
-        email: updatedData.email,
-        status: updatedData.status as CustomerStatus,
-      };
-
-      console.log("✅ Simulated Updated Customer:", updatedCustomer);
-
-      showAlert(
-        "Customer updated successfully (simulated - main API endpoint not available)"
-      );
-      onEdit?.(updatedCustomer);
-      onDataChanged?.(); // Refresh parent data
-      setEditCustomer(null);
-    } catch (error) {
-      console.error("🚨 Error updating customer:", error);
-      showAlert("Error updating customer - API endpoint not found", false);
-    } finally {
-      setLoading((prev) => ({ ...prev, [actionKey]: false }));
-    }
-  };
-
-  // ✅ Handle status changes through appropriate endpoints
-  const handleStatusChange = async (customer: Customer, newStatus: string) => {
-    console.log(
-      `🔄 Handling status change from ${customer.status} to ${newStatus}`
-    );
-
-    if (newStatus === "banned" && customer.status !== "banned") {
-      // Ban the customer
-      console.log("🚫 Banning customer");
-      await handleBanToggle(customer);
-    } else if (customer.status === "banned" && newStatus !== "banned") {
-      // Unban first if changing from banned to another status
-      console.log("🔓 Unbanning customer first");
-      await handleBanToggle(customer);
-
-      // If changing to deactivated, also call deactivate
-      if (newStatus === "deactivated") {
-        console.log("⏸️ Deactivating customer after unban");
-        await handleDeactivateToggle(customer);
-      }
-    } else if (
-      (newStatus === "deactivated" && customer.status === "active") ||
-      (newStatus === "active" && customer.status === "deactivated")
-    ) {
-      // Toggle between active and deactivated
-      console.log("🔄 Toggling active/deactivated status");
-      await handleDeactivateToggle(customer);
-    } else {
-      console.log("✅ No status change needed");
-    }
-  };
-
-  // ✅ Edit Modal Handler
-  const openEditModal = (customer: Customer) => {
-    setEditCustomer(customer);
-    setEditForm({
-      name: customer.name,
-      email: customer.email,
-      status: customer.status,
-    });
-    setOpenDropdown(null);
-  };
-
-  // ✅ View Modal Handler
-  const openViewModal = (customer: Customer) => {
-    setViewCustomer(customer);
-    onView(customer);
-    setOpenDropdown(null);
-  };
-
-  const handleDelete = (customer: Customer) => {
-    onDelete(customer);
-    setOpenDropdown(null);
-  };
-
-  const isLoading = (action: string, id: number) =>
-    loading[`${action}-${id}`] || false;
-
-  const isAnyActionLoading = (id: number) =>
-    Object.keys(loading).some((key) => key.includes(id.toString()));
-
-=======
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
   return (
-    <div className="overflow-x-auto mt-6">
-      <table className="min-w-full border border-gray-200 divide-y divide-gray-200">
+    <div ref={dropdownRef} className="overflow-x-auto border rounded-lg">
+      <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-100">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
               Avatar
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
               Name
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
               Email
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
               Status
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
+              Total Orders
+            </th>
+            <th className="px-6 py-3 text-right text-sm font-semibold text-gray-600">
               Actions
             </th>
           </tr>
         </thead>
 
         <tbody className="bg-white divide-y divide-gray-100">
-          {data.map((customer) => (
-            <tr key={customer.id}>
-              <td className="px-6 py-3">
-                <img
-                  src={customer.avatar || "/images/default-avatar.png"}
-                  alt={customer.name}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              </td>
-              <td className="px-6 py-3 font-medium text-gray-800">
-                {customer.name}
-              </td>
-              <td className="px-6 py-3 text-gray-600">{customer.email}</td>
-              <td className="px-6 py-3">
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    customer.status === "active"
-                      ? "bg-green-100 text-green-700"
-                      : customer.status === "banned"
-                      ? "bg-red-100 text-red-700"
-                      : customer.status === "deactivated"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-gray-100 text-gray-700"
-                  }`}
-                >
-                  {customer.status}
-                </span>
-              </td>
-
-              {/* ✅ Dropdown */}
-<<<<<<< HEAD
-              <td className="px-6 py-3 relative">
-=======
-              <td className="px-6 py-3 relative" >
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
-                <button
-                  onClick={() =>
-                    setOpenDropdown(
-                      openDropdown === customer.id ? null : customer.id
-                    )
-                  }
-<<<<<<< HEAD
-                  className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50"
-                  disabled={isAnyActionLoading(customer.id)}
-                >
-                  {isAnyActionLoading(customer.id) ? "Loading..." : "Actions ⌄"}
-                </button>
-
-                {openDropdown === customer.id && (
-                  <div
-                    ref={dropdownRef}
-                    className="absolute z-10 right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg"
+          {data && data.length > 0 ? (
+            data.map((customer) => (
+              <tr key={customer.id} className="hover:bg-gray-50 transition">
+                <td className="px-6 py-3">
+                  <img
+                    src={customer.avatar || "/images/default-avatar.png"}
+                    alt={customer.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                </td>
+                <td className="px-6 py-3 font-medium text-gray-800">
+                  {customer.name}
+                </td>
+                <td className="px-6 py-3 text-gray-600">{customer.email}</td>
+                <td className="px-6 py-3">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      customer.status === "active"
+                        ? "bg-green-100 text-green-700"
+                        : customer.status === "banned"
+                        ? "bg-red-100 text-red-700"
+                        : customer.status === "deactivated"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-gray-100 text-gray-700"
+                    }`}
                   >
-                    <ul className="py-1 text-sm text-black">
-                      <li
-                        onClick={() => openViewModal(customer)}
-=======
-                  className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                >
-                  Actions ⌄
-                </button>
+                    {customer.status}
+                  </span>
+                </td>
+                <td className="px-6 py-3">{customer.totalOrders}</td>
 
-                {openDropdown === customer.id && (
-                  <div className="absolute z-10 right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg">
-                    <ul className="py-1 text-sm text-black">
-                      <li
-                        onClick={() => {
-                          onView(customer);
-                          setOpenDropdown(null);
-                        }}
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
-                        className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
-                      >
-                        <Eye size={16} /> View
-                      </li>
-<<<<<<< HEAD
+                <td className="px-6 py-3 relative text-right">
+                  <button
+                    onClick={() =>
+                      setOpenDropdown(
+                        openDropdown === customer.id ? null : customer.id
+                      )
+                    }
+                    className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                  >
+                    Actions ⌄
+                  </button>
 
-                      <li
-                        onClick={() => openEditModal(customer)}
-                        className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
-                      >
-                        <Edit3 size={16} /> Edit
-                      </li>
-
-                      <li
-                        onClick={() => handleDelete(customer)}
-=======
-                      {onEdit && (
+                  {openDropdown === customer.id && (
+                    <div className="absolute z-10 right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg">
+                      <ul className="py-1 text-sm text-black">
                         <li
                           onClick={() => {
-                            onEdit(customer);
+                            onView(customer);
                             setOpenDropdown(null);
                           }}
                           className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
                         >
-                          <Edit3 size={16} /> Edit
+                          <Eye size={16} /> View
                         </li>
-                      )}
-                      <li
-                        onClick={() => {
-                          onDelete(customer);
-                          setOpenDropdown(null);
-                        }}
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
-                        className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
-                      >
-                        <Trash2 size={16} /> Delete
-                      </li>
-<<<<<<< HEAD
-
-                      <li
-                        onClick={() => handleBanToggle(customer)}
-=======
-                      <li
-                        onClick={() => {
-                          onBanToggle(customer);
-                          setOpenDropdown(null);
-                        }}
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
-                        className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
-                      >
-                        {customer.status === "banned" ? (
-                          <>
-                            <RefreshCcw size={16} /> Unban
-                          </>
-                        ) : (
-                          <>
-                            <Ban size={16} /> Ban
-                          </>
+                        {onEdit && (
+                          <li
+                            onClick={() => {
+                              onEdit(customer);
+                              setOpenDropdown(null);
+                            }}
+                            className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
+                          >
+                            <Edit3 size={16} /> Edit
+                          </li>
                         )}
-                      </li>
-<<<<<<< HEAD
-
-                      <li
-                        onClick={() => handleDeactivateToggle(customer)}
-=======
-                      <li
-                        onClick={() => {
-                          onDeactivateToggle(customer);
-                          setOpenDropdown(null);
-                        }}
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
-                        className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
-                      >
-                        {customer.status === "deactivated" ? (
-                          <>
-                            <RefreshCcw size={16} /> Reactivate
-                          </>
-                        ) : (
-                          <>
-                            <Power size={16} /> Deactivate
-                          </>
-                        )}
-                      </li>
-                    </ul>
-                  </div>
-                )}
+                        <li
+                          onClick={() => {
+                            onDelete(customer);
+                            setOpenDropdown(null);
+                          }}
+                          className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
+                        >
+                          <Trash2 size={16} /> Delete
+                        </li>
+                        <li
+                          onClick={() => {
+                            onBanToggle(customer);
+                            setOpenDropdown(null);
+                          }}
+                          className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
+                        >
+                          {customer.status === "banned" ? (
+                            <>
+                              <RefreshCcw size={16} /> Unban
+                            </>
+                          ) : (
+                            <>
+                              <Ban size={16} /> Ban
+                            </>
+                          )}
+                        </li>
+                        <li
+                          onClick={() => {
+                            onDeactivateToggle(customer);
+                            setOpenDropdown(null);
+                          }}
+                          className="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100"
+                        >
+                          {customer.status === "deactivated" ? (
+                            <>
+                              <RefreshCcw size={16} /> Reactivate
+                            </>
+                          ) : (
+                            <>
+                              <Power size={16} /> Deactivate
+                            </>
+                          )}
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={6} className="px-6 py-4 text-center text-gray-500 italic">
+                No customers found
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
-<<<<<<< HEAD
-
-      {/* ✅ View Modal */}
-      {viewCustomer && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-          <div className="bg-white text-black rounded-lg shadow-lg p-6 w-96">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Customer Details</h2>
-              <button onClick={() => setViewCustomer(null)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className="space-y-2">
-              <p>
-                <strong>Name:</strong> {viewCustomer.name}
-              </p>
-              <p>
-                <strong>Email:</strong> {viewCustomer.email}
-              </p>
-              <p>
-                <strong>Status:</strong> {viewCustomer.status}
-              </p>
-              <p>
-                <strong>Joined:</strong> {viewCustomer.joinDate}
-              </p>
-              <p>
-                <strong>Total Orders:</strong> {viewCustomer.totalOrders}
-              </p>
-              <p>
-                <strong>Total Spent:</strong> ${viewCustomer.totalSpent}
-              </p>
-              {viewCustomer.phone && (
-                <p>
-                  <strong>Phone:</strong> {viewCustomer.phone}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ✅ Edit Modal */}
-      {editCustomer && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-          <div className="bg-white text-black rounded-lg shadow-lg p-6 w-96">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Edit Customer</h2>
-              <button onClick={() => setEditCustomer(null)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
-                <input
-                  type="text"
-                  value={editForm.name}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, name: e.target.value })
-                  }
-                  placeholder="Name"
-                  className="w-full border border-gray-300 rounded px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
-                <input
-                  type="email"
-                  value={editForm.email}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, email: e.target.value })
-                  }
-                  placeholder="Email"
-                  className="w-full border border-gray-300 rounded px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Status</label>
-                <select
-                  value={editForm.status}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, status: e.target.value })
-                  }
-                  className="w-full border border-gray-300 rounded px-3 py-2"
-                >
-                  <option value="active">Active</option>
-                  <option value="banned">Banned</option>
-                  <option value="deactivated">Deactivated</option>
-                </select>
-                <p className="text-xs text-gray-500 mt-1">
-                  Note: Name/email changes are simulated (API endpoint not
-                  available)
-                </p>
-              </div>
-
-              <button
-                onClick={() => handleUpdateCustomer(editCustomer.id, editForm)}
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-                disabled={isLoading("update", editCustomer.id)}
-              >
-                {isLoading("update", editCustomer.id)
-                  ? "Updating..."
-                  : "Save Changes"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-=======
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
     </div>
   );
 };

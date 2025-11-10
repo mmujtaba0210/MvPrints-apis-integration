@@ -6,10 +6,10 @@ export interface Charity {
 }
 
 export interface CharityFormProps {
-  onSubmit: (charity: Omit<Charity, 'id'>) => void;
   initialData?: Charity;
   onCancel?: () => void;
   isEditing?: boolean;
+  loading?: boolean;
 }
 
 export interface CharityTableProps {

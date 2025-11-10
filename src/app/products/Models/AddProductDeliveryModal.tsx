@@ -1,33 +1,100 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import Image from "next/image";
+import React, { useState, useEffect } from "react";
 import { CustomInput } from "@/common/customInputField";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store/store";
+import { updateDeliveryTime } from "@/redux/slices/Product/DeliveryTime/updateDeliveryTimeSlice";
+import { useForm } from "react-hook-form";
+import { createDeliveryTime } from "@/redux/slices/Product/DeliveryTime/createDeliveryTimeSlice";
+import { toast } from "react-toastify";
+
+interface DeliveryTimeFormValues {
+  name: string;
+  min_days: number;
+  max_days: number;
+  status: "Active" | "Inactive";
+}
 
 interface AddProductDeliveryTimeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  register: any;
-  errors: any;
+  editData?: {
+    id: number;
+    name: string;
+    min_days: number;
+    max_days: number;
+    status: boolean;
+  } | null;
 }
 
-const AddProductDeliveryTimeModal: React.FC<AddProductDeliveryTimeModalProps> = ({
-  isOpen,
-  onClose,
-  onSuccess,
-  register,
-  errors,
-}) => {
-  const [status, setStatus] = useState<"Active" | "Inactive">("Active");
+const AddProductDeliveryTimeModal: React.FC<
+  AddProductDeliveryTimeModalProps
+> = ({ isOpen, onClose, onSuccess, editData }) => {
+  const dispatch = useDispatch<AppDispatch>();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would typically call an API to add the delivery time
-    console.log("Adding delivery time with data:", { 
-      status
-    });
-    onSuccess();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<DeliveryTimeFormValues>({
+    defaultValues: {
+      name: "",
+      min_days: 0,
+      max_days: 0,
+      status: "Active",
+    },
+  });
+
+  // Prefill form when editing
+  useEffect(() => {
+    if (editData) {
+      reset({
+        name: editData.name,
+        min_days: editData.min_days,
+        max_days: editData.max_days,
+        status: editData.status ? "Active" : "Inactive",
+      });
+    }
+  }, [editData, reset]);
+
+  const onSubmit = async (data: DeliveryTimeFormValues) => {
+    try {
+      if (editData) {
+        await dispatch(
+          updateDeliveryTime({
+            id: String(editData.id),
+            payload: {
+              name: data.name,
+              min_days: Number(data.min_days),
+              max_days: Number(data.max_days),
+              status: data.status === "Active" ? 1 : 0,
+            },
+          })
+        ).unwrap();
+        toast.success("Delivery time updated successfully");
+      } else {
+        try {
+          await dispatch(
+            createDeliveryTime({
+              name: data.name,
+              min_days: Number(data.min_days),
+              max_days: Number(data.max_days),
+              status: data.status === "Active" ? 1 : 0,
+            })
+          ).unwrap();
+          toast.success("Delivery time added successfully");
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      onSuccess();
+      onClose();
+    } catch (err) {
+      console.error("Error saving delivery time:", err);
+    }
   };
 
   if (!isOpen) return null;
@@ -35,121 +102,92 @@ const AddProductDeliveryTimeModal: React.FC<AddProductDeliveryTimeModalProps> = 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col border border-gray-100">
-        {/* Modal Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-4 flex justify-between items-center shrink-0">
-          <div>
-            <h2 className="text-xl font-bold text-white">Add Delivery Time</h2>
-            <p className="text-blue-100 text-sm mt-1">Create a new product delivery time option</p>
-          </div>
-          <button 
-            onClick={onClose}
-            className="text-white/80 hover:text-white transition-colors duration-200 p-1 rounded-full hover:bg-white/10"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-4 flex justify-between items-center">
+          <h2 className="text-xl font-bold text-white">
+            {editData ? "Update Delivery Time" : "Add Delivery Time"}
+          </h2>
+          <button onClick={onClose} className="text-white hover:text-gray-200">
+            ✕
           </button>
         </div>
 
-        {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto flex-1">
-          <div className="space-y-4">
-            {/* Delivery Option Name */}
-            <CustomInput
-              label="Delivery Option Name"
-              name="name"
-              register={register}
-              required={true}
-              placeholder="e.g. Standard Delivery"
-              errors={errors}
+        {/* Body */}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="p-6 overflow-y-auto flex-1 space-y-4"
+        >
+          {/* Name */}
+          <CustomInput
+            label="Delivery Option Name"
+            name="name"
+            register={register}
+            required
+            placeholder="e.g. Fast Delivery"
+            errors={errors}
+          />
+
+          {/* Min Days */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Min Days
+            </label>
+            <input
+              type="number"
+              {...register("min_days", { required: true })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             />
+            {errors.min_days && (
+              <p className="text-red-500 text-xs">Required</p>
+            )}
+          </div>
 
-            {/* Minimum Days */}
-            <div className="space-y-1">
-              <label htmlFor="minDays" className="block text-sm font-medium text-gray-700">
-                Minimum Days <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                id="minDays"
-                className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
-                placeholder="Enter minimum delivery days"
-                min="1"
-                {...register("minDays", { required: true, min: 1 })}
-              />
-              {errors.minDays && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.minDays.type === "required" 
-                    ? "This field is required" 
-                    : "Minimum days must be at least 1"}
-                </p>
-              )}
-            </div>
+          {/* Max Days */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Max Days
+            </label>
+            <input
+              type="number"
+              {...register("max_days", { required: true })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+            />
+            {errors.max_days && (
+              <p className="text-red-500 text-xs">Required</p>
+            )}
+          </div>
 
-            {/* Maximum Days */}
-            <div className="space-y-1">
-              <label htmlFor="maxDays" className="block text-sm font-medium text-gray-700">
-                Maximum Days <span className="text-red-500">*</span>
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Status
+            </label>
+            <div className="flex gap-4">
+              <label className="inline-flex items-center">
+                <input type="radio" value="Active" {...register("status")} />
+                <span className="ml-2">Active</span>
               </label>
-              <input
-                type="number"
-                id="maxDays"
-                className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
-                placeholder="Enter maximum delivery days"
-                min="1"
-                {...register("maxDays", { required: true, min: 1 })}
-              />
-              {errors.maxDays && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.maxDays.type === "required" 
-                    ? "This field is required" 
-                    : "Maximum days must be at least 1"}
-                </p>
-              )}
-            </div>
-
-            {/* Status */}
-            <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">
-                Status <span className="text-red-500">*</span>
+              <label className="inline-flex items-center">
+                <input type="radio" value="Inactive" {...register("status")} />
+                <span className="ml-2">Inactive</span>
               </label>
-              <div className="flex gap-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    className="form-radio text-blue-600"
-                    checked={status === "Active"}
-                    onChange={() => setStatus("Active")}
-                  />
-                  <span className="ml-2">Active</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    className="form-radio text-gray-600"
-                    checked={status === "Inactive"}
-                    onChange={() => setStatus("Inactive")}
-                  />
-                  <span className="ml-2">Inactive</span>
-                </label>
-              </div>
             </div>
           </div>
 
-          {/* Modal Footer */}
-          <div className="flex justify-end space-x-3 pt-6 mt-6 border-t border-gray-100">
+          {/* Footer */}
+          <div className="flex justify-end gap-2 pt-4 border-t">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200 font-medium text-sm"
+              className="px-4 py-2 border rounded-lg"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-sm text-sm"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg"
             >
-              Add Delivery Time
+              {editData ? "Update" : "Add"}
             </button>
           </div>
         </form>

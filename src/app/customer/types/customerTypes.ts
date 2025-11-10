@@ -1,6 +1,4 @@
-export type CustomerStatus = 
-  | 'all' 
-  | 'banned' 
+export type CustomerStatus = "all" | "banned" | "deactivated" | "active";
 
 export type Customer = {
   id: number;
@@ -15,7 +13,7 @@ export type Customer = {
   affiliateBalance?: number;
   lastWithdrawal?: string;
   lastTransaction?: string;
-  verificationStatus?: 'pending' | 'verified' | 'rejected';
+  verificationStatus?: "pending" | "verified" | "rejected";
   lastPurchase?: string;
   tier?: string;
   location?: string;
@@ -33,7 +31,7 @@ export type FilterOption = {
 export type TableColumn = {
   header: string;
   field: string;
-  type?: 'text' | 'badge' | 'progress' | 'date' | 'avatar' | 'currency';
+  type?: "text" | "badge" | "progress" | "date" | "avatar" | "currency";
   filterable?: boolean;
 };
 

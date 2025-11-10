@@ -9,15 +9,18 @@ export const getAllDeliveryTimes = createAsyncThunk(
   async (page: number, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${BASE_URL}admin/product-deleivery-times/pagination?page=${[page]}`,
+        `${BASE_URL}admin/product-deleivery-times/pagination?page=${page}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
       );
-      console.log(response.data.data.records);
-      return response.data.data.records;
+      console.log(response.data.data);
+      return {
+        data: response.data.data.records,
+        pagination: response.data.data.pagination.total,
+      };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -28,6 +31,7 @@ const getAllDeliveryTimesSlice = createSlice({
   name: "getAllDeliveryTimes",
   initialState: {
     deliveryTimes: [] as any[],
+    totalPages: 1,
     loading: false,
     error: null as string | null,
   },
@@ -40,7 +44,8 @@ const getAllDeliveryTimesSlice = createSlice({
       })
       .addCase(getAllDeliveryTimes.fulfilled, (state, action) => {
         state.loading = false;
-        state.deliveryTimes = action.payload;
+        state.deliveryTimes = action.payload.data || [];
+        state.totalPages = action.payload.pagination || 0;
       })
       .addCase(getAllDeliveryTimes.rejected, (state, action) => {
         state.loading = false;

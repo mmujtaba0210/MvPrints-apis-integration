@@ -7,9 +7,12 @@ import CommonCustomTable from "@/common/commonCustomTable";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import { fetchBrands } from "@/redux/slices/Product/productBrandSlice/fetchBrandsSlice";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UpdateBrandForm from "./UpdateBrandForm";
+import { FaEdit } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+import { deleteBrand } from "@/redux/slices/Product/productBrandSlice/deleteBrandSlice";
 
 interface Brand {
   id: number;
@@ -34,12 +37,6 @@ const BrandTable = () => {
   }, [dispatch]);
 
   const columns = [
-    {
-      key: "id",
-      header: "ID",
-      width: "80px",
-      render: (item: Brand) => <span className="font-medium">{item.id}</span>,
-    },
     {
       key: "name",
       header: "Brand",
@@ -81,15 +78,32 @@ const BrandTable = () => {
       header: "Actions",
       width: "120px",
       render: (item: Brand) => (
-        <button
-          className="text-blue-600 hover:text-blue-800"
-          onClick={() => {
-            setSelectedBrand(item);
-            setShowUpdate(true);
-          }}
-        >
-          Edit
-        </button>
+        <div className="flex  items-center gap-2">
+          <button
+            className="text-blue-600 text-lg cursor-pointer hover:text-blue-800"
+            onClick={() => {
+              setSelectedBrand(item);
+              setShowUpdate(true);
+            }}
+          >
+            <FaEdit />
+          </button>
+          <button
+            className="text-red-600 text-lg cursor-pointer hover:text-red-800"
+            onClick={async () => {
+              try {
+                alert("Are you Sure to Delete this?");
+                await dispatch(deleteBrand(item.id)).unwrap();
+                toast.success("Brand deleted successfully!");
+                dispatch(fetchBrands(currentPage)); // refresh
+              } catch (err: any) {
+                toast.error(err || "Failed to delete brand");
+              }
+            }}
+          >
+            <MdDelete />
+          </button>
+        </div>
       ),
     },
   ];

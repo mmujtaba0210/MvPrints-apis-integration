@@ -27,8 +27,8 @@ import MainProductColorsPage from "../components/ProductColorComponent/MainProdu
 export const MainProductPage = () => {
   const tabs = [
     {
-      id: "all-products",
-      label: "All Products",
+      id: "physical-products",
+      label: "Physical Products",
       icon: <FiBox size={18} />,
       content: <AllProductsTable />,
     },
@@ -44,12 +44,7 @@ export const MainProductPage = () => {
       icon: <FiFileText size={18} />,
       content: <QuotationProductsPage />,
     },
-    {
-      id: "popular-products",
-      label: "Popular Products",
-      icon: <FiStar size={18} />,
-      content: <PopularProductsPage />,
-    },
+
     {
       id: "product-reviews",
       label: "Product Reviews",
@@ -88,7 +83,7 @@ export const MainProductPage = () => {
     },
     {
       id: "print-brand",
-      label: "Print Brands",
+      label: "Brands",
       icon: <FiAlertCircle size={18} />,
       content: <BrandsPage />,
     },
@@ -110,7 +105,7 @@ export const MainProductPage = () => {
     <div className="h-[calc(100vh-64px)] bg-white">
       <LeftSideTabs
         tabs={tabs}
-        defaultActiveTab="all-products"
+        defaultActiveTab="physical-products"
         tabWidth="280px"
         tabStyle={{
           fontSize: "14px",

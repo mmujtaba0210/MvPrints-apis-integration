@@ -21,9 +21,10 @@ const CreateAttributesModal: React.FC<CreateAttributesModalProps> = ({
 
   const [formData, setFormData] = useState({
     attributeName: "",
-    attributeValue: "",
     description: "",
   });
+
+  const [attributeValues, setAttributeValues] = useState<string[]>([""]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -35,20 +36,48 @@ const CreateAttributesModal: React.FC<CreateAttributesModalProps> = ({
     }));
   };
 
+  // Handle attribute value changes
+  const handleValueChange = (index: number, value: string) => {
+    const updatedValues = [...attributeValues];
+    updatedValues[index] = value;
+    setAttributeValues(updatedValues);
+  };
+
+  // Add new attribute value field
+  const handleAddValue = () => {
+    setAttributeValues((prev) => [...prev, ""]);
+  };
+
+  // Remove specific attribute value field
+  const handleRemoveValue = (index: number) => {
+    setAttributeValues((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const values = formData.attributeValue.split(",").map((v) => v.trim());
+    // Filter out empty fields
+    const values = attributeValues.map((v) => v.trim()).filter((v) => v);
+
+    if (!formData.attributeName || values.length === 0) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
 
     try {
       await dispatch(
         createAttribute({
           name: formData.attributeName,
           description: formData.description,
-          values: values,
+          values,
         })
       ).unwrap();
       toast.success("Attribute created successfully!");
+      setFormData({
+        attributeName: "",
+        description: "",
+      });
+      setAttributeValues([""]);
       onSuccess();
       onClose();
     } catch (error) {
@@ -93,67 +122,84 @@ const CreateAttributesModal: React.FC<CreateAttributesModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          <div className="grid grid-cols-1 gap-6">
-            <div className="space-y-1">
-              <label
-                htmlFor="attributeName"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Attribute Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="attributeName"
-                name="attributeName"
-                value={formData.attributeName}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-800"
-                placeholder="e.g. Paper Type, Finishing"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label
-                htmlFor="attributeValue"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Attribute Value <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="attributeValue"
-                name="attributeValue"
-                value={formData.attributeValue}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-800"
-                placeholder="e.g. Glossy, Matte, UV Coating"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Separate multiple values with commas
-              </p>
-            </div>
-
-            <div className="space-y-1">
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                rows={3}
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-800"
-                placeholder="Provide details about this attribute..."
-              />
-            </div>
+          {/* Attribute Name */}
+          <div className="space-y-1">
+            <label
+              htmlFor="attributeName"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Attribute Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="attributeName"
+              name="attributeName"
+              value={formData.attributeName}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-800"
+              placeholder="e.g. Paper Type, Finishing"
+            />
           </div>
 
+          {/* Dynamic Attribute Values */}
+          <div className="space-y-2">
+            <label
+              htmlFor="attributeValue"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Attribute Values <span className="text-red-500">*</span>
+            </label>
+            {attributeValues.map((value, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={value}
+                  onChange={(e) => handleValueChange(index, e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300"
+                  placeholder={`Value ${index + 1}`}
+                />
+                {attributeValues.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveValue(index)}
+                    className="text-red-500 hover:text-red-700 transition-colors"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleAddValue}
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium mt-2"
+            >
+              + Add another value
+            </button>
+          </div>
+
+          {/* Description */}
+          <div className="space-y-1">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows={3}
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-800"
+              placeholder="Provide details about this attribute..."
+            />
+          </div>
+
+          {/* Footer Buttons */}
           <div className="flex justify-end space-x-4 pt-4 border-t border-gray-100">
             <button
               type="button"

@@ -3,11 +3,18 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
-import { fetchAttributes } from "@/redux/slices/Product/productAttributionSlice/fetchAttributesSlice";
+import {
+  fetchAttributes,
+  fetchAttributesWithPagination,
+} from "@/redux/slices/Product/productAttributionSlice/fetchAttributesSlice";
 import CommonCustomTable from "@/common/commonCustomTable";
 import { useTableData } from "@/common/useTableData";
 import CreateAttributesModal from "../../Models/addattributeModal";
 import UpdateAttributesModal from "../../Models/UpdateAttributesModal";
+import { MdDeleteForever } from "react-icons/md";
+import { FaEdit } from "react-icons/fa";
+import { deleteAttribution } from "@/redux/slices/Product/productAttributionSlice/deleteAttributionSlice";
+import { toast } from "react-toastify";
 
 interface PrintAttribute {
   id: number;
@@ -22,14 +29,13 @@ const PrintAttributesPage = () => {
     useState<PrintAttribute | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
-  const { attributes, loading, error } = useSelector(
+  const { attributes, loading, error, current_page, total } = useSelector(
     (state: RootState) => state.fetchAttributes
   );
 
   useEffect(() => {
-    dispatch(fetchAttributes());
-    console.log(fetchData);
-  }, [dispatch]);
+    dispatch(fetchAttributesWithPagination({ page: current_page }));
+  }, [dispatch, current_page]);
 
   const fetchData = React.useCallback(() => {
     return [...attributes].sort((a, b) => a.id - b.id);
@@ -41,7 +47,8 @@ const PrintAttributesPage = () => {
   const closeModal = () => setIsModalOpen(false);
   const handleSuccess = () => {
     closeModal();
-    dispatch(fetchAttributes());
+    setSelectedAttribute(null);
+    dispatch(fetchAttributesWithPagination({ page: current_page }));
   };
   const openUpdateModal = (attribute: PrintAttribute) => {
     setSelectedAttribute(attribute);
@@ -73,11 +80,6 @@ const PrintAttributesPage = () => {
   );
 
   const columns = [
-    {
-      key: "id",
-      header: "ID",
-      width: "80px",
-    },
     {
       key: "name",
       header: "Name",
@@ -118,32 +120,29 @@ const PrintAttributesPage = () => {
       render: (item: PrintAttribute) => (
         <div className="flex gap-2">
           <button
-            className="text-blue-600 hover:text-blue-800"
+            className="text-blue-600 text-lg cursor-pointer hover:text-blue-800"
             title="Edit"
             onClick={() => openUpdateModal(item)}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-            </svg>
+            <FaEdit />
           </button>
-          <button className="text-red-600 hover:text-red-800" title="Delete">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
+          <button
+            className="text-red-600 text-lg cursor-pointer hover:text-red-800"
+            title="Delete"
+            onClick={async () => {
+              try {
+                if (!confirm("Are you sure you want to delete this attribute?"))
+                  return;
+
+                await dispatch(deleteAttribution(item.id)).unwrap();
+                toast.success("Attribution deleted successfully!");
+                dispatch(fetchAttributes()); // refresh list
+              } catch (err: any) {
+                toast.error(err || "Failed to delete attribution");
+              }
+            }}
+          >
+            <MdDeleteForever />
           </button>
         </div>
       ),
@@ -221,9 +220,11 @@ const PrintAttributesPage = () => {
       <CommonCustomTable<PrintAttribute>
         data={paginatedData}
         columns={columns}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
+        currentPage={current_page}
+        totalPages={total}
+        onPageChange={() =>
+          dispatch(fetchAttributesWithPagination({ page: current_page }))
+        }
         onSearch={setSearchQuery}
         title="Print Attributes List"
       />

@@ -42,6 +42,11 @@ import BusinessStorePage from "../finanacing/components/business-store-page";
 import BusinessStoreVerificationPage from "../finanacing/components/business-store-verification";
 import { logout } from "@/redux/slices/authSlice/authSlice";
 import { useRouter } from "next/navigation";
+import CharitiesPage from "../donations/charity/page";
+import DonationsPage from "../donations/page";
+import MainBlogsPage from "../blog/page";
+// import CharitiesPage from "../donations/charity/page";
+// import MainBlogsPage from "../blog/page";
 
 const MainPage: React.FC = () => {
   const [selectedSection, setSelectedSection] =
@@ -157,6 +162,8 @@ const MainPage: React.FC = () => {
           {selectedSection === "gift-cards" && <GiftCardsPage />}
           {selectedSection === "gift-card-transactions" && <GiftCardTransactionsPage />}
           {selectedSection === "marketing" && <MainMarketingPage />}
+          {selectedSection === "charity" && <CharitiesPage />}
+          {selectedSection === "donations" && <DonationsPage />}
           {selectedSection === "staff" && <StaffTable />}
           {selectedSection === "roles" && <RolesTable />}
           {selectedSection === "general-settings" && <GeneralSettingsPage />}
@@ -166,6 +173,7 @@ const MainPage: React.FC = () => {
           {selectedSection === "product-category" && <ProductCategoriesPage />}
           {selectedSection === "menu-settings" && <MenuSettingsMainpage />}
           {selectedSection === "reports" && <MainReportPage />}
+          {selectedSection === "blog" && <MainBlogsPage />}
           {selectedSection === "email-settings" && <MainEmailSettingsPage />}
           {selectedSection === "social-settings" && <SocialLinksForm />}
           {selectedSection === "message" && <MessagesPage />}

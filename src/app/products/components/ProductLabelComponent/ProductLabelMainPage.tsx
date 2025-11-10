@@ -33,7 +33,7 @@ export default function MainProductLabelsPage() {
       render: (item: any) => (
         <div className="flex gap-2">
           <button
-            className="px-2 py-1 bg-yellow-500 text-white rounded"
+            className="text-lg text-blue-500 hover:text-blue-700 cursor-pointer "
             onClick={() => {
               setEditData(item);
               setModalOpen(true);
@@ -42,10 +42,11 @@ export default function MainProductLabelsPage() {
             <FaEdit />
           </button>
           <button
-            className="px-2 py-1 bg-red-500 text-white rounded"
+            className="text-lg text-red-500 hover:text-red-700 cursor-pointer "
             onClick={async () => {
               await dispatch(deleteLabel(item.id)).unwrap();
               toast.success("Label deleted!");
+              dispatch(getLabels({ page: currentPage }));
             }}
           >
             <FaTrash />

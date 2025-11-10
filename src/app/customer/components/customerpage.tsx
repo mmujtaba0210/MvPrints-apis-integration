@@ -6,10 +6,6 @@ import CustomerTable from "./customerTable";
 
 // ✅ Declare types directly here instead of importing
 type CustomerStatus = "all" | "active" | "banned" | "deactivated";
-<<<<<<< HEAD
-=======
-
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
 interface Customer {
   id: number;
   name: string;
@@ -33,35 +29,30 @@ interface Customer {
   avatar?: string;
 }
 
-<<<<<<< HEAD
-// ✅ API Response Types
+// ✅ API Response type
+interface ApiResponse {
+  success: boolean;
+  data: ApiCustomer[];
+  message?: string;
+}
+
+// ✅ API Customer type (matching your backend response)
 interface ApiCustomer {
   id: number;
   name: string;
   email: string;
-  phone: string | null;
-  avatar: string | null;
+  phone?: string;
+  avatar?: string;
   is_active: boolean;
   created_at: string;
-  updated_at: string;
-  plans: any[];
+  plans: Array<{
+    id: number;
+    name: string;
+    price: number;
+    duration: number;
+  }>;
 }
 
-interface ApiResponse {
-  message: string;
-  success: boolean;
-  code: number;
-  data: ApiCustomer[];
-  meta: {
-    total: number;
-    per_page: number;
-    current_page: number;
-    last_page: number;
-  };
-}
-
-=======
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
 const CustomersPage = () => {
   const [activeFilter, setActiveFilter] = useState<CustomerStatus>("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -69,7 +60,6 @@ const CustomersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-<<<<<<< HEAD
   // ✅ API Configuration
   const API_URL = "https://testbackend.mecarviprints.com/api/admin/customers";
   const TOKEN = "48|NOtPrzpY4Sk2H1raMxmygMzCFto3I2Sg8MAkcNQx31ef5f49";
@@ -100,7 +90,7 @@ const CustomersPage = () => {
 
       if (data.success) {
         // ✅ Transform API data to match your Customer interface
-        const transformedCustomers: Customer[] = data.data.map(apiCustomer => ({
+        const transformedCustomers: Customer[] = data.data.map((apiCustomer: ApiCustomer) => ({
           id: apiCustomer.id,
           name: apiCustomer.name,
           email: apiCustomer.email,
@@ -111,7 +101,6 @@ const CustomersPage = () => {
           phone: apiCustomer.phone || undefined,
           avatar: apiCustomer.avatar || undefined,
           subscriptionPlan: apiCustomer.plans.length > 0 ? apiCustomer.plans[0]?.name : undefined,
-          // Add default values or leave optional fields undefined
         }));
 
         setCustomers(transformedCustomers);
@@ -130,112 +119,45 @@ const CustomersPage = () => {
   useEffect(() => {
     fetchCustomers();
   }, []);
-=======
-  // ✅ Customer data with correct types
-  const [customers, setCustomers] = useState<Customer[]>([
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      joinDate: "2023-01-15",
-      status: "banned",
-      totalOrders: 5,
-      totalSpent: 1200,
-      subscriptionPlan: "Premium",
-      subscriptionExpiry: "2024-01-15",
-      affiliateBalance: 150,
-      lastWithdrawal: "2023-05-01",
-      lastTransaction: "2023-05-10",
-      verificationStatus: "verified",
-      lastPurchase: "2023-05-10",
-      tier: "Gold",
-      location: "New York",
-      phone: "+1 555-123-4567",
-      notes: "VIP customer",
-      tags: ["frequent-buyer", "high-value"],
-      avatar: "/images/chair1.jpg",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      joinDate: "2023-03-20",
-      status: "deactivated",
-      totalOrders: 2,
-      totalSpent: 350,
-      subscriptionPlan: "Basic",
-      subscriptionExpiry: "2023-09-20",
-      affiliateBalance: 0,
-      lastWithdrawal: "",
-      lastTransaction: "2023-04-15",
-      verificationStatus: "pending",
-      lastPurchase: "2023-04-15",
-      tier: "Silver",
-      location: "Los Angeles",
-      phone: "+1 555-987-6543",
-      notes: "Account suspended for policy violation",
-      tags: ["inactive"],
-      avatar: "/images/chair1.jpg",
-    },
-    {
-      id: 3,
-      name: "Alex Johnson",
-      email: "alex@example.com",
-      joinDate: "2023-05-12",
-      status: "deactivated",
-      totalOrders: 8,
-      totalSpent: 890,
-      subscriptionPlan: "Standard",
-      subscriptionExpiry: "2024-05-12",
-      affiliateBalance: 50,
-      lastWithdrawal: "2023-06-01",
-      lastTransaction: "2023-07-10",
-      verificationStatus: "verified",
-      lastPurchase: "2023-07-10",
-      tier: "Bronze",
-      location: "Chicago",
-      phone: "+1 555-321-9999",
-      notes: "Regular customer",
-      tags: ["returning"],
-      avatar: "/images/chair1.jpg",
-    },
-  ]);
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
 
   // ✅ Filtering logic
-  const filteredData = customers.filter((customer) => {
+  const filteredData = customers.filter((customer: Customer) => {
     if (!customer || typeof customer !== "object") return false;
 
     const statusMatch =
       activeFilter === "all"
         ? true
-        : customer.status.toLowerCase() === activeFilter.toLowerCase();
+        : customer.status?.toLowerCase() === activeFilter.toLowerCase();
 
     const searchMatch =
       searchTerm === "" ||
       Object.values(customer).some((val) => {
-        if (val == null) return false;
+        if (val == null) return false; // Skip undefined/null
         return String(val).toLowerCase().includes(searchTerm.toLowerCase());
       });
 
     return statusMatch && searchMatch;
   });
 
-<<<<<<< HEAD
-=======
   useEffect(() => {
     console.log(filteredData);
   }, [filteredData]);
 
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
-  // ✅ Handlers
-  const handleView = (customer: Customer) => console.log("View:", customer.id);
-  const handleEdit = (customer: Customer) => console.log("Edit:", customer.id);
-  const handleDelete = (customer: Customer) =>
-    console.log("Delete:", customer.id);
+  // ✅ Action handlers
+  const handleView = (customer: Customer) => {
+    console.log("View customer:", customer.id);
+  };
+
+  const handleEdit = (customer: Customer) => {
+    console.log("Edit customer:", customer.id);
+  };
+
+  const handleDelete = (customer: Customer) => {
+    console.log("Delete customer:", customer.id);
+  };
 
   const handleBanToggle = (customer: Customer) => {
-    setCustomers((prev): Customer[] =>
+    setCustomers((prev: Customer[]) =>
       prev.map((c) =>
         c.id === customer.id
           ? {
@@ -248,7 +170,7 @@ const CustomersPage = () => {
   };
 
   const handleDeactivateToggle = (customer: Customer) => {
-    setCustomers((prev): Customer[] =>
+    setCustomers((prev: Customer[]) =>
       prev.map((c) =>
         c.id === customer.id
           ? {
@@ -258,51 +180,13 @@ const CustomersPage = () => {
           : c
       )
     );
-<<<<<<< HEAD
   };
 
-  // ✅ Refresh customers
   const handleRefresh = () => {
     fetchCustomers();
-=======
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
   };
 
-  // ✅ Render loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading customers...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ✅ Render error state
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <div className="text-red-500 text-6xl mb-4">⚠️</div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Error Loading Customers</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <button
-              onClick={handleRefresh}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Try Again
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  // ✅ Render
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -334,10 +218,26 @@ const CustomersPage = () => {
               filters={filters}
               activeFilter={activeFilter}
               onFilterChange={setActiveFilter}
+              // Uncomment these when your CustomerFilters supports search
+              // searchTerm={searchTerm}
+              // onSearchChange={setSearchTerm}
             />
 
-<<<<<<< HEAD
-            {filteredData.length === 0 ? (
+            {loading ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Loading customers...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-8">
+                <p className="text-red-500">Error: {error}</p>
+                <button
+                  onClick={handleRefresh}
+                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : filteredData.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-gray-500">No customers found.</p>
               </div>
@@ -351,16 +251,6 @@ const CustomersPage = () => {
                 onDeactivateToggle={handleDeactivateToggle}
               />
             )}
-=======
-            <CustomerTable
-              data={filteredData}
-              onView={handleView}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onBanToggle={handleBanToggle}
-              onDeactivateToggle={handleDeactivateToggle}
-            />
->>>>>>> 227f64c11fb48ca88c5aa30944abdfba1f40c794
           </div>
         </div>
       </div>
